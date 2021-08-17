@@ -25,4 +25,5 @@ public class HEClasses {
     public static final String HELightSMPHooks = "com/sinthoras/hydroenergy/client/light/HELightSMPHooks";
     public static final String ExtendedBlockStorage = "net/minecraft/world/chunk/storage/ExtendedBlockStorage";
     public static final String EnumSkyBlock = "net/minecraft/world/EnumSkyBlock";
+    public static final String HEStaticInjectors = "com/sinthoras/hydroenergy/asm/HEStaticInjectors";
 }

@@ -54,27 +54,28 @@ public class EntityRendererTransformer implements IClassTransformer {
         }
         HEPlugin.info("Found instruction " + MARKER_instruction_OWNER + "." + MARKER_instruction + ":" + MARKER_instruction_DESC + " twice in said method.");
 
-        final String ADDED_method = "render";
-        final String ADDED_method_DESC = "(L" + HEClasses.ICamera + ";)V";
+        final String ADDED_method = "renderEntities";
+        final String ADDED_method_DESC = "(L" + HEClasses.RenderGlobal + ";L" + HEClasses.EntityLivingBase + ";L" + HEClasses.ICamera + ";F)V";
         InsnList instructionToInsert = new InsnList();
-        instructionToInsert.add(new VarInsnNode(ALOAD, 14));
         instructionToInsert.add(new MethodInsnNode(INVOKESTATIC,
-                HEClasses.HETessalator,
+                HEClasses.HEStaticInjectors,
                 ADDED_method,
                 ADDED_method_DESC,
                 false));
-        // Add instruction after target instruction
+        // Replace target instruction with static injector
         targetMethod.instructions.insert(instructions.get(0), instructionToInsert);
+        targetMethod.instructions.remove(instructions.get(0));
 
         instructionToInsert = new InsnList();
-        instructionToInsert.add(new VarInsnNode(ALOAD, 14));
         instructionToInsert.add(new MethodInsnNode(INVOKESTATIC,
-                HEClasses.HETessalator,
+                HEClasses.HEStaticInjectors,
                 ADDED_method,
                 ADDED_method_DESC,
                 false));
-        // Add instruction after target instruction
+        // Replace target instruction with static injector
         targetMethod.instructions.insert(instructions.get(1), instructionToInsert);
+        targetMethod.instructions.remove(instructions.get(1));
+
         HEPlugin.info("Injected into " + MARKER_method + ":" + MARKER_method_DESC + " in " + fullClassName + ".");
 
         return HEUtil.convertClassNodeToByteArray(classNode);
