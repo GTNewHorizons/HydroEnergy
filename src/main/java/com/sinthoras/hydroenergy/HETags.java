@@ -30,4 +30,5 @@ public class HETags {
     public static final String ownerName = "ownN";
     public static final String mainStructure = "main";
     public static final String MyTown2_MODID = "MyTown2";
+    public static final String structurePieceMain = "main";
 }

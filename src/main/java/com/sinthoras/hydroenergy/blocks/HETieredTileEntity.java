@@ -1,9 +1,9 @@
 package com.sinthoras.hydroenergy.blocks;
 
-import com.github.technus.tectech.mechanics.constructable.IConstructable;
-import com.github.technus.tectech.mechanics.structure.IStructureDefinition;
-import com.github.technus.tectech.mechanics.structure.StructureDefinition;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
+import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import gregtech.api.GregTech_API;
@@ -13,8 +13,8 @@ import gregtech.api.util.GT_LanguageManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
-import static com.github.technus.tectech.mechanics.structure.StructureUtility.*;
-import static com.github.technus.tectech.mechanics.structure.StructureUtility.ofBlock;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
+import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
 
 public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
 

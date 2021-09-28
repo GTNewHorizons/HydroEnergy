@@ -1,6 +1,5 @@
 package com.sinthoras.hydroenergy.blocks;
 
-import com.github.technus.tectech.mechanics.constructable.IConstructable;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_Container_MultiMachineEM;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_GUIContainer_MultiMachineEM;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
@@ -19,7 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity implements IConstructable {
+public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
 
     public static class LV extends HEHydroTurbineTileEntity {
 

@@ -1,10 +1,10 @@
 package com.sinthoras.hydroenergy.blocks;
 
-import com.github.technus.tectech.mechanics.constructable.IConstructable;
-import com.github.technus.tectech.mechanics.structure.IStructureDefinition;
-import com.github.technus.tectech.mechanics.structure.StructureDefinition;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
+import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.HEUtil;
@@ -32,7 +32,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
-import static com.github.technus.tectech.mechanics.structure.StructureUtility.*;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
+import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
 
 public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
 
@@ -45,12 +46,12 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     private long euCapacityGui = 0;
     private int euPerTickIn = 0;
     private int euPerTickOut = 0;
-    private HEUtil.AveragedRingBuffer euPerTickOutAverage = new HEUtil.AveragedRingBuffer(64);
-    private HEUtil.AveragedRingBuffer euPerTickInAverage = new HEUtil.AveragedRingBuffer(64);
+    private final HEUtil.AveragedRingBuffer euPerTickOutAverage = new HEUtil.AveragedRingBuffer(64);
+    private final HEUtil.AveragedRingBuffer euPerTickInAverage = new HEUtil.AveragedRingBuffer(64);
 
     private static final IStructureDefinition<HEHydroDamTileEntity> multiblockDefinition = StructureDefinition
         .<HEHydroDamTileEntity>builder()
-        .addShape("main",
+        .addShape(HETags.structurePieceMain,
             transpose(new String[][]{
                 {"HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC"},
                 {"HHHHH", "C   C", "C   C", "C   C", "C   C"},
@@ -99,12 +100,12 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     @Override
     protected boolean checkMachine_EM(IGregTechTileEntity gregTechTileEntity, ItemStack itemStack) {
-        return structureCheck_EM("main", 2, 3, 0);
+        return structureCheck_EM(HETags.structurePieceMain, 2, 3, 0);
     }
 
     @Override
     public void construct(ItemStack itemStack, boolean hintsOnly) {
-        structureBuild_EM("main", 2,3,0, hintsOnly, itemStack);
+        structureBuild_EM(HETags.structurePieceMain, 2,3,0, hintsOnly, itemStack);
     }
 
     @Override
@@ -135,7 +136,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
         euCapacityGui = HEServer.instance.getEuCapacityAt(waterId, (int)(getBaseMetaTileEntity().getYCoord() + getMaxGuiPressure()));
 
         final int waterLevelOverController = (int) (HEServer.instance.getWaterLevel(waterId) - getBaseMetaTileEntity().getYCoord());
-        getStoredFluids().stream().forEach(fluidStack -> {
+        getStoredFluids().forEach(fluidStack -> {
             if(fluidStack.getFluidID() == HE.pressurizedWater.getID()
                     && HE.pressurizedWater.getPressure(fluidStack) >= waterLevelOverController) {
                 final long avaiableEnergy = (long)(fluidStack.amount * HEConfig.euPerMilliBucket);
