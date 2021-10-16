@@ -37,12 +37,13 @@ public class HEHooksShared {
 	public void fmlLifeCycleEvent(FMLPreInitializationEvent event) 	{
 		HEConfig.syncronizeConfiguration(event.getSuggestedConfigurationFile());
 
-    	HE.network = NetworkRegistry.INSTANCE.newSimpleChannel("hydroenergy");
-    	HE.network.registerMessage(HEPacketWaterUpdate.Handler.class, HEPacketWaterUpdate.class, 0, Side.CLIENT);
-    	HE.network.registerMessage(HEPacketSynchronize.Handler.class, HEPacketSynchronize.class, 1, Side.CLIENT);
-		HE.network.registerMessage(HEPacketConfigUpdate.Handler.class, HEPacketConfigUpdate.class, 2, Side.CLIENT);
-		HE.network.registerMessage(HEPacketConfigRequest.Handler.class, HEPacketConfigRequest.class, 3, Side.SERVER);
-		HE.network.registerMessage(HEPacketChunkUpdate.Handler.class, HEPacketChunkUpdate.class, 4, Side.CLIENT);
+    	HE.network = NetworkRegistry.INSTANCE.newSimpleChannel(HETags.MODID);
+    	int networkId = 0;
+    	HE.network.registerMessage(HEPacketWaterUpdate.Handler.class, HEPacketWaterUpdate.class, networkId++, Side.CLIENT);
+    	HE.network.registerMessage(HEPacketSynchronize.Handler.class, HEPacketSynchronize.class, networkId++, Side.CLIENT);
+		HE.network.registerMessage(HEPacketConfigUpdate.Handler.class, HEPacketConfigUpdate.class, networkId++, Side.CLIENT);
+		HE.network.registerMessage(HEPacketConfigRequest.Handler.class, HEPacketConfigRequest.class, networkId++, Side.SERVER);
+		HE.network.registerMessage(HEPacketChunkUpdate.Handler.class, HEPacketChunkUpdate.class, networkId++, Side.CLIENT);
 
 
 		HE.info("The subsequent " + HEConfig.maxDams + " liquid errors are intendend. Please ignore...");
