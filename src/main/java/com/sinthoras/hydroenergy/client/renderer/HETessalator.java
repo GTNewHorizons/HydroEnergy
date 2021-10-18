@@ -118,7 +118,7 @@ public class HETessalator {
     }
 
     public static void render(ICamera frustrum) {
-        if(MinecraftForgeClient.getRenderPass() == HE.waterBlocks[0].getRenderBlockPass()) {
+        if(MinecraftForgeClient.getRenderPass() == HE.waterBlocks[0].getRenderBlockPass() && !chunks.isEmpty()) {
             float cameraBlockX = HEReflection.getCameraBlockX(frustrum);
             float cameraBlockY = HEReflection.getCameraBlockY(frustrum);
             float cameraBlockZ = HEReflection.getCameraBlockZ(frustrum);
