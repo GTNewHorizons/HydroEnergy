@@ -117,7 +117,7 @@ public class HEBlockRecipes {
                                 ItemList.Casing_SolidSteel.get(1L),
                                 new ItemStack(GregTech_API.sBlockConcretes, 2, 8),
                                 ItemList.Cover_Screen.get(1L),
-                                ItemList.FluidRegulator_LV.get(2L),
+                                ItemList.FluidRegulator_MV.get(2L),
                                 GT_Utility.getIntegratedCircuit(1)
                         },
                         material.getMolten(144L * multiplier / 2L),
