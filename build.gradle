@@ -98,22 +98,20 @@ def refMap = "${tasks.compileJava.temporaryDir}" + File.separator + mixingConfig
 def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + "mixins.srg"
 
 shadowJar {
-    from refMap
     minimize()
     configurations = [project.configurations.shadowImplementation]
     dependsOn(relocateShadowJar)
 }
 
 jar {
-    // TODO: Also manifest w/o mixins?
-    // TODO: ForceLoadAsMod switchable for Mixins-fix-only projects. Add comment to properties file
     if(usesMixins.toBoolean()) {
+        from refMap
         manifest {
             attributes([
                     "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
                     "MixinConfigs"               : mixinConfigJson,
                     "FMLCorePluginContainsFMLMod": true,
-                    "ForceLoadAsMod"             : true
+                    "ForceLoadAsMod"             : forceLoadAsMod.isEmpty() ? true : forceLoadAsMod.toBoolean()
             ])
         }
     }
