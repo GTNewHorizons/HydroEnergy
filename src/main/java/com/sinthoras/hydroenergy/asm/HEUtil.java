@@ -11,6 +11,10 @@ import java.util.List;
 
 public class HEUtil {
 
+    public static void info(String message) {
+
+    }
+
     private static ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
     public static MethodNode getMethod(ClassNode owner, String name, String description) {

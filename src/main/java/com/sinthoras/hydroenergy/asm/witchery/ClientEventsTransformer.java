@@ -1,7 +1,6 @@
 package com.sinthoras.hydroenergy.asm.witchery;
 
 import com.sinthoras.hydroenergy.asm.HEClasses;
-import com.sinthoras.hydroenergy.asm.HEPlugin;
 import com.sinthoras.hydroenergy.asm.HEUtil;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
@@ -38,19 +37,19 @@ public class ClientEventsTransformer implements IClassTransformer {
         final String METHOD_getMaterialHEWrapper_DESC = "(L" + HEClasses.Block + ";L" + HEClasses.EntityLivingBase + ";)L" + HEClasses.Material + ";";
         final boolean isApiUsed = null != HEUtil.getMethod(classNode, METHOD_getMaterialHEWrapper, METHOD_getMaterialHEWrapper_DESC);
         if(isApiUsed) {
-            HEPlugin.info("Witchery(" + fullClassName + ") is using HydroEnergy API. No injection necessary.");
+            HEUtil.info("Witchery(" + fullClassName + ") is using HydroEnergy API. No injection necessary.");
             return basicClass;
         }
-        HEPlugin.info("Witchery(" + fullClassName + ") does not use HydroEnergy API. Fallback to injection.");
+        HEUtil.info("Witchery(" + fullClassName + ") does not use HydroEnergy API. Fallback to injection.");
 
         final String MARKER_method = "getFOVModifier";
         final String MARKER_method_DESC = "(FL" + HEClasses.EntityRenderer + ";L" + HEClasses.Minecraft + ";)F";
         final MethodNode targetMethod = HEUtil.getMethod(classNode, MARKER_method, MARKER_method_DESC);
         if(targetMethod == null) {
-            HEPlugin.warn("Could not find method " + MARKER_method + ":" + MARKER_method_DESC + " in " + fullClassName + ". You will experience severe visual bugs.");
+            HEUtil.info("Could not find method " + MARKER_method + ":" + MARKER_method_DESC + " in " + fullClassName + ". You will experience severe visual bugs.");
             return basicClass;
         }
-        HEPlugin.info("Found method " + MARKER_method + ":" + MARKER_method_DESC + " in " + fullClassName);
+        HEUtil.info("Found method " + MARKER_method + ":" + MARKER_method_DESC + " in " + fullClassName);
 
         final boolean isStatic = false;
         final String MARKER_instruction_OWNER = HEClasses.Block;
@@ -58,10 +57,10 @@ public class ClientEventsTransformer implements IClassTransformer {
         final String MARKER_instruction_DESC = "()L" + HEClasses.Material + ";";
         List<MethodInsnNode> instructions = HEUtil.getInstructions(targetMethod, isStatic, MARKER_instruction_OWNER, MARKER_instruction, MARKER_instruction_DESC);
         if(instructions.size() != 1) {
-            HEPlugin.warn("Could not find instruction " + MARKER_instruction_OWNER + "." + MARKER_instruction + ":" + MARKER_instruction_DESC + " in said method. You will experience visual bugs.");
+            HEUtil.info("Could not find instruction " + MARKER_instruction_OWNER + "." + MARKER_instruction + ":" + MARKER_instruction_DESC + " in said method. You will experience visual bugs.");
             return basicClass;
         }
-        HEPlugin.info("Found instruction " + MARKER_instruction_OWNER + "." + MARKER_instruction + ":" + MARKER_instruction_DESC + " in said method.");
+        HEUtil.info("Found instruction " + MARKER_instruction_OWNER + "." + MARKER_instruction + ":" + MARKER_instruction_DESC + " in said method.");
 
         final String REPLACED_method = "getMaterialWrapper";
         final String REPLACED_method_DESC = "(L" + HEClasses.Block + ";D)L" + HEClasses.Material + ";";
@@ -92,7 +91,7 @@ public class ClientEventsTransformer implements IClassTransformer {
         targetMethod.instructions.remove(instructions.get(0).getPrevious());
         // Remove target instruction itself
         targetMethod.instructions.remove(instructions.get(0));
-        HEPlugin.info("Fixed mod-interop with Witchery.");
+        HEUtil.info("Fixed mod-interop with Witchery.");
 
         return HEUtil.convertClassNodeToByteArray(classNode);
     }

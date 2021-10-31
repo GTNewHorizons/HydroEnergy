@@ -1,16 +1,16 @@
 [
-{
-  "modid": "hydroenergy",
-  "name": "HydroEnergy",
-  "description": "HydroEnergy by SinTh0r4s",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["SinTh0r4s"],
-  "credits": "The Forge and FML guys, for making this example",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+    {
+      "modid": "${modId}",
+      "name": "${modName}",
+      "description": "${modDescription}",
+      "version": "${modVersion}",
+      "mcversion": "${minecraftVersion}",
+      "url": "${modUrl}",
+      "updateUrl": "",
+      "authorList": ["SinTh0r4s"],
+      "credits": "${modCredits}",
+      "logoFile": "",
+      "screenshots": [],
+      "dependencies": []
+    }
 ]
