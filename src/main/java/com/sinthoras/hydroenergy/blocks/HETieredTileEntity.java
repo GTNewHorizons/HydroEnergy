@@ -66,12 +66,12 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
                 return 2;
             case 11:
                 return 3;
-            case 8:
-                return 14;
             case 6:
                 return 6;
             case 7:
                 return 7;
+            case 8:
+                return 14;
         }
     }
 
