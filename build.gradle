@@ -145,7 +145,6 @@ afterEvaluate {
 }
 
 runClient {
-    // TODO: Fix duplicated import of jar
     args    "--mods=../build/libs/$modId-${version}.jar",
             usesMixins.toBoolean() ? "--tweakClass org.spongepowered.asm.launch.MixinTweaker" : "",
             developmentEnvironmentUserName.isEmpty() == false ? "--username": "",
@@ -153,7 +152,6 @@ runClient {
 }
 
 runServer {
-    // TODO: Fix duplicated import of jar
     args    "",//"--mods=../build/libs/$modId-${version}.jar",
             usesMixins.toBoolean() ? "--tweakClass org.spongepowered.asm.launch.MixinTweaker" : ""
 
