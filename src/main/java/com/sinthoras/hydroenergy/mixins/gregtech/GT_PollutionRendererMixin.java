@@ -24,7 +24,6 @@ public class GT_PollutionRendererMixin {
                     target = "Lnet/minecraft/block/Block;getMaterial()Lnet/minecraft/block/material/Material;",
                     shift = At.Shift.BEFORE,
                     ordinal = 0),
-            remap = false,
             require = 1)
     private void beforeMaterialIsWaterCheck(EntityViewRenderEvent.FogColors event, CallbackInfo callbackInfo) {
         this.event = event;
@@ -35,7 +34,6 @@ public class GT_PollutionRendererMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/block/Block;getMaterial()Lnet/minecraft/block/material/Material;",
                     ordinal = 0),
-            remap = false,
             require = 1)
     private Material redirectMaterialIsWaterCheck(Block instance) {
         return getMaterialWrapper(instance, event.entity.posY + event.entity.getEyeHeight());
