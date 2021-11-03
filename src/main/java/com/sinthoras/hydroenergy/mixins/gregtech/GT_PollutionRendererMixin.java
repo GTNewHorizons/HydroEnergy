@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import static com.sinthoras.hydroenergy.api.HEGetMaterialUtil.getMaterialWrapper;
 
-@Mixin(value = GT_PollutionRenderer.class, remap = false)
+@Mixin(value = GT_PollutionRenderer.class)
 public class GT_PollutionRendererMixin {
 
     private EntityViewRenderEvent.FogColors event;
