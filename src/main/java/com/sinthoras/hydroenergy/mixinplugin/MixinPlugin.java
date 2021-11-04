@@ -2,6 +2,7 @@ package com.sinthoras.hydroenergy.mixinplugin;
 
 import com.google.common.collect.Lists;
 import com.sinthoras.hydroenergy.HETags;
+import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,12 +13,17 @@ import ru.timeconqueror.spongemixins.MinecraftURLClassPath;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.sinthoras.hydroenergy.mixinplugin.TargetedMod.VANILLA;
 
 public class MixinPlugin implements IMixinConfigPlugin {
 
-    private static Logger LOG = LogManager.getLogger(HETags.MODID);
+    private static final Logger LOG = LogManager.getLogger(HETags.MODID + " mixins");
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -39,36 +45,42 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
     }
 
+    // This method return a List<String> of mixins. Every mixins in this list will be loaded.
     @Override
     public List<String> getMixins() {
+        final boolean loadClientSideOnlyClasses = FMLLaunchHandler.side().isClient();
         final boolean isDevelopmentEnvironment = (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 
-        List<String> mixins = Lists.newArrayList(
-                "minecraft.WorldMixin",
-                "minecraft.WorldRendererMixin",
-                "minecraft.EntityMixin",
-                "minecraft.EntityRendererMixin",
-                "minecraft.ChunkMixin",
-                "minecraft.ChunkProviderClientMixin",
-                "minecraft.ActiveRenderInfoMixin"
-        );
-
-        if(isDevelopmentEnvironment || loadJar("gregtech")) {
-            LOG.info("Found GregTech! Integrating now...");
-            mixins.add("gregtech.GT_PollutionRendererMixin");
-        }
-        else {
-            LOG.info("Could not find GregTech! Skipping integration....");
+        List<TargetedMod> loadedMods = Arrays.stream(TargetedMod.values())
+                .filter(mod -> mod == VANILLA
+                        || (mod.loadInDevelopment && isDevelopmentEnvironment)
+                        || loadJar(mod.jarNameBeginsWith))
+                .collect(Collectors.toList());
+        for (TargetedMod mod : TargetedMod.values()) {
+            if(loadedMods.contains(mod)) {
+                LOG.info("Found " + mod.modName + "! Integrating now...");
+            }
+            else {
+                LOG.info("Could not find " + mod.modName + "! Skipping integration....");
+            }
         }
 
+        List<String> mixins = new ArrayList<>();
+        for (Mixin mixin : Mixin.values()) {
+            if (loadedMods.containsAll(mixin.targetedMods)
+                    && (mixin.clientSideOnly == false || loadClientSideOnlyClasses)) {
+                mixins.add(mixin.mixinClass);
+                LOG.debug("Loading mixin: " + mixin.mixinClass);
+            }
+        }
         return mixins;
     }
 
-    private boolean loadJar(final String jarName) {
+    private boolean loadJar(final String jarNameBeginsWith) {
         try {
-            File jar = MinecraftURLClassPath.getJarInModPath(jarName);
+            File jar = MinecraftURLClassPath.getJarInModPath(jarNameBeginsWith);
             if(jar == null) {
-                LOG.info("Jar not found: " + jarName);
+                LOG.info("Jar not found: " + jarNameBeginsWith);
                 return false;
             }
 
