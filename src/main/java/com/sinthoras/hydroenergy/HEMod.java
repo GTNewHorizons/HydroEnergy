@@ -7,10 +7,10 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 
 
-@Mod(modid = HETags.MODID, version = HETags.VERSION, name = HETags.HYDROENERGY, acceptedMinecraftVersions = "[1.7.10]")
+@Mod(modid = HETags.MODID, version = HETags.VERSION, name = HETags.MODNAME, acceptedMinecraftVersions = "[1.7.10]")
 public class HEMod {
 
-    @SidedProxy(clientSide=HETags.COM_SINTHORAS_HYDROENERGY + ".hooks.HEHooksClient", serverSide=HETags.COM_SINTHORAS_HYDROENERGY + ".hooks.HEHooksShared")
+    @SidedProxy(clientSide=HETags.GROUPNAME + ".hooks.HEHooksClient", serverSide=HETags.GROUPNAME + ".hooks.HEHooksShared")
     public static HEHooksShared proxy;
 
     @Mod.EventHandler

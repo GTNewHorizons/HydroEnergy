@@ -70,7 +70,7 @@ public class HE {
     }
 
     private static String formatMessage(String message) {
-        return "[" + HETags.HYDROENERGY + "] " + message;
+        return "[" + HETags.MODNAME + "] " + message;
     }
 
     public enum DamMode {

@@ -1,10 +1,15 @@
 package com.sinthoras.hydroenergy;
 
+// Use this class for Strings only. Do not import any classes here. It will lead to issues with Mixins if in use!
+
 public class HETags {
-    public static final String MODID = "hydroenergy";
+
+    // GRADLETOKEN_* will be replaced by your configuration values at build time
+    public static final String MODID = "GRADLETOKEN_MODID";
+    public static final String MODNAME = "GRADLETOKEN_MODNAME";
     public static final String VERSION = "GRADLETOKEN_VERSION";
-    public static final String HYDROENERGY = "HydroEnergy";
-    public static final String COM_SINTHORAS_HYDROENERGY = "com.sinthoras.hydroenergy";
+    public static final String GROUPNAME = "GRADLETOKEN_GROUPNAME";
+
     public static final String waterLevel = "walv";
     public static final String drainState = "drai";
     public static final String isPlaced = "isPl";
