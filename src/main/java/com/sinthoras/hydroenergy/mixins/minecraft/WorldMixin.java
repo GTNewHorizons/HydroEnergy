@@ -21,7 +21,7 @@ public class WorldMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlock(III)Lnet/minecraft/block/Block;"),
             require = 1)
     private Block onHandleMaterialAccelerationGetBlock(World world, int blockX, int blockY, int blockZ) {
-        return HEHooksUtil.getBlockForWorldAndEntity(world.getBlock(blockY, blockY, blockZ), blockY);
+        return HEHooksUtil.getBlockForWorldAndEntity(world.getBlock(blockX, blockY, blockZ), blockY);
     }
 
     // Redirect getBlock to check for custom water
@@ -29,7 +29,7 @@ public class WorldMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlock(III)Lnet/minecraft/block/Block;"),
             require = 1)
     private Block onIsAnyLiquidGetBlock(World world, int blockX, int blockY, int blockZ) {
-        return HEHooksUtil.getBlockForWorldAndEntity(world.getBlock(blockY, blockY, blockZ), blockY);
+        return HEHooksUtil.getBlockForWorldAndEntity(world.getBlock(blockX, blockY, blockZ), blockY);
     }
 
     // Notify water cache about block change
