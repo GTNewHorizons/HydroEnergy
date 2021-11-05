@@ -13,24 +13,21 @@ public enum Mixin {
     // Exception: Tags.java, as long as it is used for Strings only!
     //
 
-    GT_PollutionRendererMixin("gregtech.GT_PollutionRendererMixin", true, GREGTECH),
+    GT_PollutionRendererMixin("gregtech.GT_PollutionRendererMixin", GREGTECH),
 
-    ActiveRenderInfoMixin("minecraft.ActiveRenderInfoMixin", true, VANILLA),
-    ChunkMixin("minecraft.ChunkMixin", false, VANILLA),
-    ChunkProviderClientMixin("minecraft.ChunkProviderClientMixin", true, VANILLA),
-    EntityMixin("minecraft.EntityMixin", false, VANILLA),
-    EntityRendererMixin("minecraft.EntityRendererMixin", true, VANILLA),
-    WorldMixin("minecraft.WorldMixin", false, VANILLA),
-    WorldRendererMixin("minecraft.WorldRendererMixin", true, VANILLA);
+    ActiveRenderInfoMixin("minecraft.ActiveRenderInfoMixin", VANILLA),
+    ChunkMixin("minecraft.ChunkMixin", VANILLA),
+    ChunkProviderClientMixin("minecraft.ChunkProviderClientMixin", VANILLA),
+    EntityMixin("minecraft.EntityMixin", VANILLA),
+    EntityRendererMixin("minecraft.EntityRendererMixin", VANILLA),
+    WorldMixin("minecraft.WorldMixin", VANILLA),
+    WorldRendererMixin("minecraft.WorldRendererMixin", VANILLA);
 
     public final String mixinClass;
     public final List<TargetedMod> targetedMods;
-    // Injecting into @SideOnly(Side.Client) classes will crash the server. Flag them as clientSideOnly!
-    public final boolean clientSideOnly;
 
-    Mixin(String mixinClass, boolean clientSideOnly, TargetedMod... targetedMods) {
+    Mixin(String mixinClass, TargetedMod... targetedMods) {
         this.mixinClass = mixinClass;
         this.targetedMods = Arrays.asList(targetedMods);
-        this.clientSideOnly = clientSideOnly;
     }
 }
