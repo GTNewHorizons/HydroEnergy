@@ -121,7 +121,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     private float getMaxGuiPressure() {
         boolean configCircuitIsPresent = mInventory != null && mInventory[1] != null && mInventory[1].getItem() == GT_Utility.getIntegratedCircuit(0).getItem();
-        int voltageTier = configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length) : 1;
+        int voltageTier = configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length - 1) : 1;
         return HEConfig.pressureIncreasePerTier * voltageTier;
     }
 

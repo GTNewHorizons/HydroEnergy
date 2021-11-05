@@ -33,7 +33,7 @@ public class HEHydroDamEuGuiContainer extends GT_GUIContainer_MultiMachineEM {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         ItemStack[] inventory = ((HEHydroDamTileEntity)hydroDamContainer.mTileEntity.getMetaTileEntity()).mInventory;
         boolean configCircuitIsPresent = inventory != null && inventory[1] != null && inventory[1].getItem() == GT_Utility.getIntegratedCircuit(0).getItem();
-        int voltageTier = configCircuitIsPresent ? HEUtil.clamp(inventory[1].getItemDamage(), 1, 3) : 1;
+        int voltageTier = configCircuitIsPresent ? HEUtil.clamp(inventory[1].getItemDamage(), 1, GT_Values.VN.length - 1) : 1;
 
         long euCapacity = hydroDamContainer.getEuCapacity();
         long euStored = hydroDamContainer.getEuStored();
