@@ -10,7 +10,7 @@ This mod provides an immersive alternative energy storage to battery buffers. Yo
 Your artificial lake will appear correctly as you drain or fill it and entities can interact with it in the same way.
 
 Why not flood some ruins for a nice visual when you are low on energy? [Click here](https://www.youtube.com/watch?v=0zPsRyaXN_w) to see what i mean! \
-[![HydroEnergy Demo Video](https://i.ibb.co/JdnWDqw/fake-video.png)](https://www.youtube.com/watch?v=0zPsRyaXN_w)
+[![HydroEnergy Demo Video](https://i.ibb.co/pZJgFFP/fake-video2.png)](https://www.youtube.com/watch?v=0zPsRyaXN_w)
 
 This mod is tailored to GregTech: New Horizons 2, but feel free to use it however you like. Even though this mod is build against the custom GT5U from GT:NH, it should still work fine with other GT5U versions.
 
