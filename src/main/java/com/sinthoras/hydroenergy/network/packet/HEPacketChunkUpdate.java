@@ -1,7 +1,6 @@
 package com.sinthoras.hydroenergy.network.packet;
 
 import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HEReflection;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.client.light.HELightSMPHooks;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -36,8 +35,8 @@ public class HEPacketChunkUpdate implements IMessage {
             if((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
                 ExtendedBlockStorage subChunk = blockStorages[chunkY];
 
-                transmissionBuffer.writeInt(HEReflection.getBlockRefCount(subChunk));
-                transmissionBuffer.writeInt(HEReflection.getTickRefCount(subChunk));
+                transmissionBuffer.writeInt(subChunk.blockRefCount);
+                transmissionBuffer.writeInt(subChunk.tickRefCount);
 
                 byte[] lsb = subChunk.getBlockLSBArray();
                 transmissionBuffer.writeBytes(lsb);
@@ -75,8 +74,8 @@ public class HEPacketChunkUpdate implements IMessage {
             if((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
                 ExtendedBlockStorage subChunk = new ExtendedBlockStorage(chunkY << 4, false);
 
-                HEReflection.setBlockRefCount(subChunk, buf.readInt());
-                HEReflection.setTickRefCount(subChunk, buf.readInt());
+                subChunk.blockRefCount = buf.readInt();
+                subChunk.tickRefCount = buf.readInt();
 
                 byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
                 subChunk.setBlockLSBArray(lsb);
@@ -112,8 +111,8 @@ public class HEPacketChunkUpdate implements IMessage {
                     if (chunkStorage[chunkY] == null) {
                         chunkStorage[chunkY] = new ExtendedBlockStorage(chunkY << 4, !chunk.worldObj.provider.hasNoSky);
                     }
-                    HEReflection.setBlockRefCount(chunkStorage[chunkY], HEReflection.getBlockRefCount(message.receivedChunk[chunkY]));
-                    HEReflection.setTickRefCount(chunkStorage[chunkY], HEReflection.getTickRefCount(message.receivedChunk[chunkY]));
+                    chunkStorage[chunkY].blockRefCount = message.receivedChunk[chunkY].blockRefCount;
+                    chunkStorage[chunkY].tickRefCount = message.receivedChunk[chunkY].tickRefCount;
 
                     chunkStorage[chunkY].setBlockLSBArray(message.receivedChunk[chunkY].getBlockLSBArray());
                     chunkStorage[chunkY].setBlockMSBArray(message.receivedChunk[chunkY].getBlockMSBArray());

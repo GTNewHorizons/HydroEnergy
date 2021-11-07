@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import com.sinthoras.hydroenergy.HE;
 
 import com.sinthoras.hydroenergy.HETags;
-import com.sinthoras.hydroenergy.client.HEReflection;
 import com.sinthoras.hydroenergy.client.HEClient;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import net.minecraft.client.Minecraft;
@@ -216,7 +215,7 @@ public class HEProgram {
 
     public static void bindLightLookupTable() {
         GL13.glActiveTexture(GL13.GL_TEXTURE1);
-        Minecraft.getMinecraft().getTextureManager().bindTexture(HEReflection.getLightMapLocation());
+        Minecraft.getMinecraft().getTextureManager().bindTexture(Minecraft.getMinecraft().entityRenderer.locationLightMap);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
