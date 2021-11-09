@@ -16,6 +16,14 @@ public class HEUtil {
 		return (((long)chunkX) << 32) | (chunkZ & 0xffffffffL);
 	}
 
+	public static int nonNegativeModulo(int value, int modulo) {
+		value = value % modulo;
+		if(value < 0) {
+			value += modulo;
+		}
+		return value;
+	}
+
 	public static float clamp(float value, float lowerLimit, float upperLimit) {
 		return Math.min(Math.max(value, lowerLimit), upperLimit);
 	}

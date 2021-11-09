@@ -23,7 +23,7 @@ public class HEHooksEVENT_BUS {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onEvent(RenderWorldEvent.Post event) {
-		HETessalator.onPostRender(event.renderer.worldObj, event.renderer.posX, event.renderer.posY, event.renderer.posZ);
+		HETessalator.onPostRender(event.renderer.posX, event.renderer.posY, event.renderer.posZ);
 	}
 
 	@SideOnly(Side.CLIENT)

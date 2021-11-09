@@ -25,7 +25,7 @@ public class WorldRendererMixin {
     @Inject(method = "setPosition", at = @At("HEAD"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, require = 1)
     private void onSetPosition(int blockX, int blockY, int blockZ, CallbackInfo callbackInfo) {
         if (blockX != posX || blockY != posY || blockZ != posZ) {
-            HETessalator.onRenderChunkUpdate(posX, posY, posZ, blockX, blockY, blockZ);
+            HETessalator.onRenderChunkUpdate(posX, posZ, blockX, blockY, blockZ);
         }
     }
 }
