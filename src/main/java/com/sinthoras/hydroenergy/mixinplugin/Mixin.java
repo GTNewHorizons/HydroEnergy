@@ -19,11 +19,11 @@ public enum Mixin {
 
     ActiveRenderInfoMixin("minecraft.ActiveRenderInfoMixin", Side.CLIENT, VANILLA),
     ChunkClientMixin("minecraft.ChunkClientMixin", Side.CLIENT, VANILLA),
-    ChunkMixin("minecraft.ChunkMixin", Side.BOTH, VANILLA),
+    ChunkMixin("minecraft.ChunkMixin", VANILLA),
     ChunkProviderClientMixin("minecraft.ChunkProviderClientMixin", Side.CLIENT, VANILLA),
-    EntityMixin("minecraft.EntityMixin", Side.BOTH, VANILLA),
+    EntityMixin("minecraft.EntityMixin", VANILLA),
     EntityRendererMixin("minecraft.EntityRendererMixin", Side.CLIENT, VANILLA),
-    WorldMixin("minecraft.WorldMixin", Side.BOTH, VANILLA),
+    WorldMixin("minecraft.WorldMixin", VANILLA),
     WorldRendererMixin("minecraft.WorldRendererMixin", Side.CLIENT, VANILLA);
 
     public final String mixinClass;
@@ -34,6 +34,12 @@ public enum Mixin {
         this.mixinClass = mixinClass;
         this.targetedMods = Arrays.asList(targetedMods);
         this.side = side;
+    }
+
+    Mixin(String mixinClass, TargetedMod... targetedMods) {
+        this.mixinClass = mixinClass;
+        this.targetedMods = Arrays.asList(targetedMods);
+        this.side = Side.BOTH;
     }
 
     public boolean shouldLoad(List<TargetedMod> loadedMods) {
