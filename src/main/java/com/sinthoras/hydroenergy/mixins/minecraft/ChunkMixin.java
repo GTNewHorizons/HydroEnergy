@@ -1,6 +1,5 @@
 package com.sinthoras.hydroenergy.mixins.minecraft;
 
-import com.sinthoras.hydroenergy.client.light.HELightManager;
 import com.sinthoras.hydroenergy.client.light.HELightSMPHooks;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.chunk.Chunk;
@@ -13,16 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(Chunk.class)
 public class ChunkMixin {
-
-    // Capture whole chunk update from server to check for custom water blocks and cache them
-    @Inject(method = "fillChunk",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/Chunk;generateHeightMap()V",
-                    shift = At.Shift.AFTER),
-            require = 1)
-    private void onFillChunk(byte[] incomingData, int unusedFlags1, int unusedFlags2, boolean unusedFlag, CallbackInfo callbackInfo) {
-        HELightManager.onChunkDataLoad((Chunk) ((Object) this));
-    }
 
     // Correct vanilla light calculation if necessary
     @Inject(method = "generateSkylightMap",

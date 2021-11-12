@@ -1,5 +1,7 @@
 package com.sinthoras.hydroenergy.mixinplugin;
 
+import cpw.mods.fml.relauncher.FMLLaunchHandler;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,21 +15,37 @@ public enum Mixin {
     // Exception: Tags.java, as long as it is used for Strings only!
     //
 
-    GT_PollutionRendererMixin("gregtech.GT_PollutionRendererMixin", GREGTECH),
+    GT_PollutionRendererMixin("gregtech.GT_PollutionRendererMixin", Side.CLIENT, GREGTECH),
 
-    ActiveRenderInfoMixin("minecraft.ActiveRenderInfoMixin", VANILLA),
-    ChunkMixin("minecraft.ChunkMixin", VANILLA),
-    ChunkProviderClientMixin("minecraft.ChunkProviderClientMixin", VANILLA),
-    EntityMixin("minecraft.EntityMixin", VANILLA),
-    EntityRendererMixin("minecraft.EntityRendererMixin", VANILLA),
-    WorldMixin("minecraft.WorldMixin", VANILLA),
-    WorldRendererMixin("minecraft.WorldRendererMixin", VANILLA);
+    ActiveRenderInfoMixin("minecraft.ActiveRenderInfoMixin", Side.CLIENT, VANILLA),
+    ChunkClientMixin("minecraft.ChunkClientMixin", Side.CLIENT, VANILLA),
+    ChunkMixin("minecraft.ChunkMixin", Side.BOTH, VANILLA),
+    ChunkProviderClientMixin("minecraft.ChunkProviderClientMixin", Side.CLIENT, VANILLA),
+    EntityMixin("minecraft.EntityMixin", Side.BOTH, VANILLA),
+    EntityRendererMixin("minecraft.EntityRendererMixin", Side.CLIENT, VANILLA),
+    WorldMixin("minecraft.WorldMixin", Side.BOTH, VANILLA),
+    WorldRendererMixin("minecraft.WorldRendererMixin", Side.CLIENT, VANILLA);
 
     public final String mixinClass;
     public final List<TargetedMod> targetedMods;
+    private final Side side;
 
-    Mixin(String mixinClass, TargetedMod... targetedMods) {
+    Mixin(String mixinClass, Side side, TargetedMod... targetedMods) {
         this.mixinClass = mixinClass;
         this.targetedMods = Arrays.asList(targetedMods);
+        this.side = side;
     }
+
+    public boolean shouldLoad(List<TargetedMod> loadedMods) {
+        return (side == Side.BOTH
+                    || side == Side.SERVER && FMLLaunchHandler.side().isServer()
+                    || side == Side.CLIENT && FMLLaunchHandler.side().isClient())
+                && loadedMods.containsAll(targetedMods);
+    }
+}
+
+enum Side {
+    BOTH,
+    CLIENT,
+    SERVER;
 }
