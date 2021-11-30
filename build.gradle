@@ -12,10 +12,6 @@ import java.util.concurrent.TimeUnit
 buildscript {
     repositories {
         maven {
-            name = "jitpack"
-            url = "https://jitpack.io"
-        }
-        maven {
             name = "forge"
             url = "https://maven.minecraftforge.net"
         }
@@ -23,9 +19,13 @@ buildscript {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
+        maven {
+            name = "jitpack"
+            url = "https://jitpack.io"
+        }
     }
     dependencies {
-        classpath 'com.github.GTNH2:ForgeGradle:FG_1.2-SNAPSHOT'
+        classpath 'com.github.GTNewHorizons:ForgeGradle:1.2.4'
     }
 }
 
