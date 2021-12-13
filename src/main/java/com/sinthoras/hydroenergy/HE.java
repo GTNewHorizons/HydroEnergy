@@ -48,8 +48,8 @@ public class HE {
 	public static final IGuiHandler guiHandler = new HEGuiHandler();
 
 	// Texture locations
-    public static String damBackgroundLocation = "he_water_config";
-    public static String damLimitBackgroundLocation = "he_water_config_limits_popup";
+    public static String damBackgroundLocation = "textures/gui/he_water_config.png";
+    public static String damLimitBackgroundLocation = "textures/gui/he_water_config_limits_popup.png";
     // To silence the water missing texture error. Points to a random but valid texture
     public static String dummyTexture = damBackgroundLocation;
 
