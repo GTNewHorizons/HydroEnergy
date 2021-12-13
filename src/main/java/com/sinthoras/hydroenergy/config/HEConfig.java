@@ -102,8 +102,8 @@ public class HEConfig {
         useLimitedRendering = useLimitedRenderingProperty.getBoolean();
 
         Property forceOpenGLProperty = configuration.get(Categories.general, "forceOpenGL",
-                Defaults.forceOpenGL, "[CLIENT] Activate this if you REALLY want to force OpenGL. " +
-                        "But be warned: it may crash! May be useful on Macs that lie.");
+                Defaults.forceOpenGL, "[CLIENT] Activate this to disable the OpenGL 3.2 check; it will assume. " +
+                        "you have OpenGL 3.2 or greater. But be warned: it may crash! Some Macs may always report 2.1.");
         forceOpenGL = forceOpenGLProperty.getBoolean();
 
         Property clippingOffsetProperty = configuration.get(Categories.general, "clippingOffset",
