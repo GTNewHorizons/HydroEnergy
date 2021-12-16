@@ -24,6 +24,7 @@ public enum Mixin {
     EntityMixin("minecraft.EntityMixin", VANILLA),
     EntityRendererMixin("minecraft.EntityRendererMixin", Side.CLIENT, VANILLA),
     WorldMixin("minecraft.WorldMixin", VANILLA),
+    WorldMixinClient("minecraft.WorldMixinClient", Side.CLIENT, VANILLA),
     WorldRendererMixin("minecraft.WorldRendererMixin", Side.CLIENT, VANILLA);
 
     public final String mixinClass;
