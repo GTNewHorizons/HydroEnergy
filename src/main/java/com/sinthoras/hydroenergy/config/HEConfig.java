@@ -20,7 +20,7 @@ public class HEConfig {
         public static final int maxWaterSpreadNorth = 1000; // in blocks
         public static final int maxWaterSpreadEast = 1000; // in blocks
         public static final int maxWaterSpreadUp = 24; // in blocks
-        public static final int maxWaterSpreadSouth = 10000; // in blocks
+        public static final int maxWaterSpreadSouth = 1000; // in blocks
         public static final int overworldId = 0;
         public static final int damDrainPerSecond = 2048; // in EU
         public static final float waterBonusPerSurfaceBlockPerRainTick = 1.0f; // in EU/block
