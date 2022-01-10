@@ -30,6 +30,7 @@ public class HEConfig {
         public static final float milliBucketPerEU = 1.0f;
         public static final String[] enabledTiers = new String[] { "lv", "mv", "hv", "ev", "iv" };
         public static final boolean useLimitedRendering = false;
+        public static final boolean forceOpenGL = false;
     }
 
     private static class Categories {
@@ -59,6 +60,7 @@ public class HEConfig {
     public static float euPerMilliBucket = 1.0f / Defaults.milliBucketPerEU;
     public static boolean[] enabledTiers = new boolean[GT_Values.VN.length];
     public static boolean useLimitedRendering = Defaults.useLimitedRendering;
+    public static boolean forceOpenGL = Defaults.forceOpenGL;
 
     public static void syncronizeConfiguration(java.io.File configurationFile) {
         Configuration configuration = new Configuration(configurationFile);
@@ -67,16 +69,16 @@ public class HEConfig {
         Property maxDamsProperty = configuration.get(Categories.general, "maxDams", Defaults.maxDams,
                 "[SERVER] How many dams should the game support. At least as many as the server you want to connect" +
                         " to. Each dam will receive it's own water block and it will also have a minuscule performance" +
-                        " impact. Keep it only as long as you need. You can always just rise, but not shorten the value.");
+                        " impact. Keep it only as long as you need. You can always just raise, but not shorten the value.");
         maxDams = maxDamsProperty.getInt();
         if(maxDams != Math.max(1, maxDams)) {
-            maxDams = Math.max(1, maxDams);
+            maxDams = 1;
             maxDamsProperty.set(1);
         }
 
         Property minimalWaterUpdateIntervalProperty = configuration.get(Categories.general,
                 "minimalWaterUpdateInterval", Defaults.minimalWaterUpdateInterval, "[SERVER] Minimum delay" +
-                        " in milliseconds beween update packets from the server to ALL clients.");
+                        " in milliseconds between update packets from the server to ALL clients.");
         minimalWaterUpdateInterval = minimalWaterUpdateIntervalProperty.getInt();
 
         Property spreadingDelayBetweenPerChunksProperty = configuration.get(Categories.general,
@@ -99,6 +101,11 @@ public class HEConfig {
                         "mod. But be warned: you will have limited render capabilities!");
         useLimitedRendering = useLimitedRenderingProperty.getBoolean();
 
+        Property forceOpenGLProperty = configuration.get(Categories.general, "forceOpenGL",
+                Defaults.forceOpenGL, "[CLIENT] Some Macs may always report OpenGL 2.1 - activate this to disable the OpenGL 3.2 check; " +
+                        "it will assume you have OpenGL 3.2 or greater. But be warned: it may crash!");
+        forceOpenGL = forceOpenGLProperty.getBoolean();
+
         Property clippingOffsetProperty = configuration.get(Categories.general, "clippingOffset",
                 Defaults.clippingOffset, "[SERVER + CLIENT] If water is sitting too narrow over a block there" +
                         " are graphical issues (Depth buffer resolution). To fix this, the game will not render a " +
@@ -114,7 +121,7 @@ public class HEConfig {
         }
 
         configuration.addCustomCategoryComment(Categories.spreading, "Water spreading will quickly get out of " +
-                "controll if somebody missclicks their limits on their controllers. Here are game wide limits for " +
+                "control if somebody mis-clicks their limits on their controllers. Here are game-wide limits for " +
                 "spreading.");
 
         Property maxWaterSpreadWestProperty = configuration.get(Categories.spreading, "maxWaterSpreadWest",
