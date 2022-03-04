@@ -105,7 +105,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     @Override
     public void construct(ItemStack itemStack, boolean hintsOnly) {
-        structureBuild_EM(HETags.structurePieceMain, 2,3,0, hintsOnly, itemStack);
+        structureBuild_EM(HETags.structurePieceMain, 2,3,0, itemStack, hintsOnly);
     }
 
     @Override
