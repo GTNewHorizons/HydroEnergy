@@ -17,7 +17,7 @@ import static net.minecraft.util.EnumChatFormatting.*;
 public class HE {
 
     public static SimpleNetworkWrapper network;
-    private static Logger LOG = LogManager.getLogger(HETags.MODID);
+    private static final Logger LOG = LogManager.getLogger(HETags.MODID);
     public static final int maxRenderDist = 16;
     public static final int numChunksY = 16;
     public static final int waterOpacity = 3;
@@ -37,13 +37,13 @@ public class HE {
             "found! This might crash somewhat randomly. Please talk to your server admin!";
     public static final String blueprintHintTecTech = "To see the structure, use a "+ BLUE + "Tec" + DARK_BLUE + "Tech" + GRAY + " Blueprint on the Controller!";
 
-    public static HEPressurizedWater pressurizedWater = new HEPressurizedWater();;
+    public static HEPressurizedWater pressurizedWater = new HEPressurizedWater();
 	public static final HEWaterStill[] waterBlocks = new HEWaterStill[HEConfig.maxDams];
 	public static final int[] waterBlockIds = new int[HEConfig.maxDams];
 	public static ItemStack hydroDamControllerBlock;
 	public static ItemStack[] hydroPumpBlocks = new ItemStack[GT_Values.VN.length];
     public static ItemStack[] hydroTurbineBlocks = new ItemStack[GT_Values.VN.length];
-	
+
 	public static boolean DEBUGslowFill = false;
 	public static final IGuiHandler guiHandler = new HEGuiHandler();
 

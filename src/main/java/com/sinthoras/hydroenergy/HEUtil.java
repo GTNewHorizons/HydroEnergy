@@ -3,15 +3,15 @@ package com.sinthoras.hydroenergy;
 import gregtech.api.enums.GT_Values;
 
 public class HEUtil {
-	
+
 	public static int coordBlockToChunk(int blockCoord) {
 		return blockCoord < 0 ? -((-blockCoord - 1) >> 4) - 1 : blockCoord >> 4;
 	}
-	
+
 	public static int coordChunkToBlock(int chunkCoord) {
 		return chunkCoord < 0 ? -((-chunkCoord) << 4) : chunkCoord << 4;
 	}
-	
+
 	public static long chunkCoordsToKey(int chunkX, int chunkZ) {
 		return (((long)chunkX) << 32) | (chunkZ & 0xffffffffL);
 	}
@@ -41,9 +41,8 @@ public class HEUtil {
 	}
 
 	public static int voltageNameToTierId(String voltageName) {
-		voltageName.toLowerCase();
 		for(int tierId=0;tierId<GT_Values.VN.length;tierId++){
-			if(GT_Values.VN[tierId].toLowerCase().equals(voltageName)) {
+			if(GT_Values.VN[tierId].equalsIgnoreCase(voltageName)) {
 				return tierId;
 			}
 		}
@@ -51,7 +50,7 @@ public class HEUtil {
 	}
 
 	public static class AveragedRingBuffer {
-		private float[] values;
+		private final float[] values;
 		private int pointer = 0;
 		private float average = 0.0f;
 

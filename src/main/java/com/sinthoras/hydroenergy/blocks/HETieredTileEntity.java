@@ -155,7 +155,7 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
 
     @Override
     public void construct(ItemStack itemStack, boolean hintsOnly) {
-        structureBuild_EM(HETags.mainStructure, 1,1,0, hintsOnly, itemStack);
+        structureBuild_EM(HETags.mainStructure, 1,1,0, itemStack, hintsOnly);
     }
 
     @Override

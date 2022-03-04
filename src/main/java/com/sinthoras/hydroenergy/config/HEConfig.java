@@ -68,7 +68,7 @@ public class HEConfig {
 
         Property maxDamsProperty = configuration.get(Categories.general, "maxDams", Defaults.maxDams,
                 "[SERVER] How many dams should the game support. At least as many as the server you want to connect" +
-                        " to. Each dam will receive it's own water block and it will also have a minuscule performance" +
+                        " to. Each dam will receive its own water block and it will also have a minuscule performance" +
                         " impact. Keep it only as long as you need. You can always just raise, but not shorten the value.");
         maxDams = maxDamsProperty.getInt();
         if(maxDams != Math.max(1, maxDams)) {

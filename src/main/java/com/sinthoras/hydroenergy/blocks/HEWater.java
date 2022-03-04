@@ -83,14 +83,14 @@ public class HEWater extends BlockFluidBase implements IHEHasCustomMaterialCalcu
 			return HEServer.instance.getWaterLevel(getWaterId());
 		}
 	}
-	
+
 	public boolean canFlowInto(IBlockAccess world, int blockX, int blockY, int blockZ) {
 		Block block = world.getBlock(blockX, blockY, blockZ);
 		return block.getMaterial() == Material.air
 				|| (canDisplace(world, blockX, blockY, blockZ) && !(block instanceof BlockLiquid))
 				|| (block.getMaterial() == Material.water && !(block instanceof HEWater));
 	}
-	
+
 	public int getWaterId() {
 		return waterId;
 	}
@@ -105,8 +105,8 @@ public class HEWater extends BlockFluidBase implements IHEHasCustomMaterialCalcu
 	}
 
 	public Material getMaterial(double blockY) {
-		// This constant is so magic i'm gonna die!
-		// Without this constant there is a gap between rendered water and all under water effects
+		// This constant is so magic I'm gonna die!
+		// Without this constant there is a gap between rendered water and all underwater effects
 		return (getWaterLevel() + 0.120f) < blockY ? Material.air : Material.water;
 	}
 }
