@@ -15,7 +15,7 @@ public class HEMod {
 
     @Mod.EventHandler
     // preInit "Run before anything else. Read your config, create blocks, items,
-    // etc, and register them with the GameRegistry."
+    // etc. and register them with the GameRegistry."
     public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
         HE.debug("Registered sided proxy for: " + (proxy instanceof HEHooksClient ? "Client" : "Dedicated server"));
         HE.debug("preInit()"+event.getModMetadata().name);

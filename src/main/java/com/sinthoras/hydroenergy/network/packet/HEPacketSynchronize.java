@@ -76,9 +76,9 @@ public class HEPacketSynchronize implements IMessage {
 			buf.writeInt(limitsSouth[waterId]);
 		}
 		buf.writeInt(enabledTiers.length);
-		for(int tierId=0;tierId<enabledTiers.length;tierId++) {
-			buf.writeBoolean(enabledTiers[tierId]);
-		}
+        for (boolean enabledTier : enabledTiers) {
+            buf.writeBoolean(enabledTier);
+        }
 		buf.writeFloat(HEConfig.clippingOffset);
 	}
 

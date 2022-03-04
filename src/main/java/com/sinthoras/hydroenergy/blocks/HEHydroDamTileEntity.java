@@ -139,8 +139,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
         getStoredFluids().forEach(fluidStack -> {
             if(fluidStack.getFluidID() == HE.pressurizedWater.getID()
                     && HE.pressurizedWater.getPressure(fluidStack) >= waterLevelOverController) {
-                final long avaiableEnergy = (long)(fluidStack.amount * HEConfig.euPerMilliBucket);
-                final long storableEnergy = Math.min(euCapacity - euStored, avaiableEnergy);
+                final long availableEnergy = (long)(fluidStack.amount * HEConfig.euPerMilliBucket);
+                final long storableEnergy = Math.min(euCapacity - euStored, availableEnergy);
                 fluidStack.amount -= storableEnergy;
                 euStored += storableEnergy;
                 euPerTickIn += storableEnergy;
@@ -157,8 +157,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
         }
 
         if(getBaseMetaTileEntity().getWorld().isRaining()) {
-            final long raingEuGeneration = (long)(HEServer.instance.getRainedOnBlocks(waterId) * HEConfig.waterBonusPerSurfaceBlockPerRainTick);
-            final long addedEu = Math.min(euCapacity - euStored, raingEuGeneration);
+            final long rainingEuGeneration = (long)(HEServer.instance.getRainedOnBlocks(waterId) * HEConfig.waterBonusPerSurfaceBlockPerRainTick);
+            final long addedEu = Math.min(euCapacity - euStored, rainingEuGeneration);
             euStored += addedEu;
             euPerTickIn += addedEu;
         }
