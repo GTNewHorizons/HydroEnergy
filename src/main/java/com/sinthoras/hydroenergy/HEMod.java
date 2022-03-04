@@ -6,8 +6,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 
-
-@Mod(modid = HETags.MODID, version = HETags.VERSION, name = HETags.MODNAME, acceptedMinecraftVersions = "[1.7.10]")
+@Mod(modid = HETags.MODID, version = HETags.VERSION, name = HETags.MODNAME, dependencies = HETags.DEPENDENCIES, acceptedMinecraftVersions = "[1.7.10]")
 public class HEMod {
 
     @SidedProxy(clientSide=HETags.GROUPNAME + ".hooks.HEHooksClient", serverSide=HETags.GROUPNAME + ".hooks.HEHooksShared")
