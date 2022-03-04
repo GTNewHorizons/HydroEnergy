@@ -1,16 +1,20 @@
-[
-    {
-      "modid": "${modId}",
-      "name": "${modName}",
-      "description": "Unlimited hydro-electric storage for GregTech5 Unofficial with rendered water levels.",
-      "version": "${modVersion}",
-      "mcversion": "${minecraftVersion}",
-      "url": "https://github.com/SinTh0r4s/HydroEnergy",
-      "updateUrl": "",
-      "authorList": ["SinTh0r4s"],
-      "credits": "",
-      "logoFile": "",
-      "screenshots": [],
-      "dependencies": []
-    }
-]
+{
+	"modListVersion": 2,
+	"modList": [{
+		"modid": "${modId}",
+		"name": "${modName}",
+		"description": "Unlimited hydro-electric storage for GregTech5 Unofficial with rendered water levels.",
+		"version": "${modVersion}",
+		"mcversion": "${minecraftVersion}",
+		"url": "https://github.com/SinTh0r4s/HydroEnergy",
+		"updateUrl": "",
+		"authorList": ["SinTh0r4s"],
+		"credits": "",
+		"logoFile": "",
+		"screenshots": [],
+		"requiredMods": ["Forge", "gregtech", "tectech"],
+		"dependencies": ["gregtech", "tectech"],
+		"dependants": [],
+		"useDependencyInformation": true
+	}]
+}
