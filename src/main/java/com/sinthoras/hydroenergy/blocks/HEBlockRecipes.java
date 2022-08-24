@@ -30,7 +30,6 @@ public class HEBlockRecipes {
                 CustomItemList.Hull_UIV,
                 CustomItemList.Hull_UMV,
                 CustomItemList.Hull_UXV,
-                CustomItemList.Hull_OPV,
                 CustomItemList.Hull_MAXV
         };
         IItemContainer[] motors = {
@@ -48,7 +47,6 @@ public class HEBlockRecipes {
                 ItemList.Electric_Motor_UEV,// UIV
                 ItemList.Electric_Motor_UEV,// UMV
                 ItemList.Electric_Motor_UEV,// UXV
-                ItemList.Electric_Motor_UEV,// OpV
                 ItemList.Electric_Motor_UEV // MAX
         };
         IItemContainer[] pumps = {
@@ -66,7 +64,6 @@ public class HEBlockRecipes {
                 ItemList.Electric_Pump_UEV, // UIV
                 ItemList.Electric_Pump_UEV, // UMV
                 ItemList.Electric_Pump_UEV, // UXV
-                ItemList.Electric_Pump_UEV, // OpV
                 ItemList.Electric_Pump_UEV, // MAX
         };
         Materials[] rotorMaterialsPerVoltage = {
@@ -84,7 +81,6 @@ public class HEBlockRecipes {
                 Materials.Neutronium,       // UIV
                 Materials.Neutronium,       // UMV
                 Materials.Neutronium,       // UXV
-                Materials.Neutronium,       // OpV
                 Materials.Neutronium,       // MAX
         };
         Materials[] cableMaterialsPerVoltage = {
@@ -102,7 +98,6 @@ public class HEBlockRecipes {
                 Materials.NaquadahAlloy,    // UIV
                 Materials.NaquadahAlloy,    // UMV
                 Materials.NaquadahAlloy,    // UXV
-                Materials.NaquadahAlloy,    // OpV
                 Materials.NaquadahAlloy,    // MAX
         };
 

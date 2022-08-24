@@ -41,7 +41,7 @@ public class HEUtil {
 	}
 
 	public static int voltageNameToTierId(String voltageName) {
-		for(int tierId=0;tierId<GT_Values.VN.length;tierId++){
+		for(int tierId=0;tierId<GT_Values.VN.length-1;tierId++){
 			if(GT_Values.VN[tierId].equalsIgnoreCase(voltageName)) {
 				return tierId;
 			}
