@@ -319,32 +319,9 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
         }
     }
 
-    public static class OpV extends HEHydroTurbineTileEntity {
-
-        private static final int tierId = 14;
-
-        public OpV() {
-            super(tierId);
-        }
-
-        public OpV(int id) {
-            super(id, tierId);
-        }
-
-        @Override
-        protected int getTier() {
-            return tierId;
-        }
-
-        @Override
-        public IMetaTileEntity newMetaEntity(IGregTechTileEntity tileEntity) {
-            return new OpV();
-        }
-    }
-
     public static class MAX extends HEHydroTurbineTileEntity {
 
-        private static final int tierId = 15;
+        private static final int tierId = 14;
 
         public MAX() {
             super(tierId);

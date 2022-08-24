@@ -31,8 +31,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 
 
 public class HEHooksShared {
-	
-	// preInit "Run before anything else. Read your config, create blocks, items, 
+
+	// preInit "Run before anything else. Read your config, create blocks, items,
 	// etc, and register them with the GameRegistry."
 	public void fmlLifeCycleEvent(FMLPreInitializationEvent event) 	{
 		HEConfig.syncronizeConfiguration(event.getSuggestedConfigurationFile());
@@ -57,7 +57,7 @@ public class HEHooksShared {
 
 		FluidRegistry.registerFluid(HE.pressurizedWater);
 	}
-	
+
 	// load "Do your mod setup. Build whatever data structures you care about. Register recipes."
 	public void fmlLifeCycleEvent(FMLInitializationEvent event) {
 		FMLCommonHandler.instance().bus().register(new HEHooksFML());
@@ -92,10 +92,8 @@ public class HEHooksShared {
 		HE.hydroTurbineBlocks[12] = new HEHydroTurbineTileEntity.UMV(HEConfig.blockIdOffset + 17).getStackForm(1L);
 		HE.hydroPumpBlocks[13] = new HEHydroPumpTileEntity.UXV(HEConfig.blockIdOffset + 1).getStackForm(1L);
 		HE.hydroTurbineBlocks[13] = new HEHydroTurbineTileEntity.UXV(HEConfig.blockIdOffset + 17).getStackForm(1L);
-		HE.hydroPumpBlocks[14] = new HEHydroPumpTileEntity.OpV(HEConfig.blockIdOffset + 1).getStackForm(1L);
-		HE.hydroTurbineBlocks[14] = new HEHydroTurbineTileEntity.OpV(HEConfig.blockIdOffset + 17).getStackForm(1L);
-		HE.hydroPumpBlocks[15] = new HEHydroPumpTileEntity.MAX(HEConfig.blockIdOffset + 1).getStackForm(1L);
-		HE.hydroTurbineBlocks[15] = new HEHydroTurbineTileEntity.MAX(HEConfig.blockIdOffset + 17).getStackForm(1L);
+		HE.hydroPumpBlocks[14] = new HEHydroPumpTileEntity.MAX(HEConfig.blockIdOffset + 1).getStackForm(1L);
+		HE.hydroTurbineBlocks[14] = new HEHydroTurbineTileEntity.MAX(HEConfig.blockIdOffset + 17).getStackForm(1L);
 
 		// Hide blocks in NEI if not enabled
 		for(int tierId=0;tierId<HEConfig.enabledTiers.length;tierId++) {
@@ -109,13 +107,13 @@ public class HEHooksShared {
 			}
 		}
 	}
-	
+
 	// postInit "Handle interaction with other mods, complete your setup based on this."
 	public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {
 		NetworkRegistry.INSTANCE.registerGuiHandler(HETags.MODID, HE.guiHandler);
 		HEBlockRecipes.registerRecipes();
 	}
-	
+
 	public void fmlLifeCycleEvent(FMLServerAboutToStartEvent event) {
 
 	}
@@ -129,16 +127,16 @@ public class HEHooksShared {
 			HEServer.instance = HEServer.load(event.getServer().worldServers[0]);
 		}
 	}
-	
+
 	public void fmlLifeCycleEvent(FMLServerStartedEvent event) {
-		
+
 	}
-	
+
 	public void fmlLifeCycleEvent(FMLServerStoppingEvent event) {
-		
+
 	}
-	
+
 	public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {
-		
+
 	}
 }

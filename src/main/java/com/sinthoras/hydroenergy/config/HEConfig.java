@@ -58,7 +58,7 @@ public class HEConfig {
     public static float pressureIncreasePerTier = Defaults.pressureIncreasePerTier;
     public static float milliBucketPerEU = Defaults.milliBucketPerEU;
     public static float euPerMilliBucket = 1.0f / Defaults.milliBucketPerEU;
-    public static boolean[] enabledTiers = new boolean[GT_Values.VN.length];
+    public static boolean[] enabledTiers = new boolean[GT_Values.VN.length - 1];
     public static boolean useLimitedRendering = Defaults.useLimitedRendering;
     public static boolean forceOpenGL = Defaults.forceOpenGL;
 
