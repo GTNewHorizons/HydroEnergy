@@ -353,15 +353,18 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     }
 
     public HEHydroTurbineTileEntity(int blockId, int tierId) {
-        super(blockId + tierId, "he_turbine_" + GT_Values.VN[tierId].toLowerCase(), "Hydro Turbine (" + GT_Values.VN[tierId] + ")");
+        super(
+                blockId + tierId,
+                "he_turbine_" + GT_Values.VN[tierId].toLowerCase(),
+                "Hydro Turbine (" + GT_Values.VN[tierId] + ")");
     }
 
     @Override
     public void onTick() {
-        final int consumableWaterPerTick = (int)(getVoltage() * HEConfig.milliBucketPerEU);
+        final int consumableWaterPerTick = (int) (getVoltage() * HEConfig.milliBucketPerEU);
         int consumedWater = 0;
-        for(FluidStack fluidStack : getStoredFluids()) {
-            if(fluidStack.getFluidID() == HE.pressurizedWater.getID()) {
+        for (FluidStack fluidStack : getStoredFluids()) {
+            if (fluidStack.getFluidID() == HE.pressurizedWater.getID()) {
                 final int consumableWater = Math.max(0, consumableWaterPerTick - consumedWater);
                 final int processedWater = Math.min(fluidStack.amount, consumableWater);
                 fluidStack.amount -= processedWater;
@@ -370,8 +373,8 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
         }
         float producedEU = consumedWater * HEConfig.euPerMilliBucket;
         producedEU *= getEfficiencyModifier();
-        producedEU *= (float)getCurrentEfficiency(null) / 100_00.0f;
-        addEnergyOutput_EM((int)producedEU, 1);
+        producedEU *= (float) getCurrentEfficiency(null) / 100_00.0f;
+        addEnergyOutput_EM((int) producedEU, 1);
 
         addOutput(new FluidStack(FluidRegistry.WATER, consumedWater));
     }
@@ -383,7 +386,8 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
 
     @Override
     public Object getClientGUI(int id, InventoryPlayer playerInventory, IGregTechTileEntity baseMetaTileEntity) {
-        return new GT_GUIContainer_MultiMachineEM(playerInventory, baseMetaTileEntity, this.getLocalName(), "EMDisplay.png", false, false, false);
+        return new GT_GUIContainer_MultiMachineEM(
+                playerInventory, baseMetaTileEntity, this.getLocalName(), "EMDisplay.png", false, false, false);
     }
 
     @SideOnly(Side.CLIENT)
@@ -395,25 +399,29 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     }
 
     @Override
-    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, byte side, byte facing, byte colorIndex, boolean isActive, boolean hasRedstoneSignal) {
-        if(side == facing) {
-            if(isActive) {
+    public ITexture[] getTexture(
+            IGregTechTileEntity baseMetaTileEntity,
+            byte side,
+            byte facing,
+            byte colorIndex,
+            boolean isActive,
+            boolean hasRedstoneSignal) {
+        if (side == facing) {
+            if (isActive) {
                 return new ITexture[] {
-                        Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenTurbineON),
-                        new TT_RenderedExtendedFacingTexture(textureScreenArrowDownAnimated)
+                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
+                    new TT_RenderedExtendedFacingTexture(textureScreenTurbineON),
+                    new TT_RenderedExtendedFacingTexture(textureScreenArrowDownAnimated)
+                };
+            } else {
+                return new ITexture[] {
+                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
+                    new TT_RenderedExtendedFacingTexture(textureScreenTurbineOFF)
                 };
             }
-            else {
-                return new ITexture[] {
-                        Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenTurbineOFF)
-                };
-            }
-        }
-        else {
+        } else {
             return new ITexture[] {
-                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f]
+                Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f]
             };
         }
     }
@@ -421,26 +429,26 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     @Override
     public String[] getDescription() {
         return new String[] {
-                "Hydro Turbine Controller",
-                "Controller Block for the Hydro Turbine",
-                "Consumes pressurize water to produce EU",
-                "Input is pressurized water from Hydro Dams",
-                "Requires a Dynamo, Input, Output and Maintenance Hatch anywhere!",
-                "Produces up to " + getMilliBucketsPerTick() + "mB Water per Tick",
-                "Efficiency: " + getEfficiencyModifierInPercent(),
-                HE.blueprintHintTecTech,
-                "Use Redstone to automate!"
+            "Hydro Turbine Controller",
+            "Controller Block for the Hydro Turbine",
+            "Consumes pressurize water to produce EU",
+            "Input is pressurized water from Hydro Dams",
+            "Requires a Dynamo, Input, Output and Maintenance Hatch anywhere!",
+            "Produces up to " + getMilliBucketsPerTick() + "mB Water per Tick",
+            "Efficiency: " + getEfficiencyModifierInPercent(),
+            HE.blueprintHintTecTech,
+            "Use Redstone to automate!"
         };
     }
 
     @Override
     public String[] getStructureDescription(ItemStack itemStack) {
         return new String[] {
-                "1 Dynamo Hatch",
-                "1 Fluid Input Hatch",
-                "1 Fluid Output Hatch",
-                "1 Maintenance Hatch",
-                "Fill the rest with " + getCasingName(),
+            "1 Dynamo Hatch",
+            "1 Fluid Input Hatch",
+            "1 Fluid Output Hatch",
+            "1 Maintenance Hatch",
+            "Fill the rest with " + getCasingName(),
         };
     }
 
@@ -449,4 +457,3 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
         return getVoltage();
     }
 }
-

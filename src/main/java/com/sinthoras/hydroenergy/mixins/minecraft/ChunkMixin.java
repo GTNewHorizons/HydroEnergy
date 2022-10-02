@@ -14,58 +14,109 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public class ChunkMixin {
 
     // Correct vanilla light calculation if necessary
-    @Inject(method = "generateSkylightMap",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
-                    shift = At.Shift.AFTER),
-            require = 1, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private void onSetExtBlocklight(CallbackInfo callbackInfo, int maxFilledChunkY, int blockX, int blockZ, int lightValue, int blockY, int lightOpacity, ExtendedBlockStorage extendedBlockStorage) {
+    @Inject(
+            method = "generateSkylightMap",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
+                            shift = At.Shift.AFTER),
+            require = 1,
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+    private void onSetExtBlocklight(
+            CallbackInfo callbackInfo,
+            int maxFilledChunkY,
+            int blockX,
+            int blockZ,
+            int lightValue,
+            int blockY,
+            int lightOpacity,
+            ExtendedBlockStorage extendedBlockStorage) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
     }
 
     // Correct vanilla light calculation if necessary
-    @Inject(method = "relightBlock",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
-                    shift = At.Shift.AFTER,
-                    ordinal = 0),
+    @Inject(
+            method = "relightBlock",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
+                            shift = At.Shift.AFTER,
+                            ordinal = 0),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
             require = 1)
-    private void onRelightBlockSetExtBlockLightA(int blockX, int unusedBlockY, int blockZ, CallbackInfo callbackInfo, int highestBlockY, int i1, int j1, int k1, int blockY, ExtendedBlockStorage extendedBlockStorage) {
+    private void onRelightBlockSetExtBlockLightA(
+            int blockX,
+            int unusedBlockY,
+            int blockZ,
+            CallbackInfo callbackInfo,
+            int highestBlockY,
+            int i1,
+            int j1,
+            int k1,
+            int blockY,
+            ExtendedBlockStorage extendedBlockStorage) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
     }
 
     // Correct vanilla light calculation if necessary
-    @Inject(method = "relightBlock",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
-                    shift = At.Shift.AFTER,
-                    ordinal = 1),
+    @Inject(
+            method = "relightBlock",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
+                            shift = At.Shift.AFTER,
+                            ordinal = 1),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
             require = 1)
-    private void onRelightBlockSetExtBlockLightB(int blockX, int unusedBlockY, int blockZ, CallbackInfo callbackInfo, int highestBlockY, int i1, int j1, int k1, int blockY, ExtendedBlockStorage extendedBlockStorage) {
+    private void onRelightBlockSetExtBlockLightB(
+            int blockX,
+            int unusedBlockY,
+            int blockZ,
+            CallbackInfo callbackInfo,
+            int highestBlockY,
+            int i1,
+            int j1,
+            int k1,
+            int blockY,
+            ExtendedBlockStorage extendedBlockStorage) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
     }
 
     // Correct vanilla light calculation if necessary
-    @Inject(method = "relightBlock",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
-                    shift = At.Shift.AFTER,
-                    ordinal = 2),
+    @Inject(
+            method = "relightBlock",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
+                            shift = At.Shift.AFTER,
+                            ordinal = 2),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
             require = 1)
-    private void onRelightBlockSetExtBlockLightC(int blockX, int unusedBlockY, int blockZ, CallbackInfo callbackInfo, int highestBlockY, int blockY, int j1, int k1, int l1, int i2) {
+    private void onRelightBlockSetExtBlockLightC(
+            int blockX, int unusedBlockY, int blockZ, CallbackInfo callbackInfo, int highestBlockY, int blockY) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
     }
 
     // Correct vanilla light calculation if necessary
-    @Inject(method = "setLightValue",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
-                    shift = At.Shift.AFTER),
+    @Inject(
+            method = "setLightValue",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;setExtSkylightValue(IIII)V",
+                            shift = At.Shift.AFTER),
             require = 1)
-    private void onSetLightValue(EnumSkyBlock enumSkyBlock, int blockX, int blockY, int blockZ, int lightValue, CallbackInfo callbackInfo) {
+    private void onSetLightValue(
+            EnumSkyBlock enumSkyBlock, int blockX, int blockY, int blockZ, int lightValue, CallbackInfo callbackInfo) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
     }
 }

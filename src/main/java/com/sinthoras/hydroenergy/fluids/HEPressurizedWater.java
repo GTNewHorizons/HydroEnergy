@@ -30,17 +30,16 @@ public class HEPressurizedWater extends Fluid {
     }
 
     public void setPressure(FluidStack fluidStack, float pressure) {
-        if(fluidStack.tag == null) {
+        if (fluidStack.tag == null) {
             fluidStack.tag = new NBTTagCompound();
         }
         fluidStack.tag.setFloat(HETags.pressure, pressure);
     }
 
     public float getPressure(FluidStack fluidStack) {
-        if(fluidStack.tag != null && fluidStack.tag.hasKey(HETags.pressure)) {
+        if (fluidStack.tag != null && fluidStack.tag.hasKey(HETags.pressure)) {
             return fluidStack.tag.getFloat(HETags.pressure);
-        }
-        else {
+        } else {
             return -1;
         }
     }

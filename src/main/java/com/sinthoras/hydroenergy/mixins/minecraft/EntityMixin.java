@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class EntityMixin {
 
     // Redirect getBlock to check for custom water
-    @Redirect(method = "isInsideOfMaterial",
+    @Redirect(
+            method = "isInsideOfMaterial",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlock(III)Lnet/minecraft/block/Block;"),
             require = 1)
     private Block redirectGetBlock(World world, int blockX, int blockY, int blockZ) {

@@ -6,12 +6,11 @@ import com.sinthoras.hydroenergy.blocks.HEHydroDamTileEntity;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import java.nio.ByteBuffer;
+import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
-
-import java.nio.ByteBuffer;
-import java.util.List;
 
 public class HEHydroDamEuContainer extends GT_Container_MultiMachineEM {
 
@@ -38,8 +37,7 @@ public class HEHydroDamEuContainer extends GT_Container_MultiMachineEM {
     }
 
     @Override
-    public void addCraftingToCrafters(ICrafting clientHandle)
-    {
+    public void addCraftingToCrafters(ICrafting clientHandle) {
         buffer.putLong(Buffer.euStoredOffset, euStored);
         sendStateUpdate(clientHandle, Buffer.euStoredOffset);
 
@@ -65,7 +63,7 @@ public class HEHydroDamEuContainer extends GT_Container_MultiMachineEM {
             buffer = ByteBuffer.allocate(2 * Long.BYTES + 2 * Integer.BYTES);
         }
 
-        if(mTileEntity.isServerSide()) {
+        if (mTileEntity.isServerSide()) {
             HEHydroDamTileEntity hydroDamTileEntity = (HEHydroDamTileEntity) mTileEntity.getMetaTileEntity();
             long currentTime = System.currentTimeMillis();
             if (!mTileEntity.getWorld().isRemote && currentTime > HE.controllerGuiUpdateDelay + timestamp) {
@@ -126,13 +124,11 @@ public class HEHydroDamEuContainer extends GT_Container_MultiMachineEM {
         }
     }
 
-
     private void sendStateUpdate(ICrafting clientHandle, int bufferOffset) {
         final int bytes;
-        if(bufferOffset >= Buffer.euPerTickInOffset) {
+        if (bufferOffset >= Buffer.euPerTickInOffset) {
             bytes = Integer.BYTES;
-        }
-        else {
+        } else {
             bytes = Long.BYTES;
         }
         for (int i = 0; i < bytes; i++) {
@@ -147,11 +143,10 @@ public class HEHydroDamEuContainer extends GT_Container_MultiMachineEM {
     }
 
     @SideOnly(Side.CLIENT)
-    public void updateProgressBar(int index, int value)
-    {
+    public void updateProgressBar(int index, int value) {
         super.updateProgressBar(index, value);
         index = index - parameterIdOffset;
-        if(index >= 0 && index < buffer.capacity()) {
+        if (index >= 0 && index < buffer.capacity()) {
             buffer.put(index, (byte) value);
         }
     }

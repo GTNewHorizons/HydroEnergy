@@ -11,29 +11,27 @@ public class HEGetMaterialUtil {
     private static Logger LOG = LogManager.getLogger("HE API");
 
     public static Material getMaterialWrapper(Block block, int blockY) {
-        if(block instanceof IHEHasCustomMaterialCalculation) {
-            return ((IHEHasCustomMaterialCalculation)block).getMaterial(blockY);
-        }
-        else {
+        if (block instanceof IHEHasCustomMaterialCalculation) {
+            return ((IHEHasCustomMaterialCalculation) block).getMaterial(blockY);
+        } else {
             return block.getMaterial();
         }
     }
 
     public static Material getMaterialWrapper(Block block, double blockY) {
-        if(block instanceof IHEHasCustomMaterialCalculation) {
+        if (block instanceof IHEHasCustomMaterialCalculation) {
             LOG.info("triggered");
-            return ((IHEHasCustomMaterialCalculation)block).getMaterial(blockY);
-        }
-        else {
+            return ((IHEHasCustomMaterialCalculation) block).getMaterial(blockY);
+        } else {
             return block.getMaterial();
         }
     }
 
     public static Material getMaterialWrapper(EntityViewRenderEvent.FogColors event) {
-        if(event.block instanceof IHEHasCustomMaterialCalculation) {
-            return ((IHEHasCustomMaterialCalculation)event.block).getMaterial(event.entity.posY + event.entity.getEyeHeight());
-        }
-        else {
+        if (event.block instanceof IHEHasCustomMaterialCalculation) {
+            return ((IHEHasCustomMaterialCalculation) event.block)
+                    .getMaterial(event.entity.posY + event.entity.getEyeHeight());
+        } else {
             return event.block.getMaterial();
         }
     }

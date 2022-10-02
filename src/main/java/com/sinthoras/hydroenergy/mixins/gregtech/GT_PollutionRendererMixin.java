@@ -1,5 +1,7 @@
 package com.sinthoras.hydroenergy.mixins.gregtech;
 
+import static com.sinthoras.hydroenergy.api.HEGetMaterialUtil.getMaterialWrapper;
+
 import gregtech.common.render.GT_PollutionRenderer;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -10,29 +12,33 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.sinthoras.hydroenergy.api.HEGetMaterialUtil.getMaterialWrapper;
-
 @Mixin(value = GT_PollutionRenderer.class)
 public class GT_PollutionRendererMixin {
 
     private EntityViewRenderEvent.FogColors event;
 
     // Grab eye position for subsequent getMaterial call
-    @Inject(method = "manipulateColor",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/block/Block;getMaterial()Lnet/minecraft/block/material/Material;",
-                    shift = At.Shift.BEFORE,
-                    ordinal = 0),
+    @Inject(
+            method = "manipulateColor",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/block/Block;getMaterial()Lnet/minecraft/block/material/Material;",
+                            shift = At.Shift.BEFORE,
+                            ordinal = 0),
             require = 1)
     private void beforeMaterialIsWaterCheck(EntityViewRenderEvent.FogColors event, CallbackInfo callbackInfo) {
         this.event = event;
     }
 
     // Redirect getMaterial to check for custom water
-    @Redirect(method = "manipulateColor",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/block/Block;getMaterial()Lnet/minecraft/block/material/Material;",
-                    ordinal = 0),
+    @Redirect(
+            method = "manipulateColor",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/block/Block;getMaterial()Lnet/minecraft/block/material/Material;",
+                            ordinal = 0),
             require = 1)
     private Material redirectMaterialIsWaterCheck(Block instance) {
         return getMaterialWrapper(instance, event.entity.posY + event.entity.getEyeHeight());

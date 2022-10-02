@@ -1,5 +1,8 @@
 package com.sinthoras.hydroenergy.blocks;
 
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
+import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
+
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
@@ -32,14 +35,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
-import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
-
 public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
 
     private static Textures.BlockIcons.CustomIcon Screen;
-    private final static int steelTextureIndex = 16;
-    private final static int concreteBlockMeta = 8;
+    private static final int steelTextureIndex = 16;
+    private static final int concreteBlockMeta = 8;
     private int waterId = -1;
     private long euStored = 0;
     private long euCapacity = 0;
@@ -49,33 +49,26 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     private final HEUtil.AveragedRingBuffer euPerTickOutAverage = new HEUtil.AveragedRingBuffer(64);
     private final HEUtil.AveragedRingBuffer euPerTickInAverage = new HEUtil.AveragedRingBuffer(64);
 
-    private static final IStructureDefinition<HEHydroDamTileEntity> multiblockDefinition = StructureDefinition
-        .<HEHydroDamTileEntity>builder()
-        .addShape(HETags.structurePieceMain,
-            transpose(new String[][]{
-                {"HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC"},
-                {"HHHHH", "C   C", "C   C", "C   C", "C   C"},
-                {"HHHHH", "C   C", "C   C", "C   C", "C   C"},
-                {"HH~HH", "C   C", "C   C", "C   C", "C   C"},
-                {"HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC"}
-            })
-        ).addElement(
-            'H',
-            ofChain(
-                ofHatchAdder(
-                    HEHydroDamTileEntity::addClassicToMachineList, steelTextureIndex,
-                    GregTech_API.sBlockConcretes, concreteBlockMeta
-                ),
-                ofBlockAnyMeta(
-                    GregTech_API.sBlockConcretes, concreteBlockMeta
-                )
-            )
-        ).addElement(
-            'C',
-                    ofBlockAnyMeta(
-                GregTech_API.sBlockConcretes, concreteBlockMeta
-            )
-        ).build();
+    private static final IStructureDefinition<HEHydroDamTileEntity> multiblockDefinition =
+            StructureDefinition.<HEHydroDamTileEntity>builder()
+                    .addShape(HETags.structurePieceMain, transpose(new String[][] {
+                        {"HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC"},
+                        {"HHHHH", "C   C", "C   C", "C   C", "C   C"},
+                        {"HHHHH", "C   C", "C   C", "C   C", "C   C"},
+                        {"HH~HH", "C   C", "C   C", "C   C", "C   C"},
+                        {"HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC"}
+                    }))
+                    .addElement(
+                            'H',
+                            ofChain(
+                                    ofHatchAdder(
+                                            HEHydroDamTileEntity::addClassicToMachineList,
+                                            steelTextureIndex,
+                                            GregTech_API.sBlockConcretes,
+                                            concreteBlockMeta),
+                                    ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta)))
+                    .addElement('C', ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta))
+                    .build();
 
     public HEHydroDamTileEntity(String name) {
         super(name);
@@ -105,7 +98,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     @Override
     public void construct(ItemStack itemStack, boolean hintsOnly) {
-        structureBuild_EM(HETags.structurePieceMain, 2,3,0, itemStack, hintsOnly);
+        structureBuild_EM(HETags.structurePieceMain, 2, 3, 0, itemStack, hintsOnly);
     }
 
     @Override
@@ -120,8 +113,11 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     private float getMaxGuiPressure() {
-        boolean configCircuitIsPresent = mInventory != null && mInventory[1] != null && mInventory[1].getItem() == GT_Utility.getIntegratedCircuit(0).getItem();
-        int voltageTier = configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length - 1) : 1;
+        boolean configCircuitIsPresent = mInventory != null
+                && mInventory[1] != null
+                && mInventory[1].getItem() == GT_Utility.getIntegratedCircuit(0).getItem();
+        int voltageTier =
+                configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length - 1) : 1;
         return HEConfig.pressureIncreasePerTier * voltageTier;
     }
 
@@ -133,13 +129,15 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
         euCapacity = HEServer.instance.getEuCapacity(waterId);
         euStored = HEUtil.clamp(euStored, 0, euCapacity);
-        euCapacityGui = HEServer.instance.getEuCapacityAt(waterId, (int)(getBaseMetaTileEntity().getYCoord() + getMaxGuiPressure()));
+        euCapacityGui = HEServer.instance.getEuCapacityAt(
+                waterId, (int) (getBaseMetaTileEntity().getYCoord() + getMaxGuiPressure()));
 
-        final int waterLevelOverController = (int) (HEServer.instance.getWaterLevel(waterId) - getBaseMetaTileEntity().getYCoord());
+        final int waterLevelOverController = (int) (HEServer.instance.getWaterLevel(waterId)
+                - getBaseMetaTileEntity().getYCoord());
         getStoredFluids().forEach(fluidStack -> {
-            if(fluidStack.getFluidID() == HE.pressurizedWater.getID()
+            if (fluidStack.getFluidID() == HE.pressurizedWater.getID()
                     && HE.pressurizedWater.getPressure(fluidStack) >= waterLevelOverController) {
-                final long availableEnergy = (long)(fluidStack.amount * HEConfig.euPerMilliBucket);
+                final long availableEnergy = (long) (fluidStack.amount * HEConfig.euPerMilliBucket);
                 final long storableEnergy = Math.min(euCapacity - euStored, availableEnergy);
                 fluidStack.amount -= storableEnergy;
                 euStored += storableEnergy;
@@ -147,17 +145,18 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
             }
         });
 
-        final int availableOutput = (int)Math.min(HEConfig.damDrainPerSecond, euStored);
-        final int availableOutputAsWater = (int)(availableOutput * HEConfig.milliBucketPerEU);
-        if(availableOutput > 0) {
+        final int availableOutput = (int) Math.min(HEConfig.damDrainPerSecond, euStored);
+        final int availableOutputAsWater = (int) (availableOutput * HEConfig.milliBucketPerEU);
+        if (availableOutput > 0) {
             final int distributedFluid = distributeFluid(new FluidStack(HE.pressurizedWater, availableOutputAsWater));
-            final long distributedEu = (long)(distributedFluid * HEConfig.euPerMilliBucket);
+            final long distributedEu = (long) (distributedFluid * HEConfig.euPerMilliBucket);
             euStored -= distributedEu;
             euPerTickOut += distributedEu;
         }
 
-        if(getBaseMetaTileEntity().getWorld().isRaining()) {
-            final long rainingEuGeneration = (long)(HEServer.instance.getRainedOnBlocks(waterId) * HEConfig.waterBonusPerSurfaceBlockPerRainTick);
+        if (getBaseMetaTileEntity().getWorld().isRaining()) {
+            final long rainingEuGeneration = (long)
+                    (HEServer.instance.getRainedOnBlocks(waterId) * HEConfig.waterBonusPerSurfaceBlockPerRainTick);
             final long addedEu = Math.min(euCapacity - euStored, rainingEuGeneration);
             euStored += addedEu;
             euPerTickIn += addedEu;
@@ -179,7 +178,9 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
             if (!hatch.outputsLiquids()) {
                 continue;
             }
-            if (hatch.isFluidLocked() && hatch.getLockedFluidName() != null && !hatch.getLockedFluidName().equals(fluidStack.getUnlocalizedName())) {
+            if (hatch.isFluidLocked()
+                    && hatch.getLockedFluidName() != null
+                    && !hatch.getLockedFluidName().equals(fluidStack.getUnlocalizedName())) {
                 continue;
             }
 
@@ -187,7 +188,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
             if (currentFluid == null || currentFluid.getFluid().getID() <= 0) {
                 currentFluid = new FluidStack(HE.pressurizedWater, 0);
             }
-            if(currentFluid.getFluid().getID() == HE.pressurizedWater.getID()) {
+            if (currentFluid.getFluid().getID() == HE.pressurizedWater.getID()) {
                 final int availableSpace = hatch.getCapacity() - currentFluid.amount;
                 final int placedFluid = Math.min(availableSpace, fluidStack.amount);
                 fluidStack.amount -= placedFluid;
@@ -210,10 +211,16 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     @Override
     public void onScrewdriverRightClick(byte side, EntityPlayer player, float blockX, float blockY, float blockZ) {
-        if(!player.isSneaking()) {
+        if (!player.isSneaking()) {
             if (getBaseMetaTileEntity().isServerSide()) {
-                FMLNetworkHandler.openGui(player, HETags.MODID, HEGuiHandler.HydroDamConfigurationGuiId, getBaseMetaTileEntity().getWorld(),
-                        getBaseMetaTileEntity().getXCoord(), getBaseMetaTileEntity().getYCoord(), getBaseMetaTileEntity().getZCoord());
+                FMLNetworkHandler.openGui(
+                        player,
+                        HETags.MODID,
+                        HEGuiHandler.HydroDamConfigurationGuiId,
+                        getBaseMetaTileEntity().getWorld(),
+                        getBaseMetaTileEntity().getXCoord(),
+                        getBaseMetaTileEntity().getYCoord(),
+                        getBaseMetaTileEntity().getZCoord());
             }
         }
     }
@@ -225,17 +232,20 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     @Override
-    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, byte side, byte facing, byte colorIndex, boolean isActive, boolean hasRedstoneSignal) {
-        if(side == facing) {
+    public ITexture[] getTexture(
+            IGregTechTileEntity baseMetaTileEntity,
+            byte side,
+            byte facing,
+            byte colorIndex,
+            boolean isActive,
+            boolean hasRedstoneSignal) {
+        if (side == facing) {
             return new ITexture[] {
-                    Textures.BlockIcons.getCasingTextureForId(steelTextureIndex),
-                    new TT_RenderedExtendedFacingTexture(Screen)
+                Textures.BlockIcons.getCasingTextureForId(steelTextureIndex),
+                new TT_RenderedExtendedFacingTexture(Screen)
             };
-        }
-        else {
-            return new ITexture[] {
-                    Textures.BlockIcons.getCasingTextureForId(steelTextureIndex)
-            };
+        } else {
+            return new ITexture[] {Textures.BlockIcons.getCasingTextureForId(steelTextureIndex)};
         }
     }
 
@@ -247,28 +257,26 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     @Override
     public void onFirstTick_EM(IGregTechTileEntity baseMetaTileEntity) {
-        if(waterId == -1 && getBaseMetaTileEntity().isServerSide()) {
+        if (waterId == -1 && getBaseMetaTileEntity().isServerSide()) {
             ForgeDirection direction = getExtendedFacing().getDirection();
             final int offsetX;
             final int offsetY = 1;
             final int offsetZ;
-            if(direction == ForgeDirection.WEST) {
+            if (direction == ForgeDirection.WEST) {
                 offsetX = 2;
                 offsetZ = 0;
-            }
-            else if(direction == ForgeDirection.NORTH) {
+            } else if (direction == ForgeDirection.NORTH) {
                 offsetX = 0;
                 offsetZ = 2;
-            }
-            else if(direction == ForgeDirection.EAST) {
+            } else if (direction == ForgeDirection.EAST) {
                 offsetX = -2;
                 offsetZ = 0;
-            }
-            else {
+            } else {
                 offsetX = 0;
                 offsetZ = -2;
             }
-            waterId = HEServer.instance.onPlacecontroller(getBaseMetaTileEntity().getOwnerName(),
+            waterId = HEServer.instance.onPlacecontroller(
+                    getBaseMetaTileEntity().getOwnerName(),
                     getBaseMetaTileEntity().getWorld().provider.dimensionId,
                     getBaseMetaTileEntity().getXCoord(),
                     getBaseMetaTileEntity().getYCoord(),
@@ -283,7 +291,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     @Override
     public void onRemoval() {
-        if(getBaseMetaTileEntity().isServerSide()) {
+        if (getBaseMetaTileEntity().isServerSide()) {
             HEServer.instance.onBreakController(waterId);
         }
         super.onRemoval();
@@ -305,13 +313,13 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
         euCapacity = compound.getLong(HETags.waterCapacity);
     }
 
-    private final static String[] mouseOverDescription = new String[] {
-            "Hydro Dam Controller",
-            "Controller Block for the Hydro Dam",
-            "Input is pressurized water from Hydro Pumps",
-            "Output is pressurized water for Hydro Turbines",
-            "Requires an Input and Output Hatch on the front!",
-            HE.blueprintHintTecTech
+    private static final String[] mouseOverDescription = new String[] {
+        "Hydro Dam Controller",
+        "Controller Block for the Hydro Dam",
+        "Input is pressurized water from Hydro Pumps",
+        "Output is pressurized water for Hydro Turbines",
+        "Requires an Input and Output Hatch on the front!",
+        HE.blueprintHintTecTech
     };
 
     @Override
@@ -320,10 +328,10 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     private static final String[] chatDescription = new String[] {
-            "1 Fluid Input Hatch",
-            "1 Fluid Output Hatch",
-            "Fill the rest with Light Concrete",
-            "No Maintenance Hatch required!"
+        "1 Fluid Input Hatch",
+        "1 Fluid Output Hatch",
+        "Fill the rest with Light Concrete",
+        "No Maintenance Hatch required!"
     };
 
     @Override
@@ -340,11 +348,11 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     public int getEuPerTickIn() {
-        return (int)euPerTickInAverage.getAverage();
+        return (int) euPerTickInAverage.getAverage();
     }
 
     public int getEuPerTickOut() {
-        return (int)euPerTickOutAverage.getAverage();
+        return (int) euPerTickOutAverage.getAverage();
     }
 
     public int getWaterId() {

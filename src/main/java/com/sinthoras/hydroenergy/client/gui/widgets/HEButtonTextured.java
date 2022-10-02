@@ -28,7 +28,6 @@ public class HEButtonTextured extends GuiButton {
         }
     }
 
-
     private int texU = 0;
 
     public HEButtonTextured(int id, int pixelX, int pixelY, int texU) {

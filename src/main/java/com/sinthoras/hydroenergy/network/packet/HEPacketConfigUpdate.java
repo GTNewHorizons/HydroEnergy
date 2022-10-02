@@ -21,7 +21,18 @@ public class HEPacketConfigUpdate implements IMessage {
     public int limitUp;
     public int limitSouth;
 
-    public HEPacketConfigUpdate(int waterId, int blockX, int blockY, int blockZ, HE.DamMode mode, int limitWest, int limitDown, int limitNorth, int limitEast, int limitUp, int limitSouth) {
+    public HEPacketConfigUpdate(
+            int waterId,
+            int blockX,
+            int blockY,
+            int blockZ,
+            HE.DamMode mode,
+            int limitWest,
+            int limitDown,
+            int limitNorth,
+            int limitEast,
+            int limitUp,
+            int limitSouth) {
         this.waterId = waterId;
         this.blockX = blockX;
         this.blockY = blockY;
@@ -35,9 +46,7 @@ public class HEPacketConfigUpdate implements IMessage {
         this.limitSouth = limitSouth;
     }
 
-    public HEPacketConfigUpdate() {
-
-    }
+    public HEPacketConfigUpdate() {}
 
     @Override
     public void fromBytes(ByteBuf buf) {
@@ -73,7 +82,8 @@ public class HEPacketConfigUpdate implements IMessage {
 
         @Override
         public IMessage onMessage(HEPacketConfigUpdate message, MessageContext ctx) {
-            HEClient.onConfigUpdate(message.waterId,
+            HEClient.onConfigUpdate(
+                    message.waterId,
                     message.blockX,
                     message.blockY,
                     message.blockZ,

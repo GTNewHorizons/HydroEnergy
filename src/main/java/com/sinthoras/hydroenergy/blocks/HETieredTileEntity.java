@@ -1,5 +1,8 @@
 package com.sinthoras.hydroenergy.blocks;
 
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
+import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
+
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
@@ -12,9 +15,6 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GT_LanguageManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
-import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
 
 public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
 
@@ -33,7 +33,7 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
 
     // TODO: case 10, 12 - 15
     protected Block getCasingBlock() {
-        switch(getTier()) {
+        switch (getTier()) {
             default:
             case 1:
             case 2:
@@ -53,7 +53,7 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
 
     // TODO: case 10, 12 - 15
     protected int getCasingMeta() {
-        switch(getTier()) {
+        switch (getTier()) {
             default:
             case 1:
             case 5:
@@ -78,32 +78,33 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
     protected int getCasingTextureId() {
         final Block casingBlock = getCasingBlock();
         final int metaId = getCasingMeta();
-        if(casingBlock == GregTech_API.sBlockCasings1) {
+        if (casingBlock == GregTech_API.sBlockCasings1) {
             return metaId;
         }
-        if(casingBlock == GregTech_API.sBlockCasings2) {
+        if (casingBlock == GregTech_API.sBlockCasings2) {
             return 16 + metaId;
         }
-        if(casingBlock == GregTech_API.sBlockCasings3) {
+        if (casingBlock == GregTech_API.sBlockCasings3) {
             return 2 * 16 + metaId;
         }
-        if(casingBlock == GregTech_API.sBlockCasings4) {
+        if (casingBlock == GregTech_API.sBlockCasings4) {
             return 3 * 16 + metaId;
         }
-        if(casingBlock == GregTech_API.sBlockCasings5) {
+        if (casingBlock == GregTech_API.sBlockCasings5) {
             return 4 * 16 + metaId;
         }
-        if(casingBlock == GregTech_API.sBlockCasings6) {
+        if (casingBlock == GregTech_API.sBlockCasings6) {
             return 5 * 16 + metaId;
         }
-        if(casingBlock == GregTech_API.sBlockCasings8) {
+        if (casingBlock == GregTech_API.sBlockCasings8) {
             return 7 * 16 + metaId;
         }
         return 0;
     }
 
     protected String getCasingName() {
-        return GT_LanguageManager.getTranslation(getCasingBlock().getUnlocalizedName() + "." + getCasingMeta() + ".name");
+        return GT_LanguageManager.getTranslation(
+                getCasingBlock().getUnlocalizedName() + "." + getCasingMeta() + ".name");
     }
 
     protected long getVoltage() {
@@ -123,7 +124,7 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
     }
 
     protected int getMilliBucketsPerTick() {
-        return (int)(getVoltage() * HEConfig.milliBucketPerEU);
+        return (int) (getVoltage() * HEConfig.milliBucketPerEU);
     }
 
     protected abstract void onTick();
@@ -142,7 +143,7 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
     @Override
     public boolean checkRecipe_EM(ItemStack stack) {
         mMaxProgresstime = 1;
-        mEUt = (int)getEnergyConsumption();
+        mEUt = (int) getEnergyConsumption();
         mEfficiencyIncrease = 100_00;
         return true;
     }
@@ -155,36 +156,32 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
 
     @Override
     public void construct(ItemStack itemStack, boolean hintsOnly) {
-        structureBuild_EM(HETags.mainStructure, 1,1,0, itemStack, hintsOnly);
+        structureBuild_EM(HETags.mainStructure, 1, 1, 0, itemStack, hintsOnly);
     }
 
     @Override
     public IStructureDefinition<HETieredTileEntity> getStructure_EM() {
-        if(multiblockDefinition == null) {
+        if (multiblockDefinition == null) {
             final Block casingBlock = getCasingBlock();
             final int casingMeta = getCasingMeta();
-            multiblockDefinition = StructureDefinition
-                    .<HETieredTileEntity>builder()
-                    .addShape(HETags.mainStructure,
-                            transpose(new String[][]{
-                                    {"CCC", "CCC", "CCC"},
-                                    {"C~C", "C C", "CCC"},
-                                    {"CCC", "CCC", "CCC"}
-                            })
-                    ).addElement(
+            multiblockDefinition = StructureDefinition.<HETieredTileEntity>builder()
+                    .addShape(HETags.mainStructure, transpose(new String[][] {
+                        {"CCC", "CCC", "CCC"},
+                        {"C~C", "C C", "CCC"},
+                        {"CCC", "CCC", "CCC"}
+                    }))
+                    .addElement(
                             'C',
                             ofChain(
-                                    onElementPass(x -> x.countOfHatches++,
+                                    onElementPass(
+                                            x -> x.countOfHatches++,
                                             ofHatchAdder(
-                                                    HETieredTileEntity::addClassicToMachineList, getCasingTextureId(),
-                                                    casingBlock, casingMeta
-                                            )
-                                    ),
-                                    ofBlock(
-                                            casingBlock, casingMeta
-                                    )
-                            )
-                    ).build();
+                                                    HETieredTileEntity::addClassicToMachineList,
+                                                    getCasingTextureId(),
+                                                    casingBlock,
+                                                    casingMeta)),
+                                    ofBlock(casingBlock, casingMeta)))
+                    .build();
         }
         return multiblockDefinition;
     }

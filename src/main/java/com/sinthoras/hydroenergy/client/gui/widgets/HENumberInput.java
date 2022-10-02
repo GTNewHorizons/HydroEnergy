@@ -20,11 +20,10 @@ public class HENumberInput extends GuiTextField {
         super.writeText(newText);
         try {
             int value = Integer.parseInt(getText());
-            if(value != parseValue(value)) {
+            if (value != parseValue(value)) {
                 setText(oldText);
             }
-        }
-        catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             setText(oldText);
         }
     }
@@ -34,8 +33,8 @@ public class HENumberInput extends GuiTextField {
             int value = Integer.parseInt(getText());
             value = parseValue(value + offset);
             setText("" + value);
+        } catch (Exception e) {
         }
-        catch(Exception e) {}
     }
 
     public int parseValue(int value) {
@@ -45,8 +44,7 @@ public class HENumberInput extends GuiTextField {
     public int getValue() {
         try {
             return Integer.parseInt(getText());
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return 0;
         }
     }

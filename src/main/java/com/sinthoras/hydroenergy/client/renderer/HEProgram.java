@@ -2,10 +2,12 @@ package com.sinthoras.hydroenergy.client.renderer;
 
 import com.google.common.base.Charsets;
 import com.sinthoras.hydroenergy.HE;
-
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.client.HEClient;
 import com.sinthoras.hydroenergy.config.HEConfig;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -19,15 +21,14 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-
 public class HEProgram {
 
-    private static final ResourceLocation vertexShaderLocation = new ResourceLocation(HETags.MODID, "shader/hewater/shader.vsh");
-    private static final ResourceLocation geometryShaderLocation = new ResourceLocation(HETags.MODID, "shader/hewater/shader.gsh");
-    private static final ResourceLocation fragmentShaderLocation = new ResourceLocation(HETags.MODID, "shader/hewater/shader.fsh");
+    private static final ResourceLocation vertexShaderLocation =
+            new ResourceLocation(HETags.MODID, "shader/hewater/shader.vsh");
+    private static final ResourceLocation geometryShaderLocation =
+            new ResourceLocation(HETags.MODID, "shader/hewater/shader.gsh");
+    private static final ResourceLocation fragmentShaderLocation =
+            new ResourceLocation(HETags.MODID, "shader/hewater/shader.fsh");
 
     private static int programId;
     private static int viewProjectionId;
@@ -57,9 +58,8 @@ public class HEProgram {
     private static float fogColorGreen = 0;
     private static float fogColorBlue = 0;
 
-
     public static void init() {
-        if((GLContext.getCapabilities().OpenGL32 && !HEConfig.useLimitedRendering) || HEConfig.forceOpenGL) {
+        if ((GLContext.getCapabilities().OpenGL32 && !HEConfig.useLimitedRendering) || HEConfig.forceOpenGL) {
             final String defines = "#version 330 core\n"
                     + "#define NUM_CONTROLLERS " + HEConfig.maxDams + "\n"
                     + "#define CLIPPING_OFFSET " + HEConfig.clippingOffset + "\n";
@@ -100,15 +100,18 @@ public class HEProgram {
             GL20.glUseProgram(0);
 
             HE.info("Render pipeline initialized.");
-        }
-        else {
-            HE.info("Render pipeline NOT initialized. OpenGL 3.2 is not supported! Fallback to vanilla rendering. Expect visual \"anomalies\"...");
+        } else {
+            HE.info(
+                    "Render pipeline NOT initialized. OpenGL 3.2 is not supported! Fallback to vanilla rendering. Expect visual \"anomalies\"...");
         }
     }
 
     private static int loadShader(ResourceLocation shaderLocation, int type, String defines) {
         try {
-            InputStream shaderStream = Minecraft.getMinecraft().getResourceManager().getResource(shaderLocation).getInputStream();
+            InputStream shaderStream = Minecraft.getMinecraft()
+                    .getResourceManager()
+                    .getResource(shaderLocation)
+                    .getInputStream();
             BufferedInputStream bufferedinputstream = new BufferedInputStream(shaderStream);
             byte[] shaderBytes = IOUtils.toByteArray(bufferedinputstream);
             byte[] definesBytes = defines.getBytes(Charsets.US_ASCII);
@@ -119,16 +122,14 @@ public class HEProgram {
             final int shaderID = GL20.glCreateShader(type);
             GL20.glShaderSource(shaderID, bytebuffer);
             GL20.glCompileShader(shaderID);
-            if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == 0)
-            {
-                String s = StringUtils.trim(GL20.glGetShaderInfoLog(shaderID, 32768));  //Const good?
+            if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == 0) {
+                String s = StringUtils.trim(GL20.glGetShaderInfoLog(shaderID, 32768)); // Const good?
                 HE.error("Couldn't compile shader: " + s);
                 return GL31.GL_INVALID_INDEX;
             }
             GL20.glUseProgram(programId);
             return shaderID;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return GL31.GL_INVALID_INDEX;
         }
@@ -215,7 +216,9 @@ public class HEProgram {
 
     public static void bindLightLookupTable() {
         GL13.glActiveTexture(GL13.GL_TEXTURE1);
-        Minecraft.getMinecraft().getTextureManager().bindTexture(Minecraft.getMinecraft().entityRenderer.locationLightMap);
+        Minecraft.getMinecraft()
+                .getTextureManager()
+                .bindTexture(Minecraft.getMinecraft().entityRenderer.locationLightMap);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);

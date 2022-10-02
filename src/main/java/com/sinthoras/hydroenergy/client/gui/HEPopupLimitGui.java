@@ -5,17 +5,17 @@ import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.client.gui.widgets.HENumberInput;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.List;
-
 @SideOnly(Side.CLIENT)
 public class HEPopupLimitGui extends Gui {
 
-    private static ResourceLocation limitBackgroundTextureLocation = new ResourceLocation(HETags.MODID, HE.damLimitBackgroundLocation);
+    private static ResourceLocation limitBackgroundTextureLocation =
+            new ResourceLocation(HETags.MODID, HE.damLimitBackgroundLocation);
 
     private GuiButton minus1000;
     private GuiButton minus100;
@@ -32,7 +32,7 @@ public class HEPopupLimitGui extends Gui {
     public static final int xSize = 168;
     public static final int ySize = 140;
 
-    public  boolean visible;
+    public boolean visible;
 
     private int guiLeft;
     private int guiTop;
@@ -177,14 +177,19 @@ public class HEPopupLimitGui extends Gui {
     }
 
     public void mouseClicked(int pixelX, int pixelY, int mouseButtonId) {
-        if(visible) {
+        if (visible) {
             textField.mouseClicked(pixelX, pixelY, mouseButtonId);
         }
     }
 
     public boolean keyTyped(char c, int keyCode) {
-        if(visible) {
-            if (keyCode == 1 || keyCode == Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode()) {
+        if (visible) {
+            if (keyCode == 1
+                    || keyCode
+                            == Minecraft.getMinecraft()
+                                    .gameSettings
+                                    .keyBindInventory
+                                    .getKeyCode()) {
                 cancel();
             } else {
                 textField.textboxKeyTyped(c, keyCode);
@@ -196,35 +201,26 @@ public class HEPopupLimitGui extends Gui {
     }
 
     public void actionPerformed(final GuiButton button) {
-        if(visible) {
+        if (visible) {
             if (button == ok) {
                 confirm();
-            }
-            else if (button == cancel) {
+            } else if (button == cancel) {
                 cancel();
-            }
-            else if (button == minus1000) {
+            } else if (button == minus1000) {
                 add(-1000);
-            }
-            else if (button == minus100) {
+            } else if (button == minus100) {
                 add(-100);
-            }
-            else if (button == minus10) {
+            } else if (button == minus10) {
                 add(-10);
-            }
-            else if (button == minus1) {
+            } else if (button == minus1) {
                 add(-1);
-            }
-            else if (button == plus1) {
+            } else if (button == plus1) {
                 add(1);
-            }
-            else if (button == plus10) {
+            } else if (button == plus10) {
                 add(10);
-            }
-            else if (button == plus100) {
+            } else if (button == plus100) {
                 add(100);
-            }
-            else if (button == plus1000) {
+            } else if (button == plus1000) {
                 add(1000);
             }
         }
@@ -232,7 +228,7 @@ public class HEPopupLimitGui extends Gui {
     }
 
     public void draw(int mouseX, int mouseY) {
-        if(visible) {
+        if (visible) {
             Minecraft minecraft = Minecraft.getMinecraft();
 
             minecraft.getTextureManager().bindTexture(limitBackgroundTextureLocation);

@@ -4,6 +4,8 @@ import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HEUtil;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import java.nio.FloatBuffer;
+import java.util.Stack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.culling.Frustrum;
@@ -14,9 +16,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.MinecraftForgeClient;
 import org.lwjgl.opengl.*;
-
-import java.nio.FloatBuffer;
-import java.util.Stack;
 
 @SideOnly(Side.CLIENT)
 public class HETessalator {
@@ -32,9 +31,9 @@ public class HETessalator {
     private static int numWaterBlocks = 0;
 
     private static int getChunkIndex(int chunkX, int chunkZ) {
-        return HEUtil.nonNegativeModulo(chunkX, maxRenderChunksX) + HEUtil.nonNegativeModulo(chunkZ, maxRenderChunksZ) * maxRenderChunksX;
+        return HEUtil.nonNegativeModulo(chunkX, maxRenderChunksX)
+                + HEUtil.nonNegativeModulo(chunkZ, maxRenderChunksZ) * maxRenderChunksX;
     }
-
 
     public static void onPostRender(int blockX, int blockY, int blockZ) {
         final int chunkX = HEUtil.coordBlockToChunk(blockX);
@@ -43,16 +42,17 @@ public class HETessalator {
         final int index = getChunkIndex(chunkX, chunkZ);
         HERenderSubChunk renderSubChunk = renderChunks[getChunkIndex(chunkX, chunkZ)].renderSubChunks[chunkY];
 
-        if(numWaterBlocks != 0) {
+        if (numWaterBlocks != 0) {
             if (renderSubChunk.vaoId == GL31.GL_INVALID_INDEX) {
-                if(availableBuffers.empty()) {
+                if (availableBuffers.empty()) {
                     renderSubChunk.vaoId = GL30.glGenVertexArrays();
                     renderSubChunk.vboId = GL15.glGenBuffers();
 
                     GL30.glBindVertexArray(renderSubChunk.vaoId);
 
                     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, renderSubChunk.vboId);
-                    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (long) vboBuffer.capacity() * Float.BYTES, GL15.GL_STATIC_DRAW);
+                    GL15.glBufferData(
+                            GL15.GL_ARRAY_BUFFER, (long) vboBuffer.capacity() * Float.BYTES, GL15.GL_STATIC_DRAW);
 
                     GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 7 * Float.BYTES, 0);
                     GL20.glEnableVertexAttribArray(0);
@@ -70,8 +70,7 @@ public class HETessalator {
                     GL20.glEnableVertexAttribArray(4);
 
                     GL30.glBindVertexArray(0);
-                }
-                else {
+                } else {
                     HEBufferIds ids = availableBuffers.pop();
                     renderSubChunk.vaoId = ids.vaoId;
                     renderSubChunk.vboId = ids.vboId;
@@ -88,8 +87,7 @@ public class HETessalator {
             // reset tesselator
             vboBuffer.clear();
             numWaterBlocks = 0;
-        }
-        else if(renderSubChunk.vaoId != GL31.GL_INVALID_INDEX) {
+        } else if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX) {
             HEBufferIds ids = new HEBufferIds();
             ids.vaoId = renderSubChunk.vaoId;
             ids.vboId = renderSubChunk.vboId;
@@ -100,9 +98,10 @@ public class HETessalator {
         }
     }
 
-    public static void addBlock(int blockX, int blockY, int blockZ, int waterId, int worldColorModifier, boolean[] shouldSideBeRendered) {
+    public static void addBlock(
+            int blockX, int blockY, int blockZ, int waterId, int worldColorModifier, boolean[] shouldSideBeRendered) {
         int renderSides = 0;
-        for(int i=0;i<shouldSideBeRendered.length;i++) {
+        for (int i = 0; i < shouldSideBeRendered.length; i++) {
             if (shouldSideBeRendered[i]) {
                 renderSides |= 1 << i;
             }
@@ -112,7 +111,12 @@ public class HETessalator {
         vboBuffer.put(blockY);
         vboBuffer.put(blockZ);
 
-        final int lightXMinus = 15, lightXPlus = 15, lightYMinus = 15, lightYPlus = 15, lightZMinus = 15, lightZPlus = 15;
+        final int lightXMinus = 15,
+                lightXPlus = 15,
+                lightYMinus = 15,
+                lightYPlus = 15,
+                lightZMinus = 15,
+                lightZPlus = 15;
         final int light0 = (lightXMinus << 16) | (lightXPlus << 8) | lightYMinus;
         final int light1 = (lightYPlus << 16) | (lightZMinus << 8) | lightZPlus;
         vboBuffer.put(light0);
@@ -127,7 +131,7 @@ public class HETessalator {
     }
 
     public static void render(ICamera camera) {
-        if(MinecraftForgeClient.getRenderPass() == HE.waterBlocks[0].getRenderBlockPass()) {
+        if (MinecraftForgeClient.getRenderPass() == HE.waterBlocks[0].getRenderBlockPass()) {
             final Frustrum frustrum = (Frustrum) camera;
             final float cameraBlockX = (float) frustrum.xPosition;
             final float cameraBlockY = (float) frustrum.yPosition;
@@ -146,7 +150,8 @@ public class HETessalator {
             HEProgram.bindLightLookupTable();
             HEProgram.bindAtlasTexture();
 
-            HESortedRenderList.setup(HEUtil.coordBlockToChunk((int) cameraBlockX),
+            HESortedRenderList.setup(
+                    HEUtil.coordBlockToChunk((int) cameraBlockX),
                     HEUtil.coordBlockToChunk((int) cameraBlockY),
                     HEUtil.coordBlockToChunk((int) cameraBlockZ));
 
@@ -159,16 +164,25 @@ public class HETessalator {
                     final int chunkX = centerChunkX + offsetChunkX;
                     final int chunkZ = centerChunkZ + offsetChunkZ;
                     final HERenderChunk renderChunks = HETessalator.renderChunks[getChunkIndex(chunkX, chunkZ)];
-                    if(renderChunks != null) {
+                    if (renderChunks != null) {
                         final Chunk vanillaChunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
                         for (int chunkY = 0; chunkY < HE.chunkHeight; chunkY++) {
                             final int blockX = HEUtil.coordChunkToBlock(chunkX);
                             final int blockY = HEUtil.coordChunkToBlock(chunkY);
                             final int blockZ = HEUtil.coordChunkToBlock(chunkZ);
                             final HERenderSubChunk renderSubChunk = renderChunks.renderSubChunks[chunkY];
-                            final AxisAlignedBB chunkBB = AxisAlignedBB.getBoundingBox(blockX, blockY, blockZ, blockX + HE.chunkWidth, blockY + HE.chunkHeight, blockZ + HE.chunkDepth);
-                            if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX && !vanillaChunk.getAreLevelsEmpty(blockY, blockY + 15) && frustrum.isBoundingBoxInFrustum(chunkBB)) {
-                                HESortedRenderList.add(renderSubChunk.vaoId, renderSubChunk.numWaterBlocks, chunkX, chunkY, chunkZ);
+                            final AxisAlignedBB chunkBB = AxisAlignedBB.getBoundingBox(
+                                    blockX,
+                                    blockY,
+                                    blockZ,
+                                    blockX + HE.chunkWidth,
+                                    blockY + HE.chunkHeight,
+                                    blockZ + HE.chunkDepth);
+                            if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX
+                                    && !vanillaChunk.getAreLevelsEmpty(blockY, blockY + 15)
+                                    && frustrum.isBoundingBoxInFrustum(chunkBB)) {
+                                HESortedRenderList.add(
+                                        renderSubChunk.vaoId, renderSubChunk.numWaterBlocks, chunkX, chunkY, chunkZ);
                             }
                         }
                     }
@@ -187,7 +201,7 @@ public class HETessalator {
     // but those are not in the GL thread and cause issues with cleanup etc
     public static void onRenderChunkUpdate(int oldBlockX, int oldBlockZ, int blockX, int blockY, int blockZ) {
         // Just execute once per vertical SubChunk-stack (aka chunk)
-        if(blockY == 0) {
+        if (blockY == 0) {
             final int oldChunkX = HEUtil.coordBlockToChunk(oldBlockX);
             final int oldChunkZ = HEUtil.coordBlockToChunk(oldBlockZ);
             final int chunkX = HEUtil.coordBlockToChunk(blockX);
@@ -195,12 +209,13 @@ public class HETessalator {
 
             final int oldChunkIndex = getChunkIndex(oldChunkX, oldChunkZ);
             final HERenderChunk oldRenderChunk = renderChunks[oldChunkIndex];
-            if(oldRenderChunk != null && oldRenderChunk.chunkX == oldChunkX && oldRenderChunk.chunkZ == oldChunkZ) {
+            if (oldRenderChunk != null && oldRenderChunk.chunkX == oldChunkX && oldRenderChunk.chunkZ == oldChunkZ) {
                 renderChunks[oldChunkIndex] = null;
                 availableRenderChunks.push(oldRenderChunk);
             }
 
-            final HERenderChunk renderChunk = availableRenderChunks.isEmpty() ? new HERenderChunk() : availableRenderChunks.pop();
+            final HERenderChunk renderChunk =
+                    availableRenderChunks.isEmpty() ? new HERenderChunk() : availableRenderChunks.pop();
             renderChunk.chunkX = chunkX;
             renderChunk.chunkZ = chunkZ;
 
@@ -217,7 +232,7 @@ public class HETessalator {
             }
 
             final int newChunkIndex = getChunkIndex(chunkX, chunkZ);
-            if(renderChunks[newChunkIndex] != null) {
+            if (renderChunks[newChunkIndex] != null) {
                 availableRenderChunks.push(renderChunks[newChunkIndex]);
             }
             renderChunks[newChunkIndex] = renderChunk;
@@ -226,7 +241,7 @@ public class HETessalator {
 
     public static int getGpuMemoryUsage() {
         int subChunkCounter = 0;
-        for(HERenderChunk renderChunks : renderChunks) {
+        for (HERenderChunk renderChunks : renderChunks) {
             if (renderChunks != null) {
                 for (HERenderSubChunk renderSubChunk : renderChunks.renderSubChunks) {
                     if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX) {
@@ -253,7 +268,7 @@ class HERenderChunk {
 
     public HERenderChunk() {
         renderSubChunks = new HERenderSubChunk[HE.numChunksY];
-        for(int i=0;i<HE.numChunksY;i++) {
+        for (int i = 0; i < HE.numChunksY; i++) {
             renderSubChunks[i] = new HERenderSubChunk();
         }
     }

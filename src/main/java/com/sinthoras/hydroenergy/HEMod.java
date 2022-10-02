@@ -6,10 +6,17 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 
-@Mod(modid = HETags.MODID, version = HETags.VERSION, name = HETags.MODNAME, dependencies = HETags.DEPENDENCIES, acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+        modid = HETags.MODID,
+        version = HETags.VERSION,
+        name = HETags.MODNAME,
+        dependencies = HETags.DEPENDENCIES,
+        acceptedMinecraftVersions = "[1.7.10]")
 public class HEMod {
 
-    @SidedProxy(clientSide=HETags.GROUPNAME + ".hooks.HEHooksClient", serverSide=HETags.GROUPNAME + ".hooks.HEHooksShared")
+    @SidedProxy(
+            clientSide = HETags.GROUPNAME + ".hooks.HEHooksClient",
+            serverSide = HETags.GROUPNAME + ".hooks.HEHooksShared")
     public static HEHooksShared proxy;
 
     @Mod.EventHandler
@@ -17,7 +24,7 @@ public class HEMod {
     // etc. and register them with the GameRegistry."
     public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
         HE.debug("Registered sided proxy for: " + (proxy instanceof HEHooksClient ? "Client" : "Dedicated server"));
-        HE.debug("preInit()"+event.getModMetadata().name);
+        HE.debug("preInit()" + event.getModMetadata().name);
         proxy.fmlLifeCycleEvent(event);
     }
 

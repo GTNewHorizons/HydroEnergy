@@ -35,7 +35,17 @@ public class HEDam {
         this.waterId = waterId;
     }
 
-    public void onConfigUpdate(int blockX, int blockY, int blockZ, HE.DamMode mode, int limitWest, int limitDown, int limitNorth, int limitEast, int limitUp, int limitSouth) {
+    public void onConfigUpdate(
+            int blockX,
+            int blockY,
+            int blockZ,
+            HE.DamMode mode,
+            int limitWest,
+            int limitDown,
+            int limitNorth,
+            int limitEast,
+            int limitUp,
+            int limitSouth) {
         this.blockX = blockX;
         this.blockY = blockY;
         this.blockZ = blockZ;
@@ -80,26 +90,31 @@ public class HEDam {
     }
 
     public float getWaterLevelForPhysicsAndLighting() {
-        if(mode == HE.DamMode.SPREAD) {
+        if (mode == HE.DamMode.SPREAD) {
             return waterLevel;
-        }
-        else {
+        } else {
             return 0.0f;
         }
     }
 
     public float getWaterLevelForRendering() {
-        if(mode == HE.DamMode.SPREAD) {
+        if (mode == HE.DamMode.SPREAD) {
             return waterLevel;
-        }
-        else {
+        } else {
             return 256.0f;
         }
     }
 
     public void applyChanges() {
-        HE.network.sendToServer(new HEPacketConfigRequest(waterId, pendingMode,
-                pendingLimitWest, pendingLimitDown, pendingLimitNorth, pendingLimitEast, pendingLimitUp, pendingLimitSouth));
+        HE.network.sendToServer(new HEPacketConfigRequest(
+                waterId,
+                pendingMode,
+                pendingLimitWest,
+                pendingLimitDown,
+                pendingLimitNorth,
+                pendingLimitEast,
+                pendingLimitUp,
+                pendingLimitSouth));
     }
 
     public void setMode(HE.DamMode mode) {

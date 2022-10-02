@@ -12,16 +12,16 @@ import net.minecraft.world.World;
 
 public class HEGuiHandler implements IGuiHandler {
 
-    public final static int HydroDamConfigurationGuiId = 0;
+    public static final int HydroDamConfigurationGuiId = 0;
 
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int blockX, int blockY, int blockZ) {
-        if(id == HydroDamConfigurationGuiId) {
+        if (id == HydroDamConfigurationGuiId) {
             TileEntity tileEntity = world.getTileEntity(blockX, blockY, blockZ);
             if (tileEntity instanceof IGregTechTileEntity) {
                 IMetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
-                if(metaTileEntity instanceof HEHydroDamTileEntity) {
-                    return new HEHydroDamConfigContainer(((HEHydroDamTileEntity)metaTileEntity).getWaterId());
+                if (metaTileEntity instanceof HEHydroDamTileEntity) {
+                    return new HEHydroDamConfigContainer(((HEHydroDamTileEntity) metaTileEntity).getWaterId());
                 }
             }
         }
@@ -30,18 +30,18 @@ public class HEGuiHandler implements IGuiHandler {
 
     @Override
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int blockX, int blockY, int blockZ) {
-        if(world.isRemote) {
-            if(id == HydroDamConfigurationGuiId) {
+        if (world.isRemote) {
+            if (id == HydroDamConfigurationGuiId) {
                 TileEntity tileEntity = world.getTileEntity(blockX, blockY, blockZ);
                 if (tileEntity instanceof IGregTechTileEntity) {
                     IMetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
-                    if(metaTileEntity instanceof HEHydroDamTileEntity) {
-                        return new HEHydroDamConfigGuiContainer(new HEHydroDamConfigContainer(HEClient.getWaterId(blockX, blockY, blockZ)));
+                    if (metaTileEntity instanceof HEHydroDamTileEntity) {
+                        return new HEHydroDamConfigGuiContainer(
+                                new HEHydroDamConfigContainer(HEClient.getWaterId(blockX, blockY, blockZ)));
                     }
                 }
             }
-        }
-        else {
+        } else {
             return getServerGuiElement(id, player, world, blockX, blockY, blockZ);
         }
         return null;

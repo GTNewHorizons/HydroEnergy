@@ -8,6 +8,7 @@ import com.sinthoras.hydroenergy.client.gui.widgets.HEWidgetModes;
 import com.sinthoras.hydroenergy.network.container.HEHydroDamConfigContainer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import java.awt.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -15,12 +16,11 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
-
 @SideOnly(Side.CLIENT)
 public class HEHydroDamConfigGuiContainer extends GuiContainer {
 
-    public static final ResourceLocation backgroundTextureLocation = new ResourceLocation(HETags.MODID, HE.damBackgroundLocation);
+    public static final ResourceLocation backgroundTextureLocation =
+            new ResourceLocation(HETags.MODID, HE.damBackgroundLocation);
 
     private HEDam dam;
 
@@ -52,8 +52,7 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
     }
 
     @Override
-    public void initGui()
-    {
+    public void initGui() {
         super.initGui();
 
         centerX = guiLeft + xSize / 2;
@@ -99,66 +98,60 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
         widgetModes = new HEWidgetModes(dam, guiLeft + xSize - 75, guiTop + 5);
         widgetModes.init(buttonList);
 
-        for(HEPopupLimitGui limitGui : limitGuis) {
+        for (HEPopupLimitGui limitGui : limitGuis) {
             limitGui.init(0, buttonList);
         }
     }
 
     @Override
-    protected void actionPerformed(final GuiButton button)
-    {
-        if(button == changeWest) {
+    protected void actionPerformed(final GuiButton button) {
+        if (button == changeWest) {
             widgetModes.setEnabled(false);
             limitGuis[0].show();
-        }
-        else if(button == changeDown) {
+        } else if (button == changeDown) {
             widgetModes.setEnabled(false);
             limitGuis[1].show();
-        }
-        else if(button == changeNorth) {
+        } else if (button == changeNorth) {
             widgetModes.setEnabled(false);
             limitGuis[2].show();
-        }
-        else if(button == changeEast) {
+        } else if (button == changeEast) {
             widgetModes.setEnabled(false);
             limitGuis[3].show();
-        }
-        else if(button == changeUp) {
+        } else if (button == changeUp) {
             widgetModes.setEnabled(false);
             limitGuis[4].show();
-        }
-        else if(button == changeSouth) {
+        } else if (button == changeSouth) {
             widgetModes.setEnabled(false);
             limitGuis[5].show();
         }
-        for(HEPopupLimitGui limitGui : limitGuis) {
+        for (HEPopupLimitGui limitGui : limitGuis) {
             limitGui.actionPerformed(button);
         }
         widgetModes.actionPerformed(button);
     }
 
     private void updateValues() {
-        if(limitGuis[0].getValueChangedAndReset()) {
+        if (limitGuis[0].getValueChangedAndReset()) {
             dam.setLimitWest(limitGuis[0].getValue());
             dam.applyChanges();
         }
-        if(limitGuis[1].getValueChangedAndReset()) {
+        if (limitGuis[1].getValueChangedAndReset()) {
             dam.setLimitDown(limitGuis[1].getValue());
             dam.applyChanges();
         }
-        if(limitGuis[2].getValueChangedAndReset()) {
+        if (limitGuis[2].getValueChangedAndReset()) {
             dam.setLimitNorth(limitGuis[2].getValue());
             dam.applyChanges();
         }
-        if(limitGuis[3].getValueChangedAndReset()) {
+        if (limitGuis[3].getValueChangedAndReset()) {
             dam.setLimitEast(limitGuis[3].getValue());
             dam.applyChanges();
         }
-        if(limitGuis[4].getValueChangedAndReset()) {
+        if (limitGuis[4].getValueChangedAndReset()) {
             dam.setLimitUp(limitGuis[4].getValue());
             dam.applyChanges();
         }
-        if(limitGuis[5].getValueChangedAndReset()) {
+        if (limitGuis[5].getValueChangedAndReset()) {
             dam.setLimitSouth(limitGuis[5].getValue());
             dam.applyChanges();
         }
@@ -205,7 +198,7 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
             changeUp.enabled = enableElements;
             changeSouth.enabled = enableElements;
 
-            if(!enableElements) {
+            if (!enableElements) {
                 changeWest.visible = true;
                 changeDown.visible = true;
                 changeNorth.visible = true;
@@ -243,34 +236,52 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
             fontRenderer.drawString(" < Z < ", centerX - constStringWidthHalf, guiTop + 98, Color.BLACK.getRGB());
 
             int stringWidth = fontRenderer.getStringWidth(limitWest);
-            drawHorizontalLine(guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 41, lineGrey.getRGB());
-            fontRenderer.drawString(limitWest, centerX - constStringWidthHalf - stringWidth, guiTop + 38, Color.BLACK.getRGB());
+            drawHorizontalLine(
+                    guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 41, lineGrey.getRGB());
+            fontRenderer.drawString(
+                    limitWest, centerX - constStringWidthHalf - stringWidth, guiTop + 38, Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitDown);
-            drawHorizontalLine(guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 71, lineGrey.getRGB());
-            fontRenderer.drawString(limitDown, centerX - constStringWidthHalf - stringWidth, guiTop + 68, Color.BLACK.getRGB());
+            drawHorizontalLine(
+                    guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 71, lineGrey.getRGB());
+            fontRenderer.drawString(
+                    limitDown, centerX - constStringWidthHalf - stringWidth, guiTop + 68, Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitNorth);
-            drawHorizontalLine(guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 101, lineGrey.getRGB());
-            fontRenderer.drawString(limitNorth, centerX - constStringWidthHalf - stringWidth, guiTop + 98, Color.BLACK.getRGB());
+            drawHorizontalLine(
+                    guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 101, lineGrey.getRGB());
+            fontRenderer.drawString(
+                    limitNorth, centerX - constStringWidthHalf - stringWidth, guiTop + 98, Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitEast);
-            drawHorizontalLine(centerX + constStringWidthHalf + stringWidth + 5, guiLeft + xSize - 57, guiTop + 41, lineGrey.getRGB());
+            drawHorizontalLine(
+                    centerX + constStringWidthHalf + stringWidth + 5,
+                    guiLeft + xSize - 57,
+                    guiTop + 41,
+                    lineGrey.getRGB());
             fontRenderer.drawString(limitEast, centerX + constStringWidthHalf, guiTop + 38, Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitUp);
-            drawHorizontalLine(centerX + constStringWidthHalf + stringWidth + 5, guiLeft + xSize - 57, guiTop + 71, lineGrey.getRGB());
+            drawHorizontalLine(
+                    centerX + constStringWidthHalf + stringWidth + 5,
+                    guiLeft + xSize - 57,
+                    guiTop + 71,
+                    lineGrey.getRGB());
             fontRenderer.drawString(limitUp, centerX + constStringWidthHalf, guiTop + 68, Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitSouth);
-            drawHorizontalLine(centerX + constStringWidthHalf + stringWidth + 5, guiLeft + xSize - 57, guiTop + 101, lineGrey.getRGB());
+            drawHorizontalLine(
+                    centerX + constStringWidthHalf + stringWidth + 5,
+                    guiLeft + xSize - 57,
+                    guiTop + 101,
+                    lineGrey.getRGB());
             fontRenderer.drawString(limitSouth, centerX + constStringWidthHalf, guiTop + 98, Color.BLACK.getRGB());
 
             // Reset color
             GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
-        for(HEPopupLimitGui limitGui : limitGuis) {
+        for (HEPopupLimitGui limitGui : limitGuis) {
             limitGui.draw(mouseX, mouseY);
         }
     }
@@ -278,15 +289,15 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         // There is a translation in GL before this call. Revert it for the duration of this method
-        GL11.glTranslatef((float)-this.guiLeft, (float)-this.guiTop, 0.0f);
+        GL11.glTranslatef((float) -this.guiLeft, (float) -this.guiTop, 0.0f);
         widgetModes.drawTooltip(Minecraft.getMinecraft().fontRenderer, mouseX, mouseY, width);
-        GL11.glTranslatef((float)this.guiLeft, (float)this.guiTop, 0.0f);
+        GL11.glTranslatef((float) this.guiLeft, (float) this.guiTop, 0.0f);
     }
 
     @Override
     protected void mouseClicked(int pixelX, int pixelY, int mouseButtonId) {
         super.mouseClicked(pixelX, pixelY, mouseButtonId);
-        for(HEPopupLimitGui limitGui : limitGuis) {
+        for (HEPopupLimitGui limitGui : limitGuis) {
             limitGui.mouseClicked(pixelX, pixelY, mouseButtonId);
         }
     }
@@ -299,8 +310,8 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
     }
 
     private boolean passKeyTypesToLimitGuis(char c, int keyCode) {
-        for(HEPopupLimitGui limitGui : limitGuis) {
-            if(limitGui.keyTyped(c, keyCode)) {
+        for (HEPopupLimitGui limitGui : limitGuis) {
+            if (limitGui.keyTyped(c, keyCode)) {
                 return true;
             }
         }
@@ -308,8 +319,8 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
     }
 
     private boolean isAnyLimitGuiOpen() {
-        for(HEPopupLimitGui limitGui : limitGuis) {
-            if(limitGui.visible) {
+        for (HEPopupLimitGui limitGui : limitGuis) {
+            if (limitGui.visible) {
                 return true;
             }
         }

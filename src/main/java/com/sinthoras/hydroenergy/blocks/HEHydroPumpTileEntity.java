@@ -353,28 +353,31 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     }
 
     public HEHydroPumpTileEntity(int blockId, int tierId) {
-        super(blockId + tierId, "he_pump_" + GT_Values.VN[tierId].toLowerCase(), "Hydro Pump (" + GT_Values.VN[tierId] + ")");
+        super(
+                blockId + tierId,
+                "he_pump_" + GT_Values.VN[tierId].toLowerCase(),
+                "Hydro Pump (" + GT_Values.VN[tierId] + ")");
     }
 
     @Override
     public void onTick() {
-        int requiredWater = (int)(GT_Values.V[getTier()] * HEConfig.milliBucketPerEU);
-        for(FluidStack fluidStack : getStoredFluids()) {
-            if(fluidStack.getFluid().getID() == FluidRegistry.WATER.getID()) {
+        int requiredWater = (int) (GT_Values.V[getTier()] * HEConfig.milliBucketPerEU);
+        for (FluidStack fluidStack : getStoredFluids()) {
+            if (fluidStack.getFluid().getID() == FluidRegistry.WATER.getID()) {
                 final int consumedWater = Math.min(fluidStack.amount, requiredWater);
                 requiredWater -= consumedWater;
                 fluidStack.amount -= consumedWater;
             }
         }
-        if(requiredWater > 0) {
+        if (requiredWater > 0) {
             stopMachine();
             return;
         }
 
         float pumpedWater = getVoltage() * HEConfig.milliBucketPerEU;
         pumpedWater *= getEfficiencyModifier();
-        pumpedWater *= ((float)getCurrentEfficiency(null)) / 100_00.0f;
-        final FluidStack fluidStack = new FluidStack(HE.pressurizedWater, (int)pumpedWater);
+        pumpedWater *= ((float) getCurrentEfficiency(null)) / 100_00.0f;
+        final FluidStack fluidStack = new FluidStack(HE.pressurizedWater, (int) pumpedWater);
         HE.pressurizedWater.setPressure(fluidStack, getPressure());
         addOutput(fluidStack);
     }
@@ -386,7 +389,8 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
 
     @Override
     public Object getClientGUI(int id, InventoryPlayer playerInventory, IGregTechTileEntity baseMetaTileEntity) {
-        return new GT_GUIContainer_MultiMachineEM(playerInventory, baseMetaTileEntity, this.getLocalName(), "EMDisplay.png", false, false, false);
+        return new GT_GUIContainer_MultiMachineEM(
+                playerInventory, baseMetaTileEntity, this.getLocalName(), "EMDisplay.png", false, false, false);
     }
 
     @SideOnly(Side.CLIENT)
@@ -398,25 +402,29 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     }
 
     @Override
-    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, byte side, byte facing, byte colorIndex, boolean isActive, boolean hasRedstoneSignal) {
-        if(side == facing) {
-            if(isActive) {
+    public ITexture[] getTexture(
+            IGregTechTileEntity baseMetaTileEntity,
+            byte side,
+            byte facing,
+            byte colorIndex,
+            boolean isActive,
+            boolean hasRedstoneSignal) {
+        if (side == facing) {
+            if (isActive) {
                 return new ITexture[] {
-                        Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenPumpON),
-                        new TT_RenderedExtendedFacingTexture(textureScreenArrowUpAnimated)
+                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
+                    new TT_RenderedExtendedFacingTexture(textureScreenPumpON),
+                    new TT_RenderedExtendedFacingTexture(textureScreenArrowUpAnimated)
+                };
+            } else {
+                return new ITexture[] {
+                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
+                    new TT_RenderedExtendedFacingTexture(textureScreenPumpOFF)
                 };
             }
-            else {
-                return new ITexture[] {
-                        Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenPumpOFF)
-                };
-            }
-        }
-        else {
+        } else {
             return new ITexture[] {
-                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f]
+                Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f]
             };
         }
     }
@@ -424,32 +432,31 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     @Override
     public String[] getDescription() {
         return new String[] {
-                "Hydro Pump Controller",
-                "Controller Block for the Hydro Pump",
-                "Consumes EU to pressurize water",
-                "Output is pressurized water for Hydro Dams",
-                "Requires a Energy, Input, Output and Maintenance Hatch anywhere!",
-                "Requires " + getMilliBucketsPerTick() + "mB Water per Tick",
-                "Efficiency: " + getEfficiencyModifierInPercent(),
-                HE.blueprintHintTecTech,
-                "Use Redstone to automate!"
+            "Hydro Pump Controller",
+            "Controller Block for the Hydro Pump",
+            "Consumes EU to pressurize water",
+            "Output is pressurized water for Hydro Dams",
+            "Requires a Energy, Input, Output and Maintenance Hatch anywhere!",
+            "Requires " + getMilliBucketsPerTick() + "mB Water per Tick",
+            "Efficiency: " + getEfficiencyModifierInPercent(),
+            HE.blueprintHintTecTech,
+            "Use Redstone to automate!"
         };
     }
 
     @Override
     public String[] getStructureDescription(ItemStack itemStack) {
         return new String[] {
-                "1 Energy Hatch",
-                "1 Fluid Input Hatch",
-                "1 Fluid Output Hatch",
-                "1 Maintenance Hatch",
-                "Fill the rest with " + getCasingName(),
+            "1 Energy Hatch",
+            "1 Fluid Input Hatch",
+            "1 Fluid Output Hatch",
+            "1 Maintenance Hatch",
+            "Fill the rest with " + getCasingName(),
         };
     }
 
     @Override
     protected long getEnergyConsumption() {
-        return - getVoltage();
+        return -getVoltage();
     }
 }
-

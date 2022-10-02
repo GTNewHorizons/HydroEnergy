@@ -20,21 +20,34 @@ public class ActiveRenderInfoMixin {
     private static Vec3 eyePosition;
 
     // Grab eye position for subsequent redirect
-    @Inject(method = "getBlockAtEntityViewpoint",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;getBlock(III)Lnet/minecraft/block/Block;",
-                    shift = At.Shift.BEFORE,
-                    ordinal = 0),
+    @Inject(
+            method = "getBlockAtEntityViewpoint",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/World;getBlock(III)Lnet/minecraft/block/Block;",
+                            shift = At.Shift.BEFORE,
+                            ordinal = 0),
             require = 1,
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private static void onGetEyePosition(World world, EntityLivingBase entity, float interpolationFactor, CallbackInfoReturnable<Block> callbackInfoReturnable, Vec3 eyePosition, ChunkPosition blockPosition) {
+    private static void onGetEyePosition(
+            World world,
+            EntityLivingBase entity,
+            float interpolationFactor,
+            CallbackInfoReturnable<Block> callbackInfoReturnable,
+            Vec3 eyePosition,
+            ChunkPosition blockPosition) {
         ActiveRenderInfoMixin.eyePosition = eyePosition;
     }
 
     // Redirect getBlock to check for custom water
-    @Redirect(method = "getBlockAtEntityViewpoint",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;getBlock(III)Lnet/minecraft/block/Block;", ordinal = 0),
+    @Redirect(
+            method = "getBlockAtEntityViewpoint",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/World;getBlock(III)Lnet/minecraft/block/Block;",
+                            ordinal = 0),
             require = 1)
     private static Block redirectGetBlock(World world, int blockX, int blockY, int blockZ) {
         return HEHooksUtil.getBlockForActiveRenderInfo(world.getBlock(blockX, blockY, blockZ), eyePosition);

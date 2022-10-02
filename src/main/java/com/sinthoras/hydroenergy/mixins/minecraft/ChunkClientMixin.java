@@ -11,12 +11,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ChunkClientMixin {
 
     // Capture whole chunk update from server to check for custom water blocks and cache them
-    @Inject(method = "fillChunk",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/Chunk;generateHeightMap()V",
-                    shift = At.Shift.AFTER),
+    @Inject(
+            method = "fillChunk",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/chunk/Chunk;generateHeightMap()V",
+                            shift = At.Shift.AFTER),
             require = 1)
-    private void onFillChunk(byte[] incomingData, int unusedFlags1, int unusedFlags2, boolean unusedFlag, CallbackInfo callbackInfo) {
+    private void onFillChunk(
+            byte[] incomingData, int unusedFlags1, int unusedFlags2, boolean unusedFlag, CallbackInfo callbackInfo) {
         HELightManager.onChunkDataLoad((Chunk) ((Object) this));
     }
 }

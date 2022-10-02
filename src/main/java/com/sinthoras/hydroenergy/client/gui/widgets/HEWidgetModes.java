@@ -4,16 +4,15 @@ import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.client.HEDam;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import java.awt.*;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderHelper;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-
-import java.awt.*;
-import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class HEWidgetModes extends Gui {
@@ -47,17 +46,14 @@ public class HEWidgetModes extends Gui {
         buttonList.add(buttonWater);
     }
 
-    public void actionPerformed(final GuiButton button)
-    {
-        if(button == buttonDrain) {
+    public void actionPerformed(final GuiButton button) {
+        if (button == buttonDrain) {
             dam.setMode(HE.DamMode.DRAIN);
             dam.applyChanges();
-        }
-        else if(button == buttonDebug) {
+        } else if (button == buttonDebug) {
             dam.setMode(HE.DamMode.DEBUG);
             dam.applyChanges();
-        }
-        else if(button == buttonWater) {
+        } else if (button == buttonWater) {
             dam.setMode(HE.DamMode.SPREAD);
             dam.applyChanges();
         }
@@ -66,13 +62,12 @@ public class HEWidgetModes extends Gui {
     public void setEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
 
-        if(isEnabled) {
+        if (isEnabled) {
             HE.DamMode mode = dam.getMode();
             buttonDrain.enabled = mode != HE.DamMode.DRAIN;
             buttonDebug.enabled = mode != HE.DamMode.DEBUG;
             buttonWater.enabled = mode != HE.DamMode.SPREAD;
-        }
-        else {
+        } else {
             buttonDrain.enabled = false;
             buttonDebug.enabled = false;
             buttonWater.enabled = false;
@@ -85,7 +80,7 @@ public class HEWidgetModes extends Gui {
 
     // This draw call handles the button manually before the overlay is drawn if a overlay is active
     public void draw(Minecraft minecraft, int mouseX, int mouseY) {
-        if(!isEnabled) {
+        if (!isEnabled) {
             buttonDrain.visible = true;
             buttonDebug.visible = true;
             buttonWater.visible = true;
@@ -101,14 +96,14 @@ public class HEWidgetModes extends Gui {
     }
 
     public void drawTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int screenWidth) {
-        if(isEnabled) {
-            if(buttonDrain.isOverButton(mouseX, mouseY)) {
+        if (isEnabled) {
+            if (buttonDrain.isOverButton(mouseX, mouseY)) {
                 drawTooltip("Remove water from world", mouseX, mouseY, fontRenderer, screenWidth);
             }
-            if(buttonDebug.isOverButton(mouseX, mouseY)) {
+            if (buttonDebug.isOverButton(mouseX, mouseY)) {
                 drawTooltip("Spread and show all water", mouseX, mouseY, fontRenderer, screenWidth);
             }
-            if(buttonWater.isOverButton(mouseX, mouseY)) {
+            if (buttonWater.isOverButton(mouseX, mouseY)) {
                 drawTooltip("Spread and show water", mouseX, mouseY, fontRenderer, screenWidth);
             }
         }
@@ -127,15 +122,43 @@ public class HEWidgetModes extends Gui {
         // Make sure the end does not leave the image
         mouseX -= Math.max(0, mouseX + stringWidth + 3 - screenWidth);
 
-        this.drawGradientRect(mouseX - 3, mouseY - 4, mouseX + stringWidth + 3, mouseY - 3, nearBlack.getRGB(), nearBlack.getRGB());
-        this.drawGradientRect(mouseX - 3, mouseY + 11, mouseX + stringWidth + 3, mouseY + 12, nearBlack.getRGB(), nearBlack.getRGB());
-        this.drawGradientRect(mouseX - 3, mouseY - 3, mouseX + stringWidth + 3, mouseY + 11, nearBlack.getRGB(), nearBlack.getRGB());
+        this.drawGradientRect(
+                mouseX - 3, mouseY - 4, mouseX + stringWidth + 3, mouseY - 3, nearBlack.getRGB(), nearBlack.getRGB());
+        this.drawGradientRect(
+                mouseX - 3, mouseY + 11, mouseX + stringWidth + 3, mouseY + 12, nearBlack.getRGB(), nearBlack.getRGB());
+        this.drawGradientRect(
+                mouseX - 3, mouseY - 3, mouseX + stringWidth + 3, mouseY + 11, nearBlack.getRGB(), nearBlack.getRGB());
         this.drawGradientRect(mouseX - 4, mouseY - 3, mouseX - 3, mouseY + 11, nearBlack.getRGB(), nearBlack.getRGB());
-        this.drawGradientRect(mouseX + stringWidth + 3, mouseY - 3, mouseX + stringWidth + 4, mouseY + 11, nearBlack.getRGB(), nearBlack.getRGB());
-        this.drawGradientRect(mouseX - 3, mouseY - 2, mouseX - 2, mouseY + 10, lightPurple.getRGB(), darkPurple.getRGB());
-        this.drawGradientRect(mouseX + stringWidth + 2, mouseY - 2, mouseX + stringWidth + 3, mouseY + 10, lightPurple.getRGB(), darkPurple.getRGB());
-        this.drawGradientRect(mouseX - 3, mouseY - 3, mouseX + stringWidth + 3, mouseY - 2, lightPurple.getRGB(), lightPurple.getRGB());
-        this.drawGradientRect(mouseX - 3, mouseY + 10, mouseX + stringWidth + 3, mouseY + 11, darkPurple.getRGB(), darkPurple.getRGB());
+        this.drawGradientRect(
+                mouseX + stringWidth + 3,
+                mouseY - 3,
+                mouseX + stringWidth + 4,
+                mouseY + 11,
+                nearBlack.getRGB(),
+                nearBlack.getRGB());
+        this.drawGradientRect(
+                mouseX - 3, mouseY - 2, mouseX - 2, mouseY + 10, lightPurple.getRGB(), darkPurple.getRGB());
+        this.drawGradientRect(
+                mouseX + stringWidth + 2,
+                mouseY - 2,
+                mouseX + stringWidth + 3,
+                mouseY + 10,
+                lightPurple.getRGB(),
+                darkPurple.getRGB());
+        this.drawGradientRect(
+                mouseX - 3,
+                mouseY - 3,
+                mouseX + stringWidth + 3,
+                mouseY - 2,
+                lightPurple.getRGB(),
+                lightPurple.getRGB());
+        this.drawGradientRect(
+                mouseX - 3,
+                mouseY + 10,
+                mouseX + stringWidth + 3,
+                mouseY + 11,
+                darkPurple.getRGB(),
+                darkPurple.getRGB());
 
         fontRenderer.drawStringWithShadow(s, mouseX, mouseY, Color.WHITE.getRGB());
 

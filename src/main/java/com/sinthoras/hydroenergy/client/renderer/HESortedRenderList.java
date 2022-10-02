@@ -19,7 +19,7 @@ public class HESortedRenderList {
         centerX = chunkX;
         centerY = chunkY;
         centerZ = chunkZ;
-        for(int i=0;i<bucketsIds.length;i++) {
+        for (int i = 0; i < bucketsIds.length; i++) {
             bucketsIds[i] = 0;
         }
     }
@@ -32,14 +32,14 @@ public class HESortedRenderList {
     }
 
     public static void render() {
-        for(int distance=bucketsIds.length-1;distance>=0;distance--) {
+        for (int distance = bucketsIds.length - 1; distance >= 0; distance--) {
             final int numVaos = bucketsIds[distance];
-            if(numVaos == 0) {
+            if (numVaos == 0) {
                 continue;
             }
             int[] vaoIds = bucketsVaoIds[distance];
             int[] numWaterBlocks = bucketsNumWaterBlocks[distance];
-            for(int n=0;n<numVaos;n++) {
+            for (int n = 0; n < numVaos; n++) {
                 GL30.glBindVertexArray(vaoIds[n]);
 
                 HEProgram.setCullFronts();

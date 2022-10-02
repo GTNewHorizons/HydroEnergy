@@ -14,29 +14,31 @@ import net.minecraftforge.client.event.RenderWorldEvent;
 
 public class HEHooksEVENT_BUS {
 
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onEvent(RenderWorldEvent.Pre event) {
-		HELightManager.onPreRender(event.renderer.worldObj, event.renderer.posX, event.renderer.posY, event.renderer.posZ);
-	}
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onEvent(RenderWorldEvent.Pre event) {
+        HELightManager.onPreRender(
+                event.renderer.worldObj, event.renderer.posX, event.renderer.posY, event.renderer.posZ);
+    }
 
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onEvent(RenderWorldEvent.Post event) {
-		HETessalator.onPostRender(event.renderer.posX, event.renderer.posY, event.renderer.posZ);
-	}
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onEvent(RenderWorldEvent.Post event) {
+        HETessalator.onPostRender(event.renderer.posX, event.renderer.posY, event.renderer.posZ);
+    }
 
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onEvent(RenderGameOverlayEvent.Text event) {
-		if(Minecraft.getMinecraft().gameSettings.showDebugInfo) {
-			event.right.add("HydroEnergy GPU RAM: " + (HETessalator.getGpuMemoryUsage() >> 20) + "MB");  // Byte / 1024 / 1024
-		}
-	}
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onEvent(RenderGameOverlayEvent.Text event) {
+        if (Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+            event.right.add(
+                    "HydroEnergy GPU RAM: " + (HETessalator.getGpuMemoryUsage() >> 20) + "MB"); // Byte / 1024 / 1024
+        }
+    }
 
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onEvent(EntityViewRenderEvent.FogColors event) {
-		HEProgram.setFogColor(event.red, event.green, event.blue);
-	}
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onEvent(EntityViewRenderEvent.FogColors event) {
+        HEProgram.setFogColor(event.red, event.green, event.blue);
+    }
 }

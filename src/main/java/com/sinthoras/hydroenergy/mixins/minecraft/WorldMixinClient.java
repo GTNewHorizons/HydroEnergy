@@ -15,11 +15,26 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public class WorldMixinClient {
 
     // Notify water cache about block change
-    @Inject(method = "setBlock(IIILnet/minecraft/block/Block;II)Z",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;func_150807_a(IIILnet/minecraft/block/Block;I)Z", shift = At.Shift.AFTER),
+    @Inject(
+            method = "setBlock(IIILnet/minecraft/block/Block;II)Z",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/chunk/Chunk;func_150807_a(IIILnet/minecraft/block/Block;I)Z",
+                            shift = At.Shift.AFTER),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
             require = 1)
-    private void onSetBlock(int blockX, int blockY, int blockZ, Block newBlock, int unused1, int unused2, CallbackInfoReturnable<Boolean> callbackInfoReturnable, Chunk chunk, Block oldBlock, BlockSnapshot blockSnapshot) {
+    private void onSetBlock(
+            int blockX,
+            int blockY,
+            int blockZ,
+            Block newBlock,
+            int unused1,
+            int unused2,
+            CallbackInfoReturnable<Boolean> callbackInfoReturnable,
+            Chunk chunk,
+            Block oldBlock,
+            BlockSnapshot blockSnapshot) {
         HELightSMPHooks.onSetBlock((World) ((Object) this), blockX, blockY, blockZ, newBlock, oldBlock);
     }
 }

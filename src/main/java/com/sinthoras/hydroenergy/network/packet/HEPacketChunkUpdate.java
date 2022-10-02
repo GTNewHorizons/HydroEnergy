@@ -21,9 +21,7 @@ public class HEPacketChunkUpdate implements IMessage {
     private int chunkZ;
     private ExtendedBlockStorage[] receivedChunk = null;
 
-    public HEPacketChunkUpdate() {
-
-    }
+    public HEPacketChunkUpdate() {}
 
     public HEPacketChunkUpdate(Chunk chunk, short flagsChunkY) {
         transmissionBuffer = Unpooled.buffer();
@@ -31,8 +29,8 @@ public class HEPacketChunkUpdate implements IMessage {
         transmissionBuffer.writeInt(chunk.xPosition);
         transmissionBuffer.writeInt(chunk.zPosition);
         ExtendedBlockStorage[] blockStorages = chunk.getBlockStorageArray();
-        for(int chunkY=0;chunkY<HE.numChunksY;chunkY++) {
-            if((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
+        for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
+            if ((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
                 ExtendedBlockStorage subChunk = blockStorages[chunkY];
 
                 transmissionBuffer.writeInt(subChunk.blockRefCount);
@@ -43,10 +41,9 @@ public class HEPacketChunkUpdate implements IMessage {
 
                 NibbleArray msbArray = subChunk.getBlockMSBArray();
                 transmissionBuffer.writeBoolean(msbArray == null);
-                if(msbArray != null) {
+                if (msbArray != null) {
                     transmissionBuffer.writeBytes(msbArray.data);
-                }
-                else {
+                } else {
                     transmissionBuffer.writeInt(0);
                 }
 
@@ -70,8 +67,8 @@ public class HEPacketChunkUpdate implements IMessage {
         chunkX = buf.readInt();
         chunkZ = buf.readInt();
         receivedChunk = new ExtendedBlockStorage[HE.numChunksY];
-        for(int chunkY=0;chunkY<HE.numChunksY;chunkY++) {
-            if((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
+        for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
+            if ((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
                 ExtendedBlockStorage subChunk = new ExtendedBlockStorage(chunkY << 4, false);
 
                 subChunk.blockRefCount = buf.readInt();
@@ -80,7 +77,7 @@ public class HEPacketChunkUpdate implements IMessage {
                 byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
                 subChunk.setBlockLSBArray(lsb);
 
-                if(!buf.readBoolean()) {
+                if (!buf.readBoolean()) {
                     byte[] msb = buf.readBytes(HE.blockPerSubChunk / 2).array();
                     subChunk.setBlockMSBArray(new NibbleArray(msb, 4));
                 }
