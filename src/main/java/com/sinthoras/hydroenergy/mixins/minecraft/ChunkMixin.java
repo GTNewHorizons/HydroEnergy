@@ -83,8 +83,7 @@ public class ChunkMixin {
             int i1,
             int j1,
             int k1,
-            int blockY,
-            ExtendedBlockStorage extendedBlockStorage) {
+            int blockY) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
     }
 
