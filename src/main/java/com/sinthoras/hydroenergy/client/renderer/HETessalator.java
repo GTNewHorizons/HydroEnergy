@@ -2,6 +2,7 @@ package com.sinthoras.hydroenergy.client.renderer;
 
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.config.HEConfig;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import java.nio.FloatBuffer;
@@ -131,6 +132,9 @@ public class HETessalator {
     }
 
     public static void render(ICamera camera) {
+        if (!GLContext.getCapabilities().OpenGL30 || HEConfig.useLimitedRendering) {
+            return;
+        }
         if (MinecraftForgeClient.getRenderPass() == HE.waterBlocks[0].getRenderBlockPass()) {
             final Frustrum frustrum = (Frustrum) camera;
             final float cameraBlockX = (float) frustrum.xPosition;
