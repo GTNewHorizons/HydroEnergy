@@ -422,8 +422,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
                         })
                         .setSynced(false)
                         .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setMaxWidth(50 * 2)
-                        .setPos(99 - 50, 45 + 5))
+                        .setPos(99 - 50, 45 + 5)
+                        .setSize(50 * 2, 9))
                 .widget(TextWidget.dynamicString(() -> "IN: " + euPerTickIn + " EU/t")
                         .setSynced(false)
                         .setDefaultColor(COLOR_TEXT_WHITE.get())
@@ -432,10 +432,20 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
                 .widget(TextWidget.dynamicString(() -> "OUT: " + euPerTickOut + " EU/t")
                         .setSynced(false)
                         .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setMaxWidth(100)
                         .setTextAlignment(Alignment.CenterRight)
-                        .setPos(7 + 184 - 100, 45 + 20))
-                .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickOut, val -> euPerTickOut = val));
+                        .setPos(7 + 184 - 100, 45 + 20)
+                        .setSize(100, 9))
+                .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickOut, val -> euPerTickOut = val))
+                .widget(TextWidget.dynamicString(() -> {
+                            if (getFillMultiplier() > 1.0f) {
+                                return "Please upgrade circuit config (>" + getVoltageTier() + ").";
+                            } else {
+                                return "Click me with a screwdriver.";
+                            }
+                        })
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_GRAY.get())
+                        .setPos(7, 84));
     }
 
     @Override
