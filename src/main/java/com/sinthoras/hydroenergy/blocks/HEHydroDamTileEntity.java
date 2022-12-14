@@ -8,13 +8,18 @@ import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_Rend
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.gtnewhorizons.modularui.api.math.Alignment;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.client.gui.HEGuiHandler;
-import com.sinthoras.hydroenergy.client.gui.HEHydroDamEuGuiContainer;
 import com.sinthoras.hydroenergy.config.HEConfig;
-import com.sinthoras.hydroenergy.network.container.HEHydroDamEuContainer;
 import com.sinthoras.hydroenergy.server.HEServer;
 import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -27,9 +32,10 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
 import gregtech.api.util.GT_Utility;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -113,12 +119,14 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     private float getMaxGuiPressure() {
+        return HEConfig.pressureIncreasePerTier * getVoltageTier();
+    }
+
+    private int getVoltageTier() {
         boolean configCircuitIsPresent = mInventory != null
                 && mInventory[1] != null
                 && mInventory[1].getItem() == GT_Utility.getIntegratedCircuit(0).getItem();
-        int voltageTier =
-                configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length - 1) : 1;
-        return HEConfig.pressureIncreasePerTier * voltageTier;
+        return configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length - 1) : 1;
     }
 
     @Override
@@ -197,16 +205,6 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
             }
         }
         return availableFluid - fluidStack.amount;
-    }
-
-    @Override
-    public Object getServerGUI(int id, InventoryPlayer playerInventory, IGregTechTileEntity baseMetaTileEntity) {
-        return new HEHydroDamEuContainer(playerInventory, baseMetaTileEntity);
-    }
-
-    @Override
-    public Object getClientGUI(int id, InventoryPlayer playerInventory, IGregTechTileEntity baseMetaTileEntity) {
-        return new HEHydroDamEuGuiContainer(playerInventory, baseMetaTileEntity, getLocalName(), "EMDisplay.png");
     }
 
     @Override
@@ -357,5 +355,103 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     public int getWaterId() {
         return waterId;
+    }
+
+    @Override
+    public boolean isPowerPassButtonEnabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isSafeVoidButtonEnabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isAllowedToWorkButtonEnabled() {
+        return false;
+    }
+
+    @Override
+    public void addUIWidgets(ModularWindow.Builder builder, UIBuildContext buildContext) {
+        super.addUIWidgets(builder, buildContext);
+
+        builder.widget(new FakeSyncWidget.IntegerSyncer(() -> waterId, val -> waterId = val))
+                .widget(TextWidget.dynamicString(() -> "Hydro Dam (" + GT_Values.VN[getVoltageTier()] + ")")
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_WHITE.get())
+                        .setPos(7, 8))
+                .widget(new TextWidget(GT_Utility.trans("142", "Running perfectly."))
+                        .setDefaultColor(COLOR_TEXT_WHITE.get())
+                        .setPos(7, 16))
+                .widget(TextWidget.dynamicString(() -> {
+                            if (getFillMultiplier() > 1.0f) {
+                                return "Please upgrade circuit config (>" + getVoltageTier() + ").";
+                            } else {
+                                return "";
+                            }
+                        })
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_GRAY.get())
+                        .setPos(7, 84))
+                .widget(TextWidget.dynamicString(() -> euStored + " EU / " + euCapacity + " EU")
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_WHITE.get())
+                        .setPos(99 - 3 - 26, 35)
+                        .attachSyncer(
+                                new FakeSyncWidget.LongSyncer(() -> euStored, val -> euStored = val),
+                                builder,
+                                (widget, val) -> {
+                                    if (widget.isClient()) {
+                                        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                                        widget.setPos(
+                                                99
+                                                        - fontRenderer.getStringWidth("/") / 2
+                                                        - fontRenderer.getStringWidth(euStored + " EU "),
+                                                35);
+                                    }
+                                }))
+                .widget(new FakeSyncWidget.LongSyncer(() -> euCapacity, val -> euCapacity = val))
+                .widget(TextWidget.dynamicString(() -> {
+                            float fillMultiplier = getFillMultiplier();
+                            if (fillMultiplier > 1.0f) {
+                                return ">100.00%";
+                            } else {
+                                return String.format("%.2f", fillMultiplier * 100.0f) + "%";
+                            }
+                        })
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_WHITE.get())
+                        .setPos(99 - 50, 45 + 5)
+                        .setSize(50 * 2, 9))
+                .widget(TextWidget.dynamicString(() -> "IN: " + euPerTickIn + " EU/t")
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_WHITE.get())
+                        .setPos(7, 45 + 20))
+                .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickIn, val -> euPerTickIn = val))
+                .widget(TextWidget.dynamicString(() -> "OUT: " + euPerTickOut + " EU/t")
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_WHITE.get())
+                        .setTextAlignment(Alignment.CenterRight)
+                        .setPos(7 + 184 - 100, 45 + 20)
+                        .setSize(100, 9))
+                .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickOut, val -> euPerTickOut = val))
+                .widget(TextWidget.dynamicString(() -> {
+                            if (getFillMultiplier() > 1.0f) {
+                                return "Please upgrade circuit config (>" + getVoltageTier() + ").";
+                            } else {
+                                return "Click me with a screwdriver.";
+                            }
+                        })
+                        .setSynced(false)
+                        .setDefaultColor(COLOR_TEXT_GRAY.get())
+                        .setPos(7, 84));
+    }
+
+    @Override
+    protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {}
+
+    private float getFillMultiplier() {
+        return euCapacity == 0.0f ? 0.0f : ((float) euStored) / ((float) euCapacity);
     }
 }

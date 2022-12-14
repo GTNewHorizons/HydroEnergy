@@ -1,7 +1,5 @@
 package com.sinthoras.hydroenergy.blocks;
 
-import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_Container_MultiMachineEM;
-import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_GUIContainer_MultiMachineEM;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.config.HEConfig;
@@ -13,7 +11,6 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -379,17 +376,6 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
         addOutput(new FluidStack(FluidRegistry.WATER, consumedWater));
     }
 
-    @Override
-    public Object getServerGUI(int id, InventoryPlayer playerInventory, IGregTechTileEntity baseMetaTileEntity) {
-        return new GT_Container_MultiMachineEM(playerInventory, baseMetaTileEntity, false, false, false);
-    }
-
-    @Override
-    public Object getClientGUI(int id, InventoryPlayer playerInventory, IGregTechTileEntity baseMetaTileEntity) {
-        return new GT_GUIContainer_MultiMachineEM(
-                playerInventory, baseMetaTileEntity, this.getLocalName(), "EMDisplay.png", false, false, false);
-    }
-
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister blockIconRegister) {
         textureScreenTurbineOFF = new Textures.BlockIcons.CustomIcon("iconsets/he_turbine");
@@ -455,5 +441,20 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     @Override
     protected long getEnergyConsumption() {
         return getVoltage();
+    }
+
+    @Override
+    public boolean isPowerPassButtonEnabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isSafeVoidButtonEnabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isAllowedToWorkButtonEnabled() {
+        return false;
     }
 }
