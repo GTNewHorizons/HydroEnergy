@@ -50,6 +50,7 @@ public class HEUtil {
     }
 
     public static class AveragedRingBuffer {
+
         private final float[] values;
         private int pointer = 0;
         private float average = 0.0f;

@@ -1,14 +1,18 @@
 package com.sinthoras.hydroenergy.config;
 
-import com.sinthoras.hydroenergy.HEUtil;
-import gregtech.api.enums.GT_Values;
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
+import com.sinthoras.hydroenergy.HEUtil;
+import gregtech.api.enums.GT_Values;
+
 public class HEConfig {
+
     private static class Defaults {
+
         public static final int maxDams = 16;
         public static final int minimalWaterUpdateInterval = 1000; // in milliseconds
         public static final int delayBetweenSpreadingChunks = 2000; // in milliseconds
@@ -27,12 +31,13 @@ public class HEConfig {
         public static final float efficiencyLossPerTier = 0.03f;
         public static final float pressureIncreasePerTier = 2.0f;
         public static final float milliBucketPerEU = 1.0f;
-        public static final String[] enabledTiers = new String[] {"lv", "mv", "hv", "ev", "iv"};
+        public static final String[] enabledTiers = new String[] { "lv", "mv", "hv", "ev", "iv" };
         public static final boolean useLimitedRendering = false;
         public static final boolean forceOpenGL = false;
     }
 
     private static class Categories {
+
         public static final String general = "General";
         public static final String spreading = "Spreading";
         public static final String energyBalance = "Energy Balance";
@@ -135,7 +140,7 @@ public class HEConfig {
         Property dimensionIdWhitelistProperties = configuration.get(
                 Categories.general,
                 "dimensionIdWhitelist",
-                new int[] {Defaults.overworldId},
+                new int[] { Defaults.overworldId },
                 "[SERVER] List of dimension a player is allowed to place a controller");
         dimensionIdWhitelist.clear();
         for (int id : dimensionIdWhitelistProperties.getIntList()) {
@@ -148,23 +153,23 @@ public class HEConfig {
                         + "control if somebody mis-clicks their limits on their controllers. Here are game-wide limits for "
                         + "spreading.");
 
-        Property maxWaterSpreadWestProperty =
-                configuration.get(Categories.spreading, "maxWaterSpreadWest", Defaults.maxWaterSpreadWest, "[SERVER]");
+        Property maxWaterSpreadWestProperty = configuration
+                .get(Categories.spreading, "maxWaterSpreadWest", Defaults.maxWaterSpreadWest, "[SERVER]");
         maxWaterSpreadWest = maxWaterSpreadWestProperty.getInt();
-        Property maxWaterSpreadDownProperty =
-                configuration.get(Categories.spreading, "maxWaterSpreadDown", Defaults.maxWaterSpreadDown, "[SERVER]");
+        Property maxWaterSpreadDownProperty = configuration
+                .get(Categories.spreading, "maxWaterSpreadDown", Defaults.maxWaterSpreadDown, "[SERVER]");
         maxWaterSpreadDown = maxWaterSpreadDownProperty.getInt();
-        Property maxWaterSpreadNorthProperty = configuration.get(
-                Categories.spreading, "maxWaterSpreadNorth", Defaults.maxWaterSpreadNorth, "[SERVER]");
+        Property maxWaterSpreadNorthProperty = configuration
+                .get(Categories.spreading, "maxWaterSpreadNorth", Defaults.maxWaterSpreadNorth, "[SERVER]");
         maxWaterSpreadNorth = maxWaterSpreadNorthProperty.getInt();
-        Property maxWaterSpreadEastProperty =
-                configuration.get(Categories.spreading, "maxWaterSpreadEast", Defaults.maxWaterSpreadEast, "[SERVER]");
+        Property maxWaterSpreadEastProperty = configuration
+                .get(Categories.spreading, "maxWaterSpreadEast", Defaults.maxWaterSpreadEast, "[SERVER]");
         maxWaterSpreadEast = maxWaterSpreadEastProperty.getInt();
-        Property maxWaterSpreadUpProperty =
-                configuration.get(Categories.spreading, "maxWaterSpreadUp", Defaults.maxWaterSpreadUp, "[SERVER]");
+        Property maxWaterSpreadUpProperty = configuration
+                .get(Categories.spreading, "maxWaterSpreadUp", Defaults.maxWaterSpreadUp, "[SERVER]");
         maxWaterSpreadUp = maxWaterSpreadUpProperty.getInt();
-        Property maxWaterSpreadSouthProperty = configuration.get(
-                Categories.spreading, "maxWaterSpreadSouth", Defaults.maxWaterSpreadSouth, "[SERVER]");
+        Property maxWaterSpreadSouthProperty = configuration
+                .get(Categories.spreading, "maxWaterSpreadSouth", Defaults.maxWaterSpreadSouth, "[SERVER]");
         maxWaterSpreadSouth = maxWaterSpreadSouthProperty.getInt();
 
         Property damDrainPerSecondProperty = configuration.get(

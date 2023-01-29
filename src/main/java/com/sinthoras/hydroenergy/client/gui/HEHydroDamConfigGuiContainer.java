@@ -1,26 +1,31 @@
 package com.sinthoras.hydroenergy.client.gui;
 
+import java.awt.*;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
+
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.client.HEClient;
 import com.sinthoras.hydroenergy.client.HEDam;
 import com.sinthoras.hydroenergy.client.gui.widgets.HEWidgetModes;
 import com.sinthoras.hydroenergy.network.container.HEHydroDamConfigContainer;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import java.awt.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
 public class HEHydroDamConfigGuiContainer extends GuiContainer {
 
-    public static final ResourceLocation backgroundTextureLocation =
-            new ResourceLocation(HETags.MODID, HE.damBackgroundLocation);
+    public static final ResourceLocation backgroundTextureLocation = new ResourceLocation(
+            HETags.MODID,
+            HE.damBackgroundLocation);
 
     private HEDam dam;
 
@@ -237,21 +242,39 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
 
             int stringWidth = fontRenderer.getStringWidth(limitWest);
             drawHorizontalLine(
-                    guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 41, lineGrey.getRGB());
+                    guiLeft + 57,
+                    centerX - constStringWidthHalf - stringWidth - 5,
+                    guiTop + 41,
+                    lineGrey.getRGB());
             fontRenderer.drawString(
-                    limitWest, centerX - constStringWidthHalf - stringWidth, guiTop + 38, Color.BLACK.getRGB());
+                    limitWest,
+                    centerX - constStringWidthHalf - stringWidth,
+                    guiTop + 38,
+                    Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitDown);
             drawHorizontalLine(
-                    guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 71, lineGrey.getRGB());
+                    guiLeft + 57,
+                    centerX - constStringWidthHalf - stringWidth - 5,
+                    guiTop + 71,
+                    lineGrey.getRGB());
             fontRenderer.drawString(
-                    limitDown, centerX - constStringWidthHalf - stringWidth, guiTop + 68, Color.BLACK.getRGB());
+                    limitDown,
+                    centerX - constStringWidthHalf - stringWidth,
+                    guiTop + 68,
+                    Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitNorth);
             drawHorizontalLine(
-                    guiLeft + 57, centerX - constStringWidthHalf - stringWidth - 5, guiTop + 101, lineGrey.getRGB());
+                    guiLeft + 57,
+                    centerX - constStringWidthHalf - stringWidth - 5,
+                    guiTop + 101,
+                    lineGrey.getRGB());
             fontRenderer.drawString(
-                    limitNorth, centerX - constStringWidthHalf - stringWidth, guiTop + 98, Color.BLACK.getRGB());
+                    limitNorth,
+                    centerX - constStringWidthHalf - stringWidth,
+                    guiTop + 98,
+                    Color.BLACK.getRGB());
 
             stringWidth = fontRenderer.getStringWidth(limitEast);
             drawHorizontalLine(

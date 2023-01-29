@@ -1,13 +1,14 @@
 package com.sinthoras.hydroenergy.server;
 
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.network.packet.HEPacketConfigUpdate;
 import com.sinthoras.hydroenergy.network.packet.HEPacketWaterUpdate;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 
 public class HEDam {
 
@@ -213,15 +214,8 @@ public class HEDam {
         sendConfigUpdate();
     }
 
-    public void placeController(
-            String ownerName,
-            int dimensionId,
-            int blockX,
-            int blockY,
-            int blockZ,
-            int waterBlockX,
-            int waterBlockY,
-            int waterBlockZ) {
+    public void placeController(String ownerName, int dimensionId, int blockX, int blockY, int blockZ, int waterBlockX,
+            int waterBlockY, int waterBlockZ) {
         isPlaced = true;
         mode = HE.DamMode.DRAIN;
         limitEast = blockX + 20;
@@ -280,8 +274,8 @@ public class HEDam {
         return ownerName;
     }
 
-    public boolean onConfigRequest(
-            HE.DamMode mode, int limitWest, int limitDown, int limitNorth, int limitEast, int limitUp, int limitSouth) {
+    public boolean onConfigRequest(HE.DamMode mode, int limitWest, int limitDown, int limitNorth, int limitEast,
+            int limitUp, int limitSouth) {
         // Clap change requests to server limits before processing
         limitWest = blockX - HEUtil.clamp(blockX - limitWest, 0, HEConfig.maxWaterSpreadWest);
         limitDown = blockY - HEUtil.clamp(blockY - limitDown, 0, HEConfig.maxWaterSpreadDown);
@@ -290,8 +284,7 @@ public class HEDam {
         limitUp = blockY + HEUtil.clamp(limitUp - blockY, 0, HEConfig.maxWaterSpreadUp);
         limitSouth = blockZ + HEUtil.clamp(limitSouth - blockZ, 0, HEConfig.maxWaterSpreadSouth);
 
-        if (this.mode != mode
-                || this.limitWest != limitWest
+        if (this.mode != mode || this.limitWest != limitWest
                 || this.limitDown != limitDown
                 || this.limitNorth != limitNorth
                 || this.limitEast != limitEast
@@ -327,8 +320,7 @@ public class HEDam {
     public long getEuCapacity() {
         long euCapacity = 0;
         for (int blockY = this.blockY; blockY < HE.numChunksY * HE.chunkHeight; blockY++) {
-            euCapacity += blocksPerY[blockY]
-                    * HE.bucketToMilliBucket
+            euCapacity += blocksPerY[blockY] * HE.bucketToMilliBucket
                     * HEConfig.euPerMilliBucket
                     * (blockY - this.blockY + 1);
             euCapacityUpToY[blockY] = euCapacity;
@@ -345,8 +337,7 @@ public class HEDam {
     public void setWaterLevel(long euStored) {
         for (int blockY = this.blockY; blockY < HE.numChunksY * HE.chunkHeight; blockY++) {
             if (euStored < euCapacityUpToY[blockY]) {
-                float energyCapacityAtY = blocksPerY[blockY]
-                        * HE.bucketToMilliBucket
+                float energyCapacityAtY = blocksPerY[blockY] * HE.bucketToMilliBucket
                         * HEConfig.euPerMilliBucket
                         * (blockY - this.blockY + 1);
                 float decimals = 1.0f + ((float) euStored - (float) euCapacityUpToY[blockY]) / energyCapacityAtY;

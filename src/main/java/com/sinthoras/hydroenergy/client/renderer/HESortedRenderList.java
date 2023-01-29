@@ -1,8 +1,9 @@
 package com.sinthoras.hydroenergy.client.renderer;
 
-import com.sinthoras.hydroenergy.HE;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+
+import com.sinthoras.hydroenergy.HE;
 
 public class HESortedRenderList {
 

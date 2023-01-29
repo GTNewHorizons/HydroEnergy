@@ -1,8 +1,14 @@
 package com.sinthoras.hydroenergy.blocks;
 
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.config.HEConfig;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.GT_Values;
@@ -10,10 +16,6 @@ import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 
 public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
 
@@ -385,57 +387,39 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     }
 
     @Override
-    public ITexture[] getTexture(
-            IGregTechTileEntity baseMetaTileEntity,
-            byte side,
-            byte facing,
-            byte colorIndex,
-            boolean isActive,
-            boolean hasRedstoneSignal) {
+    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, byte side, byte facing, byte colorIndex,
+            boolean isActive, boolean hasRedstoneSignal) {
         if (side == facing) {
             if (isActive) {
                 return new ITexture[] {
-                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                    new TT_RenderedExtendedFacingTexture(textureScreenTurbineON),
-                    new TT_RenderedExtendedFacingTexture(textureScreenArrowDownAnimated)
-                };
+                        Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
+                        new TT_RenderedExtendedFacingTexture(textureScreenTurbineON),
+                        new TT_RenderedExtendedFacingTexture(textureScreenArrowDownAnimated) };
             } else {
                 return new ITexture[] {
-                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                    new TT_RenderedExtendedFacingTexture(textureScreenTurbineOFF)
-                };
+                        Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
+                        new TT_RenderedExtendedFacingTexture(textureScreenTurbineOFF) };
             }
         } else {
             return new ITexture[] {
-                Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f]
-            };
+                    Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f] };
         }
     }
 
     @Override
     public String[] getDescription() {
-        return new String[] {
-            "Hydro Turbine Controller",
-            "Controller Block for the Hydro Turbine",
-            "Consumes pressurize water to produce EU",
-            "Input is pressurized water from Hydro Dams",
-            "Requires a Dynamo, Input, Output and Maintenance Hatch anywhere!",
-            "Produces up to " + getMilliBucketsPerTick() + "mB Water per Tick",
-            "Efficiency: " + getEfficiencyModifierInPercent(),
-            HE.blueprintHintTecTech,
-            "Use Redstone to automate!"
-        };
+        return new String[] { "Hydro Turbine Controller", "Controller Block for the Hydro Turbine",
+                "Consumes pressurize water to produce EU", "Input is pressurized water from Hydro Dams",
+                "Requires a Dynamo, Input, Output and Maintenance Hatch anywhere!",
+                "Produces up to " + getMilliBucketsPerTick() + "mB Water per Tick",
+                "Efficiency: " + getEfficiencyModifierInPercent(), HE.blueprintHintTecTech,
+                "Use Redstone to automate!" };
     }
 
     @Override
     public String[] getStructureDescription(ItemStack itemStack) {
-        return new String[] {
-            "1 Dynamo Hatch",
-            "1 Fluid Input Hatch",
-            "1 Fluid Output Hatch",
-            "1 Maintenance Hatch",
-            "Fill the rest with " + getCasingName(),
-        };
+        return new String[] { "1 Dynamo Hatch", "1 Fluid Input Hatch", "1 Fluid Output Hatch", "1 Maintenance Hatch",
+                "Fill the rest with " + getCasingName(), };
     }
 
     @Override

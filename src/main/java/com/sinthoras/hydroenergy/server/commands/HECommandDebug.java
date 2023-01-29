@@ -1,10 +1,11 @@
 package com.sinthoras.hydroenergy.server.commands;
 
-import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.server.HEServer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
+
+import com.sinthoras.hydroenergy.HE;
+import com.sinthoras.hydroenergy.server.HEServer;
 
 public class HECommandDebug extends CommandBase {
 
@@ -36,10 +37,14 @@ public class HECommandDebug extends CommandBase {
                 }
                 if (flag) {
                     HEServer.instance.setMode(controllerId, debugState ? HE.DamMode.DEBUG : HE.DamMode.SPREAD);
-                    sender.addChatMessage(new ChatComponentText(
-                            "Set controller " + controllerId + " to debug mode " + params[1].toUpperCase()));
-                    HE.info(sender.getCommandSenderName() + " set controller " + controllerId + " to debug mode "
-                            + params[1].toUpperCase());
+                    sender.addChatMessage(
+                            new ChatComponentText(
+                                    "Set controller " + controllerId + " to debug mode " + params[1].toUpperCase()));
+                    HE.info(
+                            sender.getCommandSenderName() + " set controller "
+                                    + controllerId
+                                    + " to debug mode "
+                                    + params[1].toUpperCase());
                 }
             } catch (Exception ex) {
                 flag = false;

@@ -2,16 +2,19 @@ package com.sinthoras.hydroenergy;
 
 import static net.minecraft.util.EnumChatFormatting.*;
 
+import net.minecraft.item.ItemStack;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.sinthoras.hydroenergy.blocks.HEWaterStill;
 import com.sinthoras.hydroenergy.client.gui.HEGuiHandler;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.fluids.HEPressurizedWater;
+
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import gregtech.api.enums.GT_Values;
-import net.minecraft.item.ItemStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class HE {
 
@@ -34,8 +37,12 @@ public class HE {
             + "Please make sure your config \"maxControllers\" is at least as big as the server you are connecting to!";
     public static final String WARN_clientConfigMissmatchDetected = "HydroEnergy: Configuration mismatch to the server "
             + "found! This might crash somewhat randomly. Please talk to your server admin!";
-    public static final String blueprintHintTecTech =
-            "To see the structure, use a " + BLUE + "Tec" + DARK_BLUE + "Tech" + GRAY + " Blueprint on the Controller!";
+    public static final String blueprintHintTecTech = "To see the structure, use a " + BLUE
+            + "Tec"
+            + DARK_BLUE
+            + "Tech"
+            + GRAY
+            + " Blueprint on the Controller!";
 
     public static HEPressurizedWater pressurizedWater = new HEPressurizedWater();
     public static final HEWaterStill[] waterBlocks = new HEWaterStill[HEConfig.maxDams];
@@ -74,6 +81,7 @@ public class HE {
     }
 
     public enum DamMode {
+
         DRAIN,
         DEBUG,
         SPREAD;

@@ -1,15 +1,9 @@
 package com.sinthoras.hydroenergy.client.light;
 
-import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HEUtil;
-import com.sinthoras.hydroenergy.blocks.HEWater;
-import com.sinthoras.hydroenergy.client.HEClient;
-import com.sinthoras.hydroenergy.config.HEConfig;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Stack;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -17,6 +11,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import com.sinthoras.hydroenergy.HE;
+import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.blocks.HEWater;
+import com.sinthoras.hydroenergy.client.HEClient;
+import com.sinthoras.hydroenergy.config.HEConfig;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class HELightManager {
@@ -189,6 +192,7 @@ public class HELightManager {
 
 @SideOnly(Side.CLIENT)
 class HELightChunk {
+
     public BitSet[] lightFlags;
     public short subChunkHasWaterFlags;
     public short requiresPatching;
@@ -310,9 +314,8 @@ class HELightChunk {
             float[] waterLevels = HEClient.getAllWaterLevelForPhysicsAndLighting();
             BitSet flags = lightFlags[chunkY];
             NibbleArray skyLightArray = chunk.getBlockStorageArray()[chunkY].getSkylightArray();
-            for (int linearCoord = flags.nextSetBit(0);
-                    linearCoord != -1;
-                    linearCoord = flags.nextSetBit(linearCoord + 1)) {
+            for (int linearCoord = flags.nextSetBit(0); linearCoord
+                    != -1; linearCoord = flags.nextSetBit(linearCoord + 1)) {
                 int blockX = linearCoord >> 8;
                 int blockY = (linearCoord >> 4) & 15;
                 int blockZ = linearCoord & 15;

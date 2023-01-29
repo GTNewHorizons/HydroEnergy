@@ -1,11 +1,13 @@
 package com.sinthoras.hydroenergy.mixins.minecraft;
 
-import com.sinthoras.hydroenergy.client.light.HELightManager;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.sinthoras.hydroenergy.client.light.HELightManager;
 
 @Mixin(ChunkProviderClient.class)
 public class ChunkProviderClientMixin {

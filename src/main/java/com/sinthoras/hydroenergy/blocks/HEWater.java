@@ -1,14 +1,5 @@
 package com.sinthoras.hydroenergy.blocks;
 
-import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HETags;
-import com.sinthoras.hydroenergy.HEUtil;
-import com.sinthoras.hydroenergy.api.IHEHasCustomMaterialCalculation;
-import com.sinthoras.hydroenergy.client.HEClient;
-import com.sinthoras.hydroenergy.config.HEConfig;
-import com.sinthoras.hydroenergy.server.HEServer;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -18,6 +9,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+
+import com.sinthoras.hydroenergy.HE;
+import com.sinthoras.hydroenergy.HETags;
+import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.api.IHEHasCustomMaterialCalculation;
+import com.sinthoras.hydroenergy.client.HEClient;
+import com.sinthoras.hydroenergy.config.HEConfig;
+import com.sinthoras.hydroenergy.server.HEServer;
+
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 
 public class HEWater extends BlockFluidBase implements IHEHasCustomMaterialCalculation {
 

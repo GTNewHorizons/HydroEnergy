@@ -1,12 +1,14 @@
 package com.sinthoras.hydroenergy.client.gui.widgets;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 @SideOnly(Side.CLIENT)
 public class HENumberInput extends GuiTextField {
+
     public HENumberInput(FontRenderer fontRenderer, int pixelX, int pixelY, int pixelWidth, int pixelHeight) {
         super(fontRenderer, pixelX, pixelY, pixelWidth, pixelHeight);
     }
@@ -33,8 +35,7 @@ public class HENumberInput extends GuiTextField {
             int value = Integer.parseInt(getText());
             value = parseValue(value + offset);
             setText("" + value);
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
 
     public int parseValue(int value) {

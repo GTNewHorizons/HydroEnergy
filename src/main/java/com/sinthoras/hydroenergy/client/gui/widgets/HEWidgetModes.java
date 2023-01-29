@@ -1,18 +1,22 @@
 package com.sinthoras.hydroenergy.client.gui.widgets;
 
-import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.client.HEDam;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.awt.*;
 import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderHelper;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+
+import com.sinthoras.hydroenergy.HE;
+import com.sinthoras.hydroenergy.client.HEDam;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class HEWidgetModes extends Gui {
@@ -123,11 +127,26 @@ public class HEWidgetModes extends Gui {
         mouseX -= Math.max(0, mouseX + stringWidth + 3 - screenWidth);
 
         this.drawGradientRect(
-                mouseX - 3, mouseY - 4, mouseX + stringWidth + 3, mouseY - 3, nearBlack.getRGB(), nearBlack.getRGB());
+                mouseX - 3,
+                mouseY - 4,
+                mouseX + stringWidth + 3,
+                mouseY - 3,
+                nearBlack.getRGB(),
+                nearBlack.getRGB());
         this.drawGradientRect(
-                mouseX - 3, mouseY + 11, mouseX + stringWidth + 3, mouseY + 12, nearBlack.getRGB(), nearBlack.getRGB());
+                mouseX - 3,
+                mouseY + 11,
+                mouseX + stringWidth + 3,
+                mouseY + 12,
+                nearBlack.getRGB(),
+                nearBlack.getRGB());
         this.drawGradientRect(
-                mouseX - 3, mouseY - 3, mouseX + stringWidth + 3, mouseY + 11, nearBlack.getRGB(), nearBlack.getRGB());
+                mouseX - 3,
+                mouseY - 3,
+                mouseX + stringWidth + 3,
+                mouseY + 11,
+                nearBlack.getRGB(),
+                nearBlack.getRGB());
         this.drawGradientRect(mouseX - 4, mouseY - 3, mouseX - 3, mouseY + 11, nearBlack.getRGB(), nearBlack.getRGB());
         this.drawGradientRect(
                 mouseX + stringWidth + 3,
@@ -137,7 +156,12 @@ public class HEWidgetModes extends Gui {
                 nearBlack.getRGB(),
                 nearBlack.getRGB());
         this.drawGradientRect(
-                mouseX - 3, mouseY - 2, mouseX - 2, mouseY + 10, lightPurple.getRGB(), darkPurple.getRGB());
+                mouseX - 3,
+                mouseY - 2,
+                mouseX - 2,
+                mouseY + 10,
+                lightPurple.getRGB(),
+                darkPurple.getRGB());
         this.drawGradientRect(
                 mouseX + stringWidth + 2,
                 mouseY - 2,

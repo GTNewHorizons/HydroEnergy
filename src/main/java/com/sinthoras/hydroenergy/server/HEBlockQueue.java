@@ -1,12 +1,7 @@
 package com.sinthoras.hydroenergy.server;
 
-import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HEUtil;
-import com.sinthoras.hydroenergy.blocks.HEWater;
-import com.sinthoras.hydroenergy.config.HEConfig;
-import com.sinthoras.hydroenergy.network.packet.HEPacketChunkUpdate;
-import com.sinthoras.hydroenergy.server.mytown2.HEMyTown2Integration;
 import java.util.*;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -16,6 +11,13 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import com.sinthoras.hydroenergy.HE;
+import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.blocks.HEWater;
+import com.sinthoras.hydroenergy.config.HEConfig;
+import com.sinthoras.hydroenergy.network.packet.HEPacketChunkUpdate;
+import com.sinthoras.hydroenergy.server.mytown2.HEMyTown2Integration;
 
 public class HEBlockQueue {
 
@@ -110,12 +112,11 @@ class HEQueueChunk {
             QueueEntry entry = blockStack.pop();
             int waterId = entry.waterBlock.getWaterId();
             if (permissionsChecked[waterId] == false) {
-                hasPermissions[waterId] = HEMyTown2Integration.getInstance()
-                        .hasPlayerModificationRightsForChunk(
-                                HEServer.instance.getOwnerName(waterId),
-                                chunk.worldObj.provider.dimensionId,
-                                chunk.xPosition,
-                                chunk.zPosition);
+                hasPermissions[waterId] = HEMyTown2Integration.getInstance().hasPlayerModificationRightsForChunk(
+                        HEServer.instance.getOwnerName(waterId),
+                        chunk.worldObj.provider.dimensionId,
+                        chunk.xPosition,
+                        chunk.zPosition);
                 permissionsChecked[waterId] = true;
             }
             Block block = chunk.getBlock(entry.blockX & 15, entry.blockY, entry.blockZ & 15);
@@ -125,8 +126,8 @@ class HEQueueChunk {
             if (removeBlock) {
                 if (block == entry.waterBlock) {
                     int chunkY = entry.blockY >> 4;
-                    chunkStorage[chunkY].func_150818_a(
-                            entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, Blocks.air);
+                    chunkStorage[chunkY]
+                            .func_150818_a(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, Blocks.air);
                     HEServer.instance.onWaterRemoved(waterId, entry.blockY);
                     subChunksHaveChanges |= HEUtil.chunkYToFlag(chunkY);
 
@@ -143,28 +144,28 @@ class HEQueueChunk {
                     if (chunkStorage[chunkY] == null) {
                         chunkStorage[chunkY] = new ExtendedBlockStorage(chunkY << 4, !chunk.worldObj.provider.hasNoSky);
                     }
-                    chunkStorage[chunkY].func_150818_a(
-                            entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, entry.waterBlock);
+                    chunkStorage[chunkY]
+                            .func_150818_a(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, entry.waterBlock);
                     // If the block is over all opague blocks aka can see the sky simply set light to 15.
                     // Else to the value of the first non HEWater block directly below
                     if (chunk.canBlockSeeTheSky(entry.blockX & 15, entry.blockY, entry.blockZ & 15)) {
-                        chunkStorage[chunkY]
-                                .getSkylightArray()
+                        chunkStorage[chunkY].getSkylightArray()
                                 .set(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, 15);
                     } else {
                         int highestOpaqueBlockY = chunk.heightMap[(entry.blockZ & 15) << 4 | (entry.blockX & 15)];
                         int highestOpaqueChunkY = HEUtil.coordBlockToChunk(highestOpaqueBlockY);
                         if (chunkStorage[highestOpaqueChunkY] == null) {
                             chunkStorage[highestOpaqueChunkY] = new ExtendedBlockStorage(
-                                    highestOpaqueChunkY << 4, !chunk.worldObj.provider.hasNoSky);
+                                    highestOpaqueChunkY << 4,
+                                    !chunk.worldObj.provider.hasNoSky);
                         }
                         NibbleArray skylightArray = chunkStorage[highestOpaqueChunkY].getSkylightArray();
                         if (skylightArray == null) {
                             skylightArray = new NibbleArray(HE.blockPerSubChunk, 4);
                             chunkStorage[highestOpaqueChunkY].setSkylightArray(skylightArray);
                         }
-                        int lightValue =
-                                skylightArray.get(entry.blockZ & 15, highestOpaqueBlockY & 15, entry.blockX & 15);
+                        int lightValue = skylightArray
+                                .get(entry.blockZ & 15, highestOpaqueBlockY & 15, entry.blockX & 15);
                         skylightArray.set(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, lightValue);
                     }
                     HEServer.instance.onWaterPlaced(waterId, entry.blockY);
@@ -185,11 +186,10 @@ class HEQueueChunk {
             chunk.setChunkModified();
 
             HEPacketChunkUpdate message = new HEPacketChunkUpdate(chunk, subChunksHaveChanges);
-            for (EntityPlayerMP player :
-                    (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+            for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer()
+                    .getConfigurationManager().playerEntityList) {
                 if (chunk.worldObj.provider.dimensionId == player.worldObj.provider.dimensionId
-                        && player.getServerForPlayer()
-                                .getPlayerManager()
+                        && player.getServerForPlayer().getPlayerManager()
                                 .isPlayerWatchingChunk(player, chunk.xPosition, chunk.zPosition)) {
                     HE.network.sendTo(message, player);
                 }
@@ -227,6 +227,7 @@ class HEQueueChunk {
 }
 
 class QueueEntry {
+
     public int blockX;
     public int blockY;
     public int blockZ;

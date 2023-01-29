@@ -1,21 +1,25 @@
 package com.sinthoras.hydroenergy.client.gui;
 
-import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HETags;
-import com.sinthoras.hydroenergy.client.gui.widgets.HENumberInput;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 
+import com.sinthoras.hydroenergy.HE;
+import com.sinthoras.hydroenergy.HETags;
+import com.sinthoras.hydroenergy.client.gui.widgets.HENumberInput;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 @SideOnly(Side.CLIENT)
 public class HEPopupLimitGui extends Gui {
 
-    private static ResourceLocation limitBackgroundTextureLocation =
-            new ResourceLocation(HETags.MODID, HE.damLimitBackgroundLocation);
+    private static ResourceLocation limitBackgroundTextureLocation = new ResourceLocation(
+            HETags.MODID,
+            HE.damLimitBackgroundLocation);
 
     private GuiButton minus1000;
     private GuiButton minus100;
@@ -184,12 +188,7 @@ public class HEPopupLimitGui extends Gui {
 
     public boolean keyTyped(char c, int keyCode) {
         if (visible) {
-            if (keyCode == 1
-                    || keyCode
-                            == Minecraft.getMinecraft()
-                                    .gameSettings
-                                    .keyBindInventory
-                                    .getKeyCode()) {
+            if (keyCode == 1 || keyCode == Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode()) {
                 cancel();
             } else {
                 textField.textboxKeyTyped(c, keyCode);

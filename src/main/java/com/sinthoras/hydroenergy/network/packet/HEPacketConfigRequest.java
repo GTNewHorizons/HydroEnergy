@@ -2,6 +2,7 @@ package com.sinthoras.hydroenergy.network.packet;
 
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.server.HEServer;
+
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -18,15 +19,8 @@ public class HEPacketConfigRequest implements IMessage {
     public int limitUp;
     public int limitSouth;
 
-    public HEPacketConfigRequest(
-            int waterId,
-            HE.DamMode mode,
-            int limitWest,
-            int limitDown,
-            int limitNorth,
-            int limitEast,
-            int limitUp,
-            int limitSouth) {
+    public HEPacketConfigRequest(int waterId, HE.DamMode mode, int limitWest, int limitDown, int limitNorth,
+            int limitEast, int limitUp, int limitSouth) {
         this.waterId = waterId;
         this.mode = mode;
         this.limitWest = limitWest;

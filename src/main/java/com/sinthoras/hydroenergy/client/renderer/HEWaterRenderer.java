@@ -1,11 +1,5 @@
 package com.sinthoras.hydroenergy.client.renderer;
 
-import com.sinthoras.hydroenergy.HEUtil;
-import com.sinthoras.hydroenergy.blocks.HEWater;
-import com.sinthoras.hydroenergy.blocks.HEWaterStill;
-import com.sinthoras.hydroenergy.client.HEClient;
-import com.sinthoras.hydroenergy.config.HEConfig;
-import cpw.mods.fml.client.registry.RenderingRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -13,7 +7,15 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.RenderBlockFluid;
+
 import org.lwjgl.opengl.GLContext;
+
+import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.blocks.HEWater;
+import com.sinthoras.hydroenergy.blocks.HEWaterStill;
+import com.sinthoras.hydroenergy.client.HEClient;
+import com.sinthoras.hydroenergy.config.HEConfig;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 
 public class HEWaterRenderer extends RenderBlockFluid {
 
@@ -37,8 +39,8 @@ public class HEWaterRenderer extends RenderBlockFluid {
     private static final boolean[] shouldSidesBeRendered = new boolean[6];
 
     @Override
-    public boolean renderWorldBlock(
-            IBlockAccess world, int blockX, int blockY, int blockZ, Block block, int modelId, RenderBlocks renderer) {
+    public boolean renderWorldBlock(IBlockAccess world, int blockX, int blockY, int blockZ, Block block, int modelId,
+            RenderBlocks renderer) {
         if (!(block instanceof HEWater)) {
             return false;
         }
@@ -60,7 +62,12 @@ public class HEWaterRenderer extends RenderBlockFluid {
 
             int worldColorModifier = block.colorMultiplier(world, blockX, blockY, blockZ);
             HETessalator.addBlock(
-                    blockX, blockY, blockZ, ((HEWater) block).getWaterId(), worldColorModifier, shouldSidesBeRendered);
+                    blockX,
+                    blockY,
+                    blockZ,
+                    ((HEWater) block).getWaterId(),
+                    worldColorModifier,
+                    shouldSidesBeRendered);
 
             return false;
         } else {
@@ -86,15 +93,12 @@ public class HEWaterRenderer extends RenderBlockFluid {
             boolean renderBottom = block.shouldSideBeRendered(world, blockX, blockY + densityDir, blockZ, 0)
                     && world.getBlock(blockX, blockY + densityDir, blockZ) != theFluid;
 
-            boolean[] renderSides = new boolean[] {
-                block.shouldSideBeRendered(world, blockX, blockY, blockZ - 1, 2),
-                block.shouldSideBeRendered(world, blockX, blockY, blockZ + 1, 3),
-                block.shouldSideBeRendered(world, blockX - 1, blockY, blockZ, 4),
-                block.shouldSideBeRendered(world, blockX + 1, blockY, blockZ, 5)
-            };
+            boolean[] renderSides = new boolean[] { block.shouldSideBeRendered(world, blockX, blockY, blockZ - 1, 2),
+                    block.shouldSideBeRendered(world, blockX, blockY, blockZ + 1, 3),
+                    block.shouldSideBeRendered(world, blockX - 1, blockY, blockZ, 4),
+                    block.shouldSideBeRendered(world, blockX + 1, blockY, blockZ, 5) };
 
-            if (!renderTop
-                    && !renderBottom
+            if (!renderTop && !renderBottom
                     && !renderSides[0]
                     && !renderSides[1]
                     && !renderSides[2]
@@ -159,7 +163,11 @@ public class HEWaterRenderer extends RenderBlockFluid {
                     tessellator.setBrightness(block.getMixedBrightnessForBlock(world, blockX, blockY - 1, blockZ));
                     tessellator.setColorOpaque_F(LIGHT_Y_NEG * red, LIGHT_Y_NEG * green, LIGHT_Y_NEG * blue);
                     renderer.renderFaceYNeg(
-                            block, blockX, blockY + RENDER_OFFSET, blockZ, waterBlock.getIcon(0, bMeta));
+                            block,
+                            blockX,
+                            blockY + RENDER_OFFSET,
+                            blockZ,
+                            waterBlock.getIcon(0, bMeta));
                 }
 
                 for (int side = 0; side < 4; ++side) {

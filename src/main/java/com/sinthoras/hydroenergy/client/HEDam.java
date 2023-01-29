@@ -4,6 +4,7 @@ import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.network.packet.HEPacketConfigRequest;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -35,17 +36,8 @@ public class HEDam {
         this.waterId = waterId;
     }
 
-    public void onConfigUpdate(
-            int blockX,
-            int blockY,
-            int blockZ,
-            HE.DamMode mode,
-            int limitWest,
-            int limitDown,
-            int limitNorth,
-            int limitEast,
-            int limitUp,
-            int limitSouth) {
+    public void onConfigUpdate(int blockX, int blockY, int blockZ, HE.DamMode mode, int limitWest, int limitDown,
+            int limitNorth, int limitEast, int limitUp, int limitSouth) {
         this.blockX = blockX;
         this.blockY = blockY;
         this.blockZ = blockZ;
@@ -106,15 +98,16 @@ public class HEDam {
     }
 
     public void applyChanges() {
-        HE.network.sendToServer(new HEPacketConfigRequest(
-                waterId,
-                pendingMode,
-                pendingLimitWest,
-                pendingLimitDown,
-                pendingLimitNorth,
-                pendingLimitEast,
-                pendingLimitUp,
-                pendingLimitSouth));
+        HE.network.sendToServer(
+                new HEPacketConfigRequest(
+                        waterId,
+                        pendingMode,
+                        pendingLimitWest,
+                        pendingLimitDown,
+                        pendingLimitNorth,
+                        pendingLimitEast,
+                        pendingLimitUp,
+                        pendingLimitSouth));
     }
 
     public void setMode(HE.DamMode mode) {

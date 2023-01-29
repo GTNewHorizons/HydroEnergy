@@ -1,11 +1,12 @@
 package com.sinthoras.hydroenergy.blocks;
 
-import com.sinthoras.hydroenergy.client.renderer.HEWaterRenderer;
-import com.sinthoras.hydroenergy.server.HEBlockQueue;
-import com.sinthoras.hydroenergy.server.HEServer;
 import net.minecraft.block.Block;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import com.sinthoras.hydroenergy.client.renderer.HEWaterRenderer;
+import com.sinthoras.hydroenergy.server.HEBlockQueue;
+import com.sinthoras.hydroenergy.server.HEServer;
 
 public class HEWaterStill extends HEWater {
 

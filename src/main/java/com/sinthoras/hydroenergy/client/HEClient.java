@@ -1,10 +1,12 @@
 package com.sinthoras.hydroenergy.client;
 
+import net.minecraft.client.Minecraft;
+
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.config.HEConfig;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.Minecraft;
 
 @SideOnly(Side.CLIENT)
 public class HEClient {
@@ -25,25 +27,24 @@ public class HEClient {
         dams[waterId].onWaterUpdate(waterLevel);
     }
 
-    public static void onConfigUpdate(
-            int waterId,
-            int blockX,
-            int blockY,
-            int blockZ,
-            HE.DamMode mode,
-            int limitWest,
-            int limitDown,
-            int limitNorth,
-            int limitEast,
-            int limitUp,
-            int limitSouth) {
+    public static void onConfigUpdate(int waterId, int blockX, int blockY, int blockZ, HE.DamMode mode, int limitWest,
+            int limitDown, int limitNorth, int limitEast, int limitUp, int limitSouth) {
         HE.debug("Received dam config update");
         if (waterId < 0 || waterId >= HEConfig.maxDams) {
             HE.error(HE.ERROR_serverIdsOutOfBounds);
             return;
         }
         dams[waterId].onConfigUpdate(
-                blockX, blockY, blockZ, mode, limitWest, limitDown, limitNorth, limitEast, limitUp, limitSouth);
+                blockX,
+                blockY,
+                blockZ,
+                mode,
+                limitWest,
+                limitDown,
+                limitNorth,
+                limitEast,
+                limitUp,
+                limitSouth);
     }
 
     public static float[] getDebugStatesAsFactors() {
@@ -70,19 +71,9 @@ public class HEClient {
         return waterLevels;
     }
 
-    public static void onSynchronize(
-            int[] blocksX,
-            int[] blocksY,
-            int[] blocksZ,
-            float[] waterLevels,
-            HE.DamMode[] modes,
-            int[] limitsWest,
-            int[] limitsDown,
-            int[] limitsNorth,
-            int[] limitsEast,
-            int[] limitsUp,
-            int[] limitsSouth,
-            boolean[] enabledTiers) {
+    public static void onSynchronize(int[] blocksX, int[] blocksY, int[] blocksZ, float[] waterLevels,
+            HE.DamMode[] modes, int[] limitsWest, int[] limitsDown, int[] limitsNorth, int[] limitsEast, int[] limitsUp,
+            int[] limitsSouth, boolean[] enabledTiers) {
         if (HEConfig.maxDams < waterLevels.length) {
             HE.error(HE.ERROR_serverIdsOutOfBounds);
         }

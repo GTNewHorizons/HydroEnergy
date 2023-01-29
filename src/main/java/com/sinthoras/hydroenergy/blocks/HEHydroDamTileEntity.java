@@ -3,6 +3,15 @@ package com.sinthoras.hydroenergy.blocks;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
 import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
+
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
@@ -21,6 +30,7 @@ import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.client.gui.HEGuiHandler;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.server.HEServer;
+
 import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -32,14 +42,6 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
 import gregtech.api.util.GT_Utility;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidStack;
 
 public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
 
@@ -55,26 +57,26 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     private final HEUtil.AveragedRingBuffer euPerTickOutAverage = new HEUtil.AveragedRingBuffer(64);
     private final HEUtil.AveragedRingBuffer euPerTickInAverage = new HEUtil.AveragedRingBuffer(64);
 
-    private static final IStructureDefinition<HEHydroDamTileEntity> multiblockDefinition =
-            StructureDefinition.<HEHydroDamTileEntity>builder()
-                    .addShape(HETags.structurePieceMain, transpose(new String[][] {
-                        {"HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC"},
-                        {"HHHHH", "C   C", "C   C", "C   C", "C   C"},
-                        {"HHHHH", "C   C", "C   C", "C   C", "C   C"},
-                        {"HH~HH", "C   C", "C   C", "C   C", "C   C"},
-                        {"HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC"}
-                    }))
-                    .addElement(
-                            'H',
-                            ofChain(
-                                    ofHatchAdder(
-                                            HEHydroDamTileEntity::addClassicToMachineList,
-                                            steelTextureIndex,
-                                            GregTech_API.sBlockConcretes,
-                                            concreteBlockMeta),
-                                    ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta)))
-                    .addElement('C', ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta))
-                    .build();
+    private static final IStructureDefinition<HEHydroDamTileEntity> multiblockDefinition = StructureDefinition
+            .<HEHydroDamTileEntity>builder()
+            .addShape(
+                    HETags.structurePieceMain,
+                    transpose(
+                            new String[][] { { "HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC" },
+                                    { "HHHHH", "C   C", "C   C", "C   C", "C   C" },
+                                    { "HHHHH", "C   C", "C   C", "C   C", "C   C" },
+                                    { "HH~HH", "C   C", "C   C", "C   C", "C   C" },
+                                    { "HHHHH", "CCCCC", "CCCCC", "CCCCC", "CCCCC" } }))
+            .addElement(
+                    'H',
+                    ofChain(
+                            ofHatchAdder(
+                                    HEHydroDamTileEntity::addClassicToMachineList,
+                                    steelTextureIndex,
+                                    GregTech_API.sBlockConcretes,
+                                    concreteBlockMeta),
+                            ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta)))
+            .addElement('C', ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta)).build();
 
     public HEHydroDamTileEntity(String name) {
         super(name);
@@ -123,8 +125,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     private int getVoltageTier() {
-        boolean configCircuitIsPresent = mInventory != null
-                && mInventory[1] != null
+        boolean configCircuitIsPresent = mInventory != null && mInventory[1] != null
                 && mInventory[1].getItem() == GT_Utility.getIntegratedCircuit(0).getItem();
         return configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length - 1) : 1;
     }
@@ -137,8 +138,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
         euCapacity = HEServer.instance.getEuCapacity(waterId);
         euStored = HEUtil.clamp(euStored, 0, euCapacity);
-        euCapacityGui = HEServer.instance.getEuCapacityAt(
-                waterId, (int) (getBaseMetaTileEntity().getYCoord() + getMaxGuiPressure()));
+        euCapacityGui = HEServer.instance
+                .getEuCapacityAt(waterId, (int) (getBaseMetaTileEntity().getYCoord() + getMaxGuiPressure()));
 
         final int waterLevelOverController = (int) (HEServer.instance.getWaterLevel(waterId)
                 - getBaseMetaTileEntity().getYCoord());
@@ -163,8 +164,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
         }
 
         if (getBaseMetaTileEntity().getWorld().isRaining()) {
-            final long rainingEuGeneration = (long)
-                    (HEServer.instance.getRainedOnBlocks(waterId) * HEConfig.waterBonusPerSurfaceBlockPerRainTick);
+            final long rainingEuGeneration = (long) (HEServer.instance.getRainedOnBlocks(waterId)
+                    * HEConfig.waterBonusPerSurfaceBlockPerRainTick);
             final long addedEu = Math.min(euCapacity - euStored, rainingEuGeneration);
             euStored += addedEu;
             euPerTickIn += addedEu;
@@ -186,8 +187,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
             if (!hatch.outputsLiquids()) {
                 continue;
             }
-            if (hatch.isFluidLocked()
-                    && hatch.getLockedFluidName() != null
+            if (hatch.isFluidLocked() && hatch.getLockedFluidName() != null
                     && !hatch.getLockedFluidName().equals(fluidStack.getUnlocalizedName())) {
                 continue;
             }
@@ -230,20 +230,13 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     @Override
-    public ITexture[] getTexture(
-            IGregTechTileEntity baseMetaTileEntity,
-            byte side,
-            byte facing,
-            byte colorIndex,
-            boolean isActive,
-            boolean hasRedstoneSignal) {
+    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, byte side, byte facing, byte colorIndex,
+            boolean isActive, boolean hasRedstoneSignal) {
         if (side == facing) {
-            return new ITexture[] {
-                Textures.BlockIcons.getCasingTextureForId(steelTextureIndex),
-                new TT_RenderedExtendedFacingTexture(Screen)
-            };
+            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(steelTextureIndex),
+                    new TT_RenderedExtendedFacingTexture(Screen) };
         } else {
-            return new ITexture[] {Textures.BlockIcons.getCasingTextureForId(steelTextureIndex)};
+            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(steelTextureIndex) };
         }
     }
 
@@ -311,26 +304,18 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
         euCapacity = compound.getLong(HETags.waterCapacity);
     }
 
-    private static final String[] mouseOverDescription = new String[] {
-        "Hydro Dam Controller",
-        "Controller Block for the Hydro Dam",
-        "Input is pressurized water from Hydro Pumps",
-        "Output is pressurized water for Hydro Turbines",
-        "Requires an Input and Output Hatch on the front!",
-        HE.blueprintHintTecTech
-    };
+    private static final String[] mouseOverDescription = new String[] { "Hydro Dam Controller",
+            "Controller Block for the Hydro Dam", "Input is pressurized water from Hydro Pumps",
+            "Output is pressurized water for Hydro Turbines", "Requires an Input and Output Hatch on the front!",
+            HE.blueprintHintTecTech };
 
     @Override
     public String[] getDescription() {
         return mouseOverDescription;
     }
 
-    private static final String[] chatDescription = new String[] {
-        "1 Fluid Input Hatch",
-        "1 Fluid Output Hatch",
-        "Fill the rest with Light Concrete",
-        "No Maintenance Hatch required!"
-    };
+    private static final String[] chatDescription = new String[] { "1 Fluid Input Hatch", "1 Fluid Output Hatch",
+            "Fill the rest with Light Concrete", "No Maintenance Hatch required!" };
 
     @Override
     public String[] getStructureDescription(ItemStack itemStack) {
@@ -377,75 +362,58 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
         super.addUIWidgets(builder, buildContext);
 
         builder.widget(new FakeSyncWidget.IntegerSyncer(() -> waterId, val -> waterId = val))
-                .widget(TextWidget.dynamicString(() -> "Hydro Dam (" + GT_Values.VN[getVoltageTier()] + ")")
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setPos(7, 8))
-                .widget(new TextWidget(GT_Utility.trans("142", "Running perfectly."))
-                        .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setPos(7, 16))
+                .widget(
+                        TextWidget.dynamicString(() -> "Hydro Dam (" + GT_Values.VN[getVoltageTier()] + ")")
+                                .setSynced(false).setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 8))
+                .widget(
+                        new TextWidget(GT_Utility.trans("142", "Running perfectly."))
+                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 16))
                 .widget(TextWidget.dynamicString(() -> {
-                            if (getFillMultiplier() > 1.0f) {
-                                return "Please upgrade circuit config (>" + getVoltageTier() + ").";
-                            } else {
-                                return "";
-                            }
-                        })
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_GRAY.get())
-                        .setPos(7, 84))
-                .widget(TextWidget.dynamicString(() -> euStored + " EU / " + euCapacity + " EU")
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setPos(99 - 3 - 26, 35)
-                        .attachSyncer(
-                                new FakeSyncWidget.LongSyncer(() -> euStored, val -> euStored = val),
-                                builder,
-                                (widget, val) -> {
-                                    if (widget.isClient()) {
-                                        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-                                        widget.setPos(
-                                                99
-                                                        - fontRenderer.getStringWidth("/") / 2
-                                                        - fontRenderer.getStringWidth(euStored + " EU "),
-                                                35);
-                                    }
-                                }))
+                    if (getFillMultiplier() > 1.0f) {
+                        return "Please upgrade circuit config (>" + getVoltageTier() + ").";
+                    } else {
+                        return "";
+                    }
+                }).setSynced(false).setDefaultColor(COLOR_TEXT_GRAY.get()).setPos(7, 84))
+                .widget(
+                        TextWidget.dynamicString(() -> euStored + " EU / " + euCapacity + " EU").setSynced(false)
+                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(99 - 3 - 26, 35).attachSyncer(
+                                        new FakeSyncWidget.LongSyncer(() -> euStored, val -> euStored = val),
+                                        builder,
+                                        (widget, val) -> {
+                                            if (widget.isClient()) {
+                                                FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                                                widget.setPos(
+                                                        99 - fontRenderer.getStringWidth("/") / 2
+                                                                - fontRenderer.getStringWidth(euStored + " EU "),
+                                                        35);
+                                            }
+                                        }))
                 .widget(new FakeSyncWidget.LongSyncer(() -> euCapacity, val -> euCapacity = val))
                 .widget(TextWidget.dynamicString(() -> {
-                            float fillMultiplier = getFillMultiplier();
-                            if (fillMultiplier > 1.0f) {
-                                return ">100.00%";
-                            } else {
-                                return String.format("%.2f", fillMultiplier * 100.0f) + "%";
-                            }
-                        })
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setPos(99 - 50, 45 + 5)
-                        .setSize(50 * 2, 9))
-                .widget(TextWidget.dynamicString(() -> "IN: " + euPerTickIn + " EU/t")
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setPos(7, 45 + 20))
+                    float fillMultiplier = getFillMultiplier();
+                    if (fillMultiplier > 1.0f) {
+                        return ">100.00%";
+                    } else {
+                        return String.format("%.2f", fillMultiplier * 100.0f) + "%";
+                    }
+                }).setSynced(false).setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(99 - 50, 45 + 5).setSize(50 * 2, 9))
+                .widget(
+                        TextWidget.dynamicString(() -> "IN: " + euPerTickIn + " EU/t").setSynced(false)
+                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 45 + 20))
                 .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickIn, val -> euPerTickIn = val))
-                .widget(TextWidget.dynamicString(() -> "OUT: " + euPerTickOut + " EU/t")
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_WHITE.get())
-                        .setTextAlignment(Alignment.CenterRight)
-                        .setPos(7 + 184 - 100, 45 + 20)
-                        .setSize(100, 9))
+                .widget(
+                        TextWidget.dynamicString(() -> "OUT: " + euPerTickOut + " EU/t").setSynced(false)
+                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setTextAlignment(Alignment.CenterRight)
+                                .setPos(7 + 184 - 100, 45 + 20).setSize(100, 9))
                 .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickOut, val -> euPerTickOut = val))
                 .widget(TextWidget.dynamicString(() -> {
-                            if (getFillMultiplier() > 1.0f) {
-                                return "Please upgrade circuit config (>" + getVoltageTier() + ").";
-                            } else {
-                                return "Click me with a screwdriver.";
-                            }
-                        })
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_GRAY.get())
-                        .setPos(7, 84));
+                    if (getFillMultiplier() > 1.0f) {
+                        return "Please upgrade circuit config (>" + getVoltageTier() + ").";
+                    } else {
+                        return "Click me with a screwdriver.";
+                    }
+                }).setSynced(false).setDefaultColor(COLOR_TEXT_GRAY.get()).setPos(7, 84));
     }
 
     @Override

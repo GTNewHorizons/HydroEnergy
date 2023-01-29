@@ -1,11 +1,12 @@
 package com.sinthoras.hydroenergy.fluids;
 
-import com.sinthoras.hydroenergy.HETags;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+
+import com.sinthoras.hydroenergy.HETags;
 
 public class HEPressurizedWater extends Fluid {
 

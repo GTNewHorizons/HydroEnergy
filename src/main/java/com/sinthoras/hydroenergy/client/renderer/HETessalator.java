@@ -1,12 +1,8 @@
 package com.sinthoras.hydroenergy.client.renderer;
 
-import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HEUtil;
-import com.sinthoras.hydroenergy.config.HEConfig;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.nio.FloatBuffer;
 import java.util.Stack;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.culling.Frustrum;
@@ -16,7 +12,15 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.MinecraftForgeClient;
+
 import org.lwjgl.opengl.*;
+
+import com.sinthoras.hydroenergy.HE;
+import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.config.HEConfig;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class HETessalator {
@@ -53,7 +57,9 @@ public class HETessalator {
 
                     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, renderSubChunk.vboId);
                     GL15.glBufferData(
-                            GL15.GL_ARRAY_BUFFER, (long) vboBuffer.capacity() * Float.BYTES, GL15.GL_STATIC_DRAW);
+                            GL15.GL_ARRAY_BUFFER,
+                            (long) vboBuffer.capacity() * Float.BYTES,
+                            GL15.GL_STATIC_DRAW);
 
                     GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 7 * Float.BYTES, 0);
                     GL20.glEnableVertexAttribArray(0);
@@ -99,8 +105,8 @@ public class HETessalator {
         }
     }
 
-    public static void addBlock(
-            int blockX, int blockY, int blockZ, int waterId, int worldColorModifier, boolean[] shouldSideBeRendered) {
+    public static void addBlock(int blockX, int blockY, int blockZ, int waterId, int worldColorModifier,
+            boolean[] shouldSideBeRendered) {
         int renderSides = 0;
         for (int i = 0; i < shouldSideBeRendered.length; i++) {
             if (shouldSideBeRendered[i]) {
@@ -112,11 +118,7 @@ public class HETessalator {
         vboBuffer.put(blockY);
         vboBuffer.put(blockZ);
 
-        final int lightXMinus = 15,
-                lightXPlus = 15,
-                lightYMinus = 15,
-                lightYPlus = 15,
-                lightZMinus = 15,
+        final int lightXMinus = 15, lightXPlus = 15, lightYMinus = 15, lightYPlus = 15, lightZMinus = 15,
                 lightZPlus = 15;
         final int light0 = (lightXMinus << 16) | (lightXPlus << 8) | lightYMinus;
         final int light1 = (lightYPlus << 16) | (lightZMinus << 8) | lightZPlus;
@@ -186,7 +188,11 @@ public class HETessalator {
                                     && !vanillaChunk.getAreLevelsEmpty(blockY, blockY + 15)
                                     && frustrum.isBoundingBoxInFrustum(chunkBB)) {
                                 HESortedRenderList.add(
-                                        renderSubChunk.vaoId, renderSubChunk.numWaterBlocks, chunkX, chunkY, chunkZ);
+                                        renderSubChunk.vaoId,
+                                        renderSubChunk.numWaterBlocks,
+                                        chunkX,
+                                        chunkY,
+                                        chunkZ);
                             }
                         }
                     }
@@ -218,8 +224,8 @@ public class HETessalator {
                 availableRenderChunks.push(oldRenderChunk);
             }
 
-            final HERenderChunk renderChunk =
-                    availableRenderChunks.isEmpty() ? new HERenderChunk() : availableRenderChunks.pop();
+            final HERenderChunk renderChunk = availableRenderChunks.isEmpty() ? new HERenderChunk()
+                    : availableRenderChunks.pop();
             renderChunk.chunkX = chunkX;
             renderChunk.chunkZ = chunkZ;
 
@@ -260,12 +266,14 @@ public class HETessalator {
 
 @SideOnly(Side.CLIENT)
 class HEBufferIds {
+
     public int vaoId;
     public int vboId;
 }
 
 @SideOnly(Side.CLIENT)
 class HERenderChunk {
+
     public final HERenderSubChunk[] renderSubChunks;
     public int chunkX = 0;
     public int chunkZ = 0;
@@ -280,6 +288,7 @@ class HERenderChunk {
 
 @SideOnly(Side.CLIENT)
 class HERenderSubChunk {
+
     public int vaoId = GL31.GL_INVALID_INDEX;
     public int vboId = GL31.GL_INVALID_INDEX;
     public int numWaterBlocks = 0;

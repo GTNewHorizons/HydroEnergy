@@ -3,6 +3,7 @@ package com.sinthoras.hydroenergy.hooks;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.client.renderer.HEProgram;
 import com.sinthoras.hydroenergy.client.renderer.HEWaterRenderer;
+
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;

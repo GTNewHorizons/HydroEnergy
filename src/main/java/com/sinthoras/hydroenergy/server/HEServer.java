@@ -1,16 +1,18 @@
 package com.sinthoras.hydroenergy.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldSavedData;
+
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.network.packet.HEPacketSynchronize;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
 
 public class HEServer extends WorldSavedData {
 
@@ -74,19 +76,19 @@ public class HEServer extends WorldSavedData {
         markDirty();
     }
 
-    public int onPlacecontroller(
-            String ownerName,
-            int dimensionId,
-            int blockX,
-            int blockY,
-            int blockZ,
-            int waterBlockX,
-            int waterBlockY,
-            int waterBlockZ) {
+    public int onPlacecontroller(String ownerName, int dimensionId, int blockX, int blockY, int blockZ, int waterBlockX,
+            int waterBlockY, int waterBlockZ) {
         for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
             if (!dams[waterId].isPlaced()) {
                 dams[waterId].placeController(
-                        ownerName, dimensionId, blockX, blockY, blockZ, waterBlockX, waterBlockY, waterBlockZ);
+                        ownerName,
+                        dimensionId,
+                        blockX,
+                        blockY,
+                        blockZ,
+                        waterBlockX,
+                        waterBlockY,
+                        waterBlockZ);
                 markDirty();
                 return waterId;
             }
@@ -144,8 +146,7 @@ public class HEServer extends WorldSavedData {
 
     public boolean isBlockOutOfBounds(int waterId, int blockX, int blockY, int blockZ) {
         HEDam dam = dams[waterId];
-        return blockX > dam.limitEast
-                || blockX < dam.limitWest
+        return blockX > dam.limitEast || blockX < dam.limitWest
                 || blockY > dam.limitUp
                 || blockY < dam.limitDown
                 || blockZ > dam.limitSouth
@@ -212,15 +213,8 @@ public class HEServer extends WorldSavedData {
         HE.debug("Sent synchronize packet to player " + event.player.getDisplayName());
     }
 
-    public void onConfigRequest(
-            int waterId,
-            HE.DamMode mode,
-            int limitWest,
-            int limitDown,
-            int limitNorth,
-            int limitEast,
-            int limitUp,
-            int limitSouth) {
+    public void onConfigRequest(int waterId, HE.DamMode mode, int limitWest, int limitDown, int limitNorth,
+            int limitEast, int limitUp, int limitSouth) {
         HE.debug("Received dam config change request");
         if (waterId < 0 || waterId >= HEConfig.maxDams) {
             return;
@@ -232,8 +226,7 @@ public class HEServer extends WorldSavedData {
 
     public int getWaterId(int blockX, int blockY, int blockZ) {
         for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
-            if (blockX == dams[waterId].getBlockX()
-                    && blockY == dams[waterId].getBlockY()
+            if (blockX == dams[waterId].getBlockX() && blockY == dams[waterId].getBlockY()
                     && blockZ == dams[waterId].getBlockZ()) {
                 return waterId;
             }

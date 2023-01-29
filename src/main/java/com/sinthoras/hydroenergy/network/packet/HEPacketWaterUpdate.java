@@ -1,6 +1,7 @@
 package com.sinthoras.hydroenergy.network.packet;
 
 import com.sinthoras.hydroenergy.client.HEClient;
+
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;

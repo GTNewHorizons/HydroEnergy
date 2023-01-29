@@ -3,18 +3,20 @@ package com.sinthoras.hydroenergy.blocks;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
 import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+
 import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.config.HEConfig;
+
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GT_LanguageManager;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
 
 public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
 
@@ -103,8 +105,8 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
     }
 
     protected String getCasingName() {
-        return GT_LanguageManager.getTranslation(
-                getCasingBlock().getUnlocalizedName() + "." + getCasingMeta() + ".name");
+        return GT_LanguageManager
+                .getTranslation(getCasingBlock().getUnlocalizedName() + "." + getCasingMeta() + ".name");
     }
 
     protected long getVoltage() {
@@ -165,11 +167,11 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
             final Block casingBlock = getCasingBlock();
             final int casingMeta = getCasingMeta();
             multiblockDefinition = StructureDefinition.<HETieredTileEntity>builder()
-                    .addShape(HETags.mainStructure, transpose(new String[][] {
-                        {"CCC", "CCC", "CCC"},
-                        {"C~C", "C C", "CCC"},
-                        {"CCC", "CCC", "CCC"}
-                    }))
+                    .addShape(
+                            HETags.mainStructure,
+                            transpose(
+                                    new String[][] { { "CCC", "CCC", "CCC" }, { "C~C", "C C", "CCC" },
+                                            { "CCC", "CCC", "CCC" } }))
                     .addElement(
                             'C',
                             ofChain(

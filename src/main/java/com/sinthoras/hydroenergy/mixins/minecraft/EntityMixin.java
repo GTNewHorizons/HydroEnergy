@@ -1,12 +1,14 @@
 package com.sinthoras.hydroenergy.mixins.minecraft;
 
-import com.sinthoras.hydroenergy.hooks.HEHooksUtil;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import com.sinthoras.hydroenergy.hooks.HEHooksUtil;
 
 @Mixin(Entity.class)
 public class EntityMixin {

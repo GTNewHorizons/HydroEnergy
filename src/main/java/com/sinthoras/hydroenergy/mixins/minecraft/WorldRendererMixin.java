@@ -1,13 +1,15 @@
 package com.sinthoras.hydroenergy.mixins.minecraft;
 
-import com.sinthoras.hydroenergy.client.renderer.HETessalator;
 import net.minecraft.client.renderer.WorldRenderer;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import com.sinthoras.hydroenergy.client.renderer.HETessalator;
 
 @Mixin(WorldRenderer.class)
 public class WorldRendererMixin {

@@ -2,6 +2,7 @@ package com.sinthoras.hydroenergy;
 
 import com.sinthoras.hydroenergy.hooks.HEHooksClient;
 import com.sinthoras.hydroenergy.hooks.HEHooksShared;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;

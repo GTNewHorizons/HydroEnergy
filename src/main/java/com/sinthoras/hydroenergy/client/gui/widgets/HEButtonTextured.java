@@ -1,28 +1,34 @@
 package com.sinthoras.hydroenergy.client.gui.widgets;
 
-import com.sinthoras.hydroenergy.client.gui.HEHydroDamConfigGuiContainer;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+
 import org.lwjgl.opengl.GL11;
+
+import com.sinthoras.hydroenergy.client.gui.HEHydroDamConfigGuiContainer;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class HEButtonTextured extends GuiButton {
 
     public static class Drain extends HEButtonTextured {
+
         public Drain(int id, int pixelX, int pixelY) {
             super(id, pixelX, pixelY, 0);
         }
     }
 
     public static class Debug extends HEButtonTextured {
+
         public Debug(int id, int pixelX, int pixelY) {
             super(id, pixelX, pixelY, 20);
         }
     }
 
     public static class Water extends HEButtonTextured {
+
         public Water(int id, int pixelX, int pixelY) {
             super(id, pixelX, pixelY, 40);
         }
