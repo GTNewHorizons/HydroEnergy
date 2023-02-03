@@ -1,8 +1,5 @@
 # HydroEnergy
 
-[![](https://jitpack.io/v/SinTh0r4s/HydroEnergy.svg)](https://jitpack.io/#SinTh0r4s/HydroEnergy)
-[![](https://github.com/SinTh0r4s/HydroEnergy/actions/workflows/gradle.yml/badge.svg)](https://github.com/SinTh0r4s/HydroEnergy/actions/workflows/gradle.yml)
-
 ### For Minecraft 1.7.10
 
 This mod provides an immersive alternative energy storage to battery buffers. You can flood vast areas and use them for energy storage. The size of artificial lakes is technically not limited! You may charge its energy capacity with a pump and/or draw on it with a turbine. And maybe, some rain will give you a bonus every now and then.
@@ -31,9 +28,7 @@ The mod-pack GregTech: New Horizons contains explanatory quests for this mod in 
 #### Required Mods:
 
  - Minecraft Forge
-    - Injected classes: [_ActiveRenderInfo_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/minecraft/ActiveRenderInfoMixin.java) ,[_Chunk_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/minecraft/ChunkMixin.java), [_ChunkProviderClient_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/minecraft/ChunkProviderClientMixin.java), [_Entity_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/minecraft/EntityMixin.java), [_EntityRenderer_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/minecraft/EntityRendererMixin.java), [_World_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/minecraft/WorldMixin.java), [_WorldRenderer_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/minecraft/WorldRendererMixin.java)
  - [GregTech5-Unofficial](https://github.com/GTNewHorizons/GT5-Unofficial)
-    - Injected class: [_GT_PollutionRenderer_](https://github.com/SinTh0r4s/HydroEnergy/blob/master/src/main/java/com/sinthoras/hydroenergy/mixins/gregtech/GT_PollutionRendererMixin.java)
  - [SpongeMixins](https://github.com/GTNewHorizons/SpongeMixins)
 
 ### Known issues
