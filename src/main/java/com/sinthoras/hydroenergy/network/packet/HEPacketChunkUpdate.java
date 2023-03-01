@@ -45,8 +45,6 @@ public class HEPacketChunkUpdate implements IMessage {
                 transmissionBuffer.writeBoolean(msbArray == null);
                 if (msbArray != null) {
                     transmissionBuffer.writeBytes(msbArray.data);
-                } else {
-                    transmissionBuffer.writeInt(0);
                 }
 
                 byte[] metadata = subChunk.getMetadataArray().data;
