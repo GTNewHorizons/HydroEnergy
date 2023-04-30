@@ -2,6 +2,7 @@ package com.sinthoras.hydroenergy.server.mytown2;
 
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
+
 import cpw.mods.fml.common.Loader;
 
 public abstract class HEMyTown2Integration {

@@ -7,6 +7,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
 import com.sinthoras.hydroenergy.HEUtil;
+
 import gregtech.api.enums.GT_Values;
 
 public class HEConfig {

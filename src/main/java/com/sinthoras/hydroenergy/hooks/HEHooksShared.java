@@ -5,8 +5,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
 
-import codechicken.nei.api.API;
-
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.blocks.*;
@@ -18,6 +16,7 @@ import com.sinthoras.hydroenergy.server.commands.HECommandDebug;
 import com.sinthoras.hydroenergy.server.commands.HECommandListControllers;
 import com.sinthoras.hydroenergy.server.commands.HECommandSetWater;
 
+import codechicken.nei.api.API;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;

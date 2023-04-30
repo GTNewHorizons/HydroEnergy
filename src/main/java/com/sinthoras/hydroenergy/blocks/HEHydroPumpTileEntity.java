@@ -2,6 +2,7 @@ package com.sinthoras.hydroenergy.blocks;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -389,9 +390,8 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
         super.registerIcons(blockIconRegister);
     }
 
-    @Override
-    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, byte side, byte facing, byte colorIndex,
-            boolean isActive, boolean hasRedstoneSignal) {
+    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, ForgeDirection side, ForgeDirection facing,
+            int colorIndex, boolean isActive, boolean hasRedstoneSignal) {
         if (side == facing) {
             if (isActive) {
                 return new ITexture[] {
