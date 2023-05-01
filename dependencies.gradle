@@ -1,6 +1,6 @@
 dependencies {
-    api('com.github.GTNewHorizons:GT5-Unofficial:5.09.42.02-pre:dev')
+    api('com.github.GTNewHorizons:GT5-Unofficial:5.09.42.07:dev')
     api('com.github.GTNewHorizons:NotEnoughItems:2.3.46-GTNH:dev')
-    api('com.github.GTNewHorizons:TecTech:5.2.0-pre:dev')
+    api('com.github.GTNewHorizons:TecTech:5.2.1:dev')
     compileOnly('com.github.GTNewHorizons:MyTown2:0.5.3.1-GTNH:dev')
 }
