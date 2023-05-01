@@ -208,7 +208,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     @Override
-    public void onScrewdriverRightClick(byte side, EntityPlayer player, float blockX, float blockY, float blockZ) {
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer player, float blockX, float blockY,
+            float blockZ) {
         if (!player.isSneaking()) {
             if (getBaseMetaTileEntity().isServerSide()) {
                 FMLNetworkHandler.openGui(
@@ -230,8 +231,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
     }
 
     @Override
-    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, byte side, byte facing, byte colorIndex,
-            boolean isActive, boolean hasRedstoneSignal) {
+    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, ForgeDirection side, ForgeDirection facing,
+            int colorIndex, boolean isActive, boolean hasRedstoneSignal) {
         if (side == facing) {
             return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(steelTextureIndex),
                     new TT_RenderedExtendedFacingTexture(Screen) };

@@ -15,6 +15,7 @@ import com.sinthoras.hydroenergy.blocks.HEWater;
 import com.sinthoras.hydroenergy.blocks.HEWaterStill;
 import com.sinthoras.hydroenergy.client.HEClient;
 import com.sinthoras.hydroenergy.config.HEConfig;
+
 import cpw.mods.fml.client.registry.RenderingRegistry;
 
 public class HEWaterRenderer extends RenderBlockFluid {
