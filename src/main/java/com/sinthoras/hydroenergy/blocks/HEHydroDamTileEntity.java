@@ -2,6 +2,7 @@ package com.sinthoras.hydroenergy.blocks;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
 import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
+import static gregtech.api.util.GT_Utility.filterValidMTEs;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -180,10 +181,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     private int distributeFluid(FluidStack fluidStack) {
         final int availableFluid = fluidStack.amount;
-        for (GT_MetaTileEntity_Hatch_Output hatch : mOutputHatches) {
-            if (!isValidMetaTileEntity(hatch)) {
-                continue;
-            }
+        for (GT_MetaTileEntity_Hatch_Output hatch : filterValidMTEs(mOutputHatches)) {
             if (!hatch.outputsLiquids()) {
                 continue;
             }
