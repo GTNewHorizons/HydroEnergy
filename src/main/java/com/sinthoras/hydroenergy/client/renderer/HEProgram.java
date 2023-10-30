@@ -1,6 +1,7 @@
 package com.sinthoras.hydroenergy.client.renderer;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
@@ -14,7 +15,12 @@ import net.minecraftforge.fluids.FluidRegistry;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL31;
+import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
