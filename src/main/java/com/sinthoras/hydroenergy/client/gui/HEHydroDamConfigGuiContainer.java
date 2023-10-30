@@ -1,6 +1,6 @@
 package com.sinthoras.hydroenergy.client.gui;
 
-import java.awt.*;
+import java.awt.Color;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

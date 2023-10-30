@@ -1,6 +1,7 @@
 package com.sinthoras.hydroenergy.mixinplugin;
 
-import static com.sinthoras.hydroenergy.mixinplugin.TargetedMod.*;
+import static com.sinthoras.hydroenergy.mixinplugin.TargetedMod.GREGTECH;
+import static com.sinthoras.hydroenergy.mixinplugin.TargetedMod.VANILLA;
 
 import java.util.Arrays;
 import java.util.List;
