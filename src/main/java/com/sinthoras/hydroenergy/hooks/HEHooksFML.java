@@ -18,6 +18,7 @@ public class HEHooksFML {
 
     private float waterLevel = 85.0f;
     private int sign = 1;
+    private boolean isLoggedIn = false;
 
     @SubscribeEvent
     public void onEvent(ServerTickEvent event) {
@@ -43,14 +44,21 @@ public class HEHooksFML {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
+    public void onEvent(FMLNetworkEvent.ClientConnectedToServerEvent event) {
+        isLoggedIn = true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
     public void onEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         HEClient.onDisconnect();
+        isLoggedIn = false;
     }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onEvent(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
+        if (event.phase == TickEvent.Phase.END && isLoggedIn) {
             HELightManager.onTick();
         }
     }
