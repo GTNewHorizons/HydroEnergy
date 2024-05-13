@@ -8,6 +8,7 @@ import net.minecraftforge.common.config.Property;
 
 import com.sinthoras.hydroenergy.HEUtil;
 
+import cpw.mods.fml.common.Loader;
 import gregtech.api.enums.GT_Values;
 
 public class HEConfig {
@@ -119,6 +120,8 @@ public class HEConfig {
                 "[CLIENT] Activate this if you have performance issues with the "
                         + "mod. But be warned: you will have limited render capabilities!");
         useLimitedRendering = useLimitedRenderingProperty.getBoolean();
+
+        if (Loader.isModLoaded("angelica")) useLimitedRendering = true;
 
         Property forceOpenGLProperty = configuration.get(
                 Categories.general,
