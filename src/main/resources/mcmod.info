@@ -11,10 +11,6 @@
 		"authorList": ["SinTh0r4s"],
 		"credits": "",
 		"logoFile": "",
-		"screenshots": [],
-		"requiredMods": ["Forge", "gregtech", "tectech"],
-		"dependencies": ["gregtech", "tectech"],
-		"dependants": [],
-		"useDependencyInformation": true
+		"screenshots": []
 	}]
 }
