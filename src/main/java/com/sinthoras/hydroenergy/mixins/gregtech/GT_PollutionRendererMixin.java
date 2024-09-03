@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import gregtech.common.render.GT_PollutionRenderer;
+import gregtech.common.render.PollutionRenderer;
 
-@Mixin(value = GT_PollutionRenderer.class)
+@Mixin(value = PollutionRenderer.class)
 public class GT_PollutionRendererMixin {
 
     private EntityViewRenderEvent.FogColors event;

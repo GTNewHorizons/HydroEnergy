@@ -14,7 +14,7 @@ import com.sinthoras.hydroenergy.fluids.HEPressurizedWater;
 
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 
 public class HE {
 
@@ -48,8 +48,8 @@ public class HE {
     public static final HEWaterStill[] waterBlocks = new HEWaterStill[HEConfig.maxDams];
     public static final int[] waterBlockIds = new int[HEConfig.maxDams];
     public static ItemStack hydroDamControllerBlock;
-    public static ItemStack[] hydroPumpBlocks = new ItemStack[GT_Values.VN.length - 1];
-    public static ItemStack[] hydroTurbineBlocks = new ItemStack[GT_Values.VN.length - 1];
+    public static ItemStack[] hydroPumpBlocks = new ItemStack[GTValues.VN.length - 1];
+    public static ItemStack[] hydroTurbineBlocks = new ItemStack[GTValues.VN.length - 1];
 
     public static boolean DEBUGslowFill = false;
     public static final IGuiHandler guiHandler = new HEGuiHandler();
