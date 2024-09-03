@@ -118,7 +118,7 @@ public class HEBlockRecipes {
                                 GTOreDictUnificator.get(OrePrefixes.cableGt01, cableMaterialsPerVoltage[tierId], 2L),
                                 GTUtility.getIntegratedCircuit(1))
                         .itemOutputs(HE.hydroPumpBlocks[tierId]).fluidInputs(material.getMolten(144L * multiplier / 2L))
-                        .duration(10 * SECONDS).eut(GTValues.V[tierId - 1]).addTo(assemblerRecipes);
+                        .duration(10 * SECONDS).eut(GTValues.VP[tierId - 1]).addTo(assemblerRecipes);
 
                 GTValues.RA.stdBuilder()
                         .itemInputs(
@@ -130,7 +130,7 @@ public class HEBlockRecipes {
                                 GTUtility.getIntegratedCircuit(2))
                         .itemOutputs(HE.hydroTurbineBlocks[tierId])
                         .fluidInputs(material.getMolten(144L * multiplier / 2L)).duration(10 * SECONDS)
-                        .eut(GTValues.V[tierId - 1]).addTo(assemblerRecipes);
+                        .eut(GTValues.VP[tierId - 1]).addTo(assemblerRecipes);
 
             }
 
