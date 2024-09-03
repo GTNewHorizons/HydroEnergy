@@ -6,17 +6,17 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.config.HEConfig;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
 public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
 
@@ -349,14 +349,14 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     private final int blockTextureIndex = getCasingTextureId();
 
     public HEHydroTurbineTileEntity(int tierId) {
-        super("he_turbine_" + GT_Values.VN[tierId].toLowerCase());
+        super("he_turbine_" + GTValues.VN[tierId].toLowerCase());
     }
 
     public HEHydroTurbineTileEntity(int blockId, int tierId) {
         super(
                 blockId + tierId,
-                "he_turbine_" + GT_Values.VN[tierId].toLowerCase(),
-                "Hydro Turbine (" + GT_Values.VN[tierId] + ")");
+                "he_turbine_" + GTValues.VN[tierId].toLowerCase(),
+                "Hydro Turbine (" + GTValues.VN[tierId] + ")");
     }
 
     @Override
@@ -394,12 +394,12 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
             if (isActive) {
                 return new ITexture[] {
                         Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenTurbineON),
-                        new TT_RenderedExtendedFacingTexture(textureScreenArrowDownAnimated) };
+                        new TTRenderedExtendedFacingTexture(textureScreenTurbineON),
+                        new TTRenderedExtendedFacingTexture(textureScreenArrowDownAnimated) };
             } else {
                 return new ITexture[] {
                         Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenTurbineOFF) };
+                        new TTRenderedExtendedFacingTexture(textureScreenTurbineOFF) };
             }
         } else {
             return new ITexture[] {

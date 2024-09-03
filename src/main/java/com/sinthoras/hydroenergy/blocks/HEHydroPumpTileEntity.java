@@ -6,17 +6,17 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.config.HEConfig;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
 public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
 
@@ -349,19 +349,19 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     private final int blockTextureIndex = getCasingTextureId();
 
     public HEHydroPumpTileEntity(int tierId) {
-        super("he_pump_" + GT_Values.VN[tierId].toLowerCase());
+        super("he_pump_" + GTValues.VN[tierId].toLowerCase());
     }
 
     public HEHydroPumpTileEntity(int blockId, int tierId) {
         super(
                 blockId + tierId,
-                "he_pump_" + GT_Values.VN[tierId].toLowerCase(),
-                "Hydro Pump (" + GT_Values.VN[tierId] + ")");
+                "he_pump_" + GTValues.VN[tierId].toLowerCase(),
+                "Hydro Pump (" + GTValues.VN[tierId] + ")");
     }
 
     @Override
     public void onTick() {
-        int requiredWater = (int) (GT_Values.V[getTier()] * HEConfig.milliBucketPerEU);
+        int requiredWater = (int) (GTValues.V[getTier()] * HEConfig.milliBucketPerEU);
         for (FluidStack fluidStack : getStoredFluids()) {
             if (fluidStack.getFluid().getID() == FluidRegistry.WATER.getID()) {
                 final int consumedWater = Math.min(fluidStack.amount, requiredWater);
@@ -396,12 +396,12 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
             if (isActive) {
                 return new ITexture[] {
                         Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenPumpON),
-                        new TT_RenderedExtendedFacingTexture(textureScreenArrowUpAnimated) };
+                        new TTRenderedExtendedFacingTexture(textureScreenPumpON),
+                        new TTRenderedExtendedFacingTexture(textureScreenArrowUpAnimated) };
             } else {
                 return new ITexture[] {
                         Textures.BlockIcons.casingTexturePages[blockTextureIndex >> 6][blockTextureIndex & 0x3f],
-                        new TT_RenderedExtendedFacingTexture(textureScreenPumpOFF) };
+                        new TTRenderedExtendedFacingTexture(textureScreenPumpOFF) };
             }
         } else {
             return new ITexture[] {

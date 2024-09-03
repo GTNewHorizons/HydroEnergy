@@ -1,24 +1,24 @@
 package com.sinthoras.hydroenergy.blocks;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
-import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
+import static gregtech.api.util.GTStructureUtility.ofHatchAdder;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
-import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.config.HEConfig;
 
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.util.GT_LanguageManager;
+import gregtech.api.util.GTLanguageManager;
+import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 
-public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
+public abstract class HETieredTileEntity extends TTMultiblockBase implements IConstructable {
 
     private int countOfHatches = 0;
     private IStructureDefinition<HETieredTileEntity> multiblockDefinition = null;
@@ -39,17 +39,17 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
             default:
             case 1:
             case 2:
-                return GregTech_API.sBlockCasings2;
+                return GregTechAPI.sBlockCasings2;
             case 3:
             case 4:
             case 5:
             case 8:
-                return GregTech_API.sBlockCasings4;
+                return GregTechAPI.sBlockCasings4;
             case 6:
             case 7:
             case 9:
             case 11:
-                return GregTech_API.sBlockCasings8;
+                return GregTechAPI.sBlockCasings8;
         }
     }
 
@@ -80,37 +80,37 @@ public abstract class HETieredTileEntity extends GT_MetaTileEntity_MultiblockBas
     protected int getCasingTextureId() {
         final Block casingBlock = getCasingBlock();
         final int metaId = getCasingMeta();
-        if (casingBlock == GregTech_API.sBlockCasings1) {
+        if (casingBlock == GregTechAPI.sBlockCasings1) {
             return metaId;
         }
-        if (casingBlock == GregTech_API.sBlockCasings2) {
+        if (casingBlock == GregTechAPI.sBlockCasings2) {
             return 16 + metaId;
         }
-        if (casingBlock == GregTech_API.sBlockCasings3) {
+        if (casingBlock == GregTechAPI.sBlockCasings3) {
             return 2 * 16 + metaId;
         }
-        if (casingBlock == GregTech_API.sBlockCasings4) {
+        if (casingBlock == GregTechAPI.sBlockCasings4) {
             return 3 * 16 + metaId;
         }
-        if (casingBlock == GregTech_API.sBlockCasings5) {
+        if (casingBlock == GregTechAPI.sBlockCasings5) {
             return 4 * 16 + metaId;
         }
-        if (casingBlock == GregTech_API.sBlockCasings6) {
+        if (casingBlock == GregTechAPI.sBlockCasings6) {
             return 5 * 16 + metaId;
         }
-        if (casingBlock == GregTech_API.sBlockCasings8) {
+        if (casingBlock == GregTechAPI.sBlockCasings8) {
             return 7 * 16 + metaId;
         }
         return 0;
     }
 
     protected String getCasingName() {
-        return GT_LanguageManager
+        return GTLanguageManager
                 .getTranslation(getCasingBlock().getUnlocalizedName() + "." + getCasingMeta() + ".name");
     }
 
     protected long getVoltage() {
-        return GT_Values.V[getTier()];
+        return GTValues.V[getTier()];
     }
 
     protected float getPressure() {

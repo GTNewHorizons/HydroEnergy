@@ -1,8 +1,8 @@
 package com.sinthoras.hydroenergy.blocks;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
-import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
-import static gregtech.api.util.GT_Utility.filterValidMTEs;
+import static gregtech.api.util.GTStructureUtility.ofHatchAdder;
+import static gregtech.api.util.GTUtility.filterValidMTEs;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -13,8 +13,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.github.technus.tectech.thing.metaTileEntity.multi.base.GT_MetaTileEntity_MultiblockBase_EM;
-import com.github.technus.tectech.thing.metaTileEntity.multi.base.render.TT_RenderedExtendedFacingTexture;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
@@ -35,16 +33,18 @@ import com.sinthoras.hydroenergy.server.HEServer;
 import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.metatileentity.implementations.MTEHatchOutput;
+import gregtech.api.util.GTUtility;
+import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
+import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
-public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM implements IConstructable {
+public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstructable {
 
     private static Textures.BlockIcons.CustomIcon Screen;
     private static final int steelTextureIndex = 16;
@@ -74,10 +74,10 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
                             ofHatchAdder(
                                     HEHydroDamTileEntity::addClassicToMachineList,
                                     steelTextureIndex,
-                                    GregTech_API.sBlockConcretes,
+                                    GregTechAPI.sBlockConcretes,
                                     concreteBlockMeta),
-                            ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta)))
-            .addElement('C', ofBlockAnyMeta(GregTech_API.sBlockConcretes, concreteBlockMeta)).build();
+                            ofBlockAnyMeta(GregTechAPI.sBlockConcretes, concreteBlockMeta)))
+            .addElement('C', ofBlockAnyMeta(GregTechAPI.sBlockConcretes, concreteBlockMeta)).build();
 
     public HEHydroDamTileEntity(String name) {
         super(name);
@@ -127,8 +127,8 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     private int getVoltageTier() {
         boolean configCircuitIsPresent = mInventory != null && mInventory[1] != null
-                && mInventory[1].getItem() == GT_Utility.getIntegratedCircuit(0).getItem();
-        return configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GT_Values.V.length - 1) : 1;
+                && mInventory[1].getItem() == GTUtility.getIntegratedCircuit(0).getItem();
+        return configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GTValues.V.length - 1) : 1;
     }
 
     @Override
@@ -181,7 +181,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
     private int distributeFluid(FluidStack fluidStack) {
         final int availableFluid = fluidStack.amount;
-        for (GT_MetaTileEntity_Hatch_Output hatch : filterValidMTEs(mOutputHatches)) {
+        for (MTEHatchOutput hatch : filterValidMTEs(mOutputHatches)) {
             if (!hatch.outputsLiquids()) {
                 continue;
             }
@@ -233,7 +233,7 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
             int colorIndex, boolean isActive, boolean hasRedstoneSignal) {
         if (side == facing) {
             return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(steelTextureIndex),
-                    new TT_RenderedExtendedFacingTexture(Screen) };
+                    new TTRenderedExtendedFacingTexture(Screen) };
         } else {
             return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(steelTextureIndex) };
         }
@@ -362,10 +362,10 @@ public class HEHydroDamTileEntity extends GT_MetaTileEntity_MultiblockBase_EM im
 
         builder.widget(new FakeSyncWidget.IntegerSyncer(() -> waterId, val -> waterId = val))
                 .widget(
-                        TextWidget.dynamicString(() -> "Hydro Dam (" + GT_Values.VN[getVoltageTier()] + ")")
+                        TextWidget.dynamicString(() -> "Hydro Dam (" + GTValues.VN[getVoltageTier()] + ")")
                                 .setSynced(false).setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 8))
                 .widget(
-                        new TextWidget(GT_Utility.trans("142", "Running perfectly."))
+                        new TextWidget(GTUtility.trans("142", "Running perfectly."))
                                 .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 16))
                 .widget(TextWidget.dynamicString(() -> {
                     if (getFillMultiplier() > 1.0f) {
