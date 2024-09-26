@@ -1,4 +1,4 @@
-package com.sinthoras.hydroenergy.mixins.gregtech;
+package com.sinthoras.hydroenergy.mixins.late;
 
 import static com.sinthoras.hydroenergy.api.HEGetMaterialUtil.getMaterialWrapper;
 

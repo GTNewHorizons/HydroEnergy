@@ -1,4 +1,4 @@
-package com.sinthoras.hydroenergy.mixins.minecraft;
+package com.sinthoras.hydroenergy.mixins.early;
 
 import net.minecraft.world.chunk.Chunk;
 
