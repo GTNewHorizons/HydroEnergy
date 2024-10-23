@@ -1,6 +1,7 @@
 {
   "required": true,
   "minVersion": "0.7.11",
+  "package": "com.sinthoras.hydroenergy.mixins.early",
   "refmap": "mixins.hydroenergy.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8"
