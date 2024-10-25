@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import gregtech.common.render.PollutionRenderer;
+import gregtech.common.pollution.PollutionRenderer;
 
 @Mixin(value = PollutionRenderer.class)
 public class GT_PollutionRendererMixin {
