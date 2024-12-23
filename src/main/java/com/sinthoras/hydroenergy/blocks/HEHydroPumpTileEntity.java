@@ -16,6 +16,7 @@ import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
 public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
@@ -370,7 +371,7 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
             }
         }
         if (requiredWater > 0) {
-            stopMachine();
+            stopMachine(ShutDownReasonRegistry.NONE);
             return;
         }
 

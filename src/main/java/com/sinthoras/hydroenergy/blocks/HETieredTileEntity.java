@@ -6,6 +6,8 @@ import static gregtech.api.util.GTStructureUtility.ofHatchAdder;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
@@ -15,6 +17,8 @@ import com.sinthoras.hydroenergy.config.HEConfig;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GTLanguageManager;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 
@@ -143,11 +147,11 @@ public abstract class HETieredTileEntity extends TTMultiblockBase implements ICo
     protected abstract long getEnergyConsumption();
 
     @Override
-    public boolean checkRecipe_EM(ItemStack stack) {
+    protected @NotNull CheckRecipeResult checkProcessing_EM() {
         mMaxProgresstime = 1;
         mEUt = (int) getEnergyConsumption();
         mEfficiencyIncrease = 100_00;
-        return true;
+        return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
     @Override
