@@ -18,7 +18,6 @@ import gregtech.api.enums.TierEU;
 import gregtech.api.interfaces.IItemContainer;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
-import tectech.thing.CustomItemList;
 
 public class HEBlockRecipes {
 
@@ -33,8 +32,7 @@ public class HEBlockRecipes {
         IItemContainer[] hulls = { null, // ULV,
                 ItemList.Hull_LV, ItemList.Hull_MV, ItemList.Hull_HV, ItemList.Hull_EV, ItemList.Hull_IV,
                 ItemList.Hull_LuV, ItemList.Hull_ZPM, ItemList.Hull_UV, ItemList.Hull_MAX, // UHV
-                CustomItemList.Hull_UEV, CustomItemList.Hull_UIV, CustomItemList.Hull_UMV, CustomItemList.Hull_UXV,
-                CustomItemList.Hull_MAXV };
+                ItemList.Hull_UEV, ItemList.Hull_UIV, ItemList.Hull_UMV, ItemList.Hull_UXV, ItemList.Hull_MAXV };
         IItemContainer[] motors = { null, // ULV,
                 ItemList.Electric_Motor_LV, ItemList.Electric_Motor_MV, ItemList.Electric_Motor_HV,
                 ItemList.Electric_Motor_EV, ItemList.Electric_Motor_IV, ItemList.Electric_Motor_LuV,
