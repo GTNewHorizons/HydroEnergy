@@ -40,7 +40,7 @@ public class HEWidgetModes extends Gui {
         this.pixelY = pixelY;
     }
 
-    public void init(List buttonList) {
+    public void init(List<GuiButton> buttonList) {
         buttonDrain = new HEButtonTextured.Drain(0, pixelX, pixelY);
         buttonDebug = new HEButtonTextured.Debug(1, pixelX + 25, pixelY);
         buttonWater = new HEButtonTextured.Water(2, pixelX + 50, pixelY);
