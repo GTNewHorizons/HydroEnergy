@@ -38,7 +38,8 @@ public class ChunkMixin {
                     shift = At.Shift.AFTER,
                     ordinal = 0),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-            require = 0)
+            require = 0,
+            expect = 0)
     private void onRelightBlockSetExtBlockLightA(int blockX, int unusedBlockY, int blockZ, CallbackInfo callbackInfo,
             int highestBlockY, int i1, int j1, int k1, int blockY, ExtendedBlockStorage extendedBlockStorage) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
@@ -53,7 +54,8 @@ public class ChunkMixin {
                     shift = At.Shift.AFTER,
                     ordinal = 1),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-            require = 0)
+            require = 0,
+            expect = 0)
     private void onRelightBlockSetExtBlockLightB(int blockX, int unusedBlockY, int blockZ, CallbackInfo callbackInfo,
             int highestBlockY, int i1, int j1, int k1, int blockY) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
@@ -68,7 +70,8 @@ public class ChunkMixin {
                     shift = At.Shift.AFTER,
                     ordinal = 2),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-            require = 0)
+            require = 0,
+            expect = 0)
     private void onRelightBlockSetExtBlockLightC(int blockX, int unusedBlockY, int blockZ, CallbackInfo callbackInfo,
             int highestBlockY, int blockY) {
         HELightSMPHooks.onLightUpdate((Chunk) ((Object) this), blockX, blockY, blockZ);
