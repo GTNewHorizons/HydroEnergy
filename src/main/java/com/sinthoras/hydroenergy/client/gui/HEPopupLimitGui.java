@@ -57,7 +57,7 @@ public class HEPopupLimitGui extends Gui {
         this.valueChanged = false;
     }
 
-    public void init(int id, List buttonList) {
+    public void init(int id, List<GuiButton> buttonList) {
         int pixelX = guiLeft + 10;
         int height = 20;
         int pixelY = guiTop + 20 + 3 * height;

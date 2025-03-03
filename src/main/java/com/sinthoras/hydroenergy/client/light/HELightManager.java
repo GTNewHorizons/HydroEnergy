@@ -245,8 +245,6 @@ class HELightChunk {
             ExtendedBlockStorage subChunkStorage = chunkStorage[chunkY];
             if (subChunkStorage != null) {
                 BitSet flags = lightFlags[chunkY];
-                byte[] LSB = subChunkStorage.getBlockLSBArray();
-                NibbleArray MSB = subChunkStorage.getBlockMSBArray();
 
                 int[] bucketsBlockX = new int[HE.chunkWidth];
                 int[] bucketsBlockZ = new int[HE.chunkDepth];
@@ -255,10 +253,6 @@ class HELightChunk {
                 for (int blockX = 0; blockX < HE.chunkWidth; blockX++) {
                     for (int blockY = 0; blockY < HE.chunkHeight; blockY++) {
                         for (int blockZ = 0; blockZ < HE.chunkDepth; blockZ++) {
-                            int blockId = LSB[blockY << 8 | blockZ << 4 | blockX] & 255;
-                            if (MSB != null) {
-                                blockId |= MSB.get(blockX, blockY, blockZ) << 8;
-                            }
                             Block block = subChunkStorage.getBlockByExtId(blockX, blockY, blockZ);
                             if (block instanceof HEWater) {
                                 bucketsBlockX[blockX]++;
@@ -370,14 +364,5 @@ class HELightChunk {
 
     public boolean requiresPatchingSouth(int flagChunkY) {
         return (neighborRequiresPatchingSouth & flagChunkY) > 0;
-    }
-
-    private static int getWaterIdFromBlockId(int blockId) {
-        for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
-            if (HE.waterBlockIds[waterId] == blockId) {
-                return waterId;
-            }
-        }
-        return -1;
     }
 }

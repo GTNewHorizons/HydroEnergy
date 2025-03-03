@@ -49,7 +49,6 @@ public class HETessalator {
         final int chunkX = HEUtil.coordBlockToChunk(blockX);
         final int chunkY = HEUtil.coordBlockToChunk(blockY);
         final int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-        final int index = getChunkIndex(chunkX, chunkZ);
         HERenderSubChunk renderSubChunk = renderChunks[getChunkIndex(chunkX, chunkZ)].renderSubChunks[chunkY];
 
         if (numWaterBlocks != 0) {

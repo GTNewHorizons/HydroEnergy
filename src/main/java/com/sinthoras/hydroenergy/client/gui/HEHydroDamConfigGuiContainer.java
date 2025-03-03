@@ -43,8 +43,6 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
     private int centerX = 0;
     private int centerY = 0;
 
-    private HEHydroDamConfigContainer controllerContainer;
-
     private static final Color lineGrey = new Color(155, 155, 155);
     private static final Color textGrey = new Color(104, 104, 104);
 
@@ -53,7 +51,6 @@ public class HEHydroDamConfigGuiContainer extends GuiContainer {
         xSize = 256;
         ySize = 176;
         dam = HEClient.getDam(hydroDamConfigContainer.getWaterId());
-        this.controllerContainer = hydroDamConfigContainer;
     }
 
     @Override

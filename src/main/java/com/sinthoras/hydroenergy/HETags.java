@@ -5,9 +5,9 @@ package com.sinthoras.hydroenergy;
 public class HETags {
 
     // GRADLETOKEN_* will be replaced by your configuration values at build time
-    public static final String MODID = "GRADLETOKEN_MODID";
-    public static final String MODNAME = "GRADLETOKEN_MODNAME";
-    public static final String VERSION = "GRADLETOKEN_VERSION";
+    public static final String MODID = "hydroenergy";
+    public static final String MODNAME = "HydroEnergy";
+    public static final String VERSION = tags.VERSION;
     public static final String GROUPNAME = "com.sinthoras.hydroenergy";
     public static final String DEPENDENCIES = "required-after:gregtech;required-after:tectech";
 
