@@ -211,7 +211,7 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
 
     @Override
     public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer player, float blockX, float blockY,
-            float blockZ) {
+            float blockZ, ItemStack tool) {
         if (!player.isSneaking()) {
             if (getBaseMetaTileEntity().isServerSide()) {
                 FMLNetworkHandler.openGui(
