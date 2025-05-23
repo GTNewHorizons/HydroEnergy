@@ -89,7 +89,7 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
         // Disable maintenance requirements at block placement
         mWrench = true;
         mScrewdriver = true;
-        mSoftHammer = true;
+        mSoftMallet = true;
         mHardHammer = true;
         mSolderingTool = true;
         mCrowbar = true;
