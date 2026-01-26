@@ -63,33 +63,42 @@ public class HEPacketChunkUpdate implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        flagsChunkY = buf.readShort();
-        chunkX = buf.readInt();
-        chunkZ = buf.readInt();
-        receivedChunk = new ExtendedBlockStorage[HE.numChunksY];
-        for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
-            if ((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
-                ExtendedBlockStorage subChunk = new ExtendedBlockStorage(chunkY << 4, false);
-
-                subChunk.blockRefCount = buf.readInt();
-                subChunk.tickRefCount = buf.readInt();
-
-                byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
-                subChunk.setBlockLSBArray(lsb);
-
-                if (!buf.readBoolean()) {
-                    byte[] msb = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                    subChunk.setBlockMSBArray(new NibbleArray(msb, 4));
-                }
-
-                byte[] metadata = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                subChunk.setBlockMetadataArray(new NibbleArray(metadata, 4));
-
-                byte[] skylight = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                subChunk.setSkylightArray(new NibbleArray(skylight, 4));
-
-                receivedChunk[chunkY] = subChunk;
+        try {
+            // Minimum packet size: 2 (short flagsChunkY) + 4 (int chunkX) + 4 (int chunkZ) = 10 bytes
+            if (buf.readableBytes() < 10) {
+                return;
             }
+            flagsChunkY = buf.readShort();
+            chunkX = buf.readInt();
+            chunkZ = buf.readInt();
+            receivedChunk = new ExtendedBlockStorage[HE.numChunksY];
+            for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
+                if ((flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0) {
+                    ExtendedBlockStorage subChunk = new ExtendedBlockStorage(chunkY << 4, false);
+
+                    subChunk.blockRefCount = buf.readInt();
+                    subChunk.tickRefCount = buf.readInt();
+
+                    byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
+                    subChunk.setBlockLSBArray(lsb);
+
+                    if (!buf.readBoolean()) {
+                        byte[] msb = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                        subChunk.setBlockMSBArray(new NibbleArray(msb, 4));
+                    }
+
+                    byte[] metadata = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                    subChunk.setBlockMetadataArray(new NibbleArray(metadata, 4));
+
+                    byte[] skylight = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                    subChunk.setSkylightArray(new NibbleArray(skylight, 4));
+
+                    receivedChunk[chunkY] = subChunk;
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            // Packet was malformed or truncated - ignore to prevent crash
+            receivedChunk = null;
         }
     }
 
@@ -101,6 +110,10 @@ public class HEPacketChunkUpdate implements IMessage {
 
         @Override
         public IMessage onMessage(HEPacketChunkUpdate message, MessageContext ctx) {
+            // Guard against malformed packets
+            if (message.receivedChunk == null) {
+                return null;
+            }
             Chunk chunk = Minecraft.getMinecraft().theWorld.getChunkFromChunkCoords(message.chunkX, message.chunkZ);
             ExtendedBlockStorage[] chunkStorage = chunk.getBlockStorageArray();
             for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {

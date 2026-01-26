@@ -86,7 +86,10 @@ public class HELightManager {
     public static void onLightUpdate(Chunk chunk, int blockX, int blockY, int blockZ) {
         if (chunk.getBlock(blockX, blockY, blockZ) instanceof HEWater) {
             long key = HEUtil.chunkCoordsToKey(chunk.xPosition, chunk.zPosition);
-            chunks.get(key).patchBlock(chunk, blockX, blockY, blockZ);
+            HELightChunk lightChunk = chunks.get(key);
+            if (lightChunk != null) {
+                lightChunk.patchBlock(chunk, blockX, blockY, blockZ);
+            }
         }
     }
 
@@ -177,16 +180,23 @@ public class HELightManager {
     }
 
     private static void markChunkForRerender(RenderGlobal renderGlobal, int chunkX, int chunkY, int chunkZ) {
-        int blockX = HEUtil.coordChunkToBlock(chunkX);
-        int blockY = HEUtil.coordChunkToBlock(chunkY);
-        int blockZ = HEUtil.coordChunkToBlock(chunkZ);
-        renderGlobal.markBlocksForUpdate(
-                blockX,
-                blockY,
-                blockZ,
-                blockX + HE.chunkWidth - 1,
-                blockY + HE.chunkHeight - 1,
-                blockZ + HE.chunkDepth - 1);
+        if (renderGlobal == null) {
+            return;
+        }
+        try {
+            int blockX = HEUtil.coordChunkToBlock(chunkX);
+            int blockY = HEUtil.coordChunkToBlock(chunkY);
+            int blockZ = HEUtil.coordChunkToBlock(chunkZ);
+            renderGlobal.markBlocksForUpdate(
+                    blockX,
+                    blockY,
+                    blockZ,
+                    blockX + HE.chunkWidth - 1,
+                    blockY + HE.chunkHeight - 1,
+                    blockZ + HE.chunkDepth - 1);
+        } catch (NullPointerException e) {
+            // RenderGlobal not fully initialized yet (worldRenderers is null), ignore
+        }
     }
 }
 
