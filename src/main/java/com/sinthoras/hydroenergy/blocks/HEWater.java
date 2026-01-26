@@ -85,9 +85,17 @@ public class HEWater extends BlockFluidBase implements IHEHasCustomMaterialCalcu
 
     public boolean canFlowInto(IBlockAccess world, int blockX, int blockY, int blockZ) {
         Block block = world.getBlock(blockX, blockY, blockZ);
-        return block.getMaterial() == Material.air
-                || (canDisplace(world, blockX, blockY, blockZ) && !(block instanceof BlockLiquid))
-                || (block.getMaterial() == Material.water && !(block instanceof HEWater));
+        if (block == null) {
+            return false;
+        }
+        try {
+            return block.getMaterial() == Material.air
+                    || (canDisplace(world, blockX, blockY, blockZ) && !(block instanceof BlockLiquid))
+                    || (block.getMaterial() == Material.water && !(block instanceof HEWater));
+        } catch (Exception e) {
+            // Defensive catch for edge cases in canDisplace() or getMaterial()
+            return false;
+        }
     }
 
     public int getWaterId() {
