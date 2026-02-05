@@ -410,7 +410,7 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     @Override
     public String[] getDescription() {
         return new String[] { "Hydro Turbine Controller", "Controller Block for the Hydro Turbine",
-                "Consumes pressurize water to produce EU", "Input is pressurized water from Hydro Dams",
+                "Consumes pressurized water to produce EU", "Input is pressurized water from Hydro Dams",
                 "Requires a Dynamo, Input, Output and Maintenance Hatch anywhere!",
                 "Produces up to " + getMilliBucketsPerTick() + "mB Water per Tick",
                 "Efficiency: " + getEfficiencyModifierInPercent(), HE.blueprintHintTecTech,
