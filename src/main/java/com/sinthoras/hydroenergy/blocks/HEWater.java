@@ -92,7 +92,7 @@ public class HEWater extends BlockFluidBase implements IHEHasCustomMaterialCalcu
             return block.getMaterial() == Material.air
                     || (canDisplace(world, blockX, blockY, blockZ) && !(block instanceof BlockLiquid))
                     || (block.getMaterial() == Material.water && !(block instanceof HEWater));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             // Defensive catch for edge cases in canDisplace() or getMaterial()
             return false;
         }
