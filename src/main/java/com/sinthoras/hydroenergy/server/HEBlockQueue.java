@@ -130,6 +130,9 @@ class HEQueueChunk {
             if (removeBlock) {
                 if (block == entry.waterBlock) {
                     int chunkY = entry.blockY >> 4;
+                    if (chunkStorage[chunkY] == null) {
+                        continue;
+                    }
                     chunkStorage[chunkY]
                             .func_150818_a(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, Blocks.air);
                     HEServer.instance.onWaterRemoved(waterId, entry.blockY);
