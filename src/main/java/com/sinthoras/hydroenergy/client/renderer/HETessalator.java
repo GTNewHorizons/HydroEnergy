@@ -6,7 +6,6 @@ import java.util.Stack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.culling.Frustrum;
-import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -137,12 +136,11 @@ public class HETessalator {
         numWaterBlocks++;
     }
 
-    public static void render(ICamera camera) {
+    public static void render(Frustrum frustrum) {
         if (!GLContext.getCapabilities().OpenGL30 || HEConfig.useLimitedRendering) {
             return;
         }
         if (MinecraftForgeClient.getRenderPass() == HE.waterBlocks[0].getRenderBlockPass()) {
-            final Frustrum frustrum = (Frustrum) camera;
             final float cameraBlockX = (float) frustrum.xPosition;
             final float cameraBlockY = (float) frustrum.yPosition;
             final float cameraBlockZ = (float) frustrum.zPosition;
