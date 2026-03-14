@@ -38,6 +38,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Textures;
+import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -50,7 +51,7 @@ import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTe
 
 public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstructable {
 
-    private static Textures.BlockIcons.CustomIcon Screen;
+    private static IIconContainer Screen;
     private static final int steelTextureIndex = 16;
     private static final int concreteBlockMeta = 8;
     private int waterId = -1;
@@ -228,7 +229,7 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister blockIconRegister) {
-        Screen = new Textures.BlockIcons.CustomIcon("iconsets/he_dam");
+        Screen = Textures.BlockIcons.custom("iconsets/he_dam");
         super.registerIcons(blockIconRegister);
     }
 

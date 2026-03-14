@@ -13,6 +13,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Textures;
+import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -342,9 +343,9 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
         }
     }
 
-    private static Textures.BlockIcons.CustomIcon textureScreenTurbineON;
-    private static Textures.BlockIcons.CustomIcon textureScreenTurbineOFF;
-    private static Textures.BlockIcons.CustomIcon textureScreenArrowDownAnimated;
+    private static IIconContainer textureScreenTurbineON;
+    private static IIconContainer textureScreenTurbineOFF;
+    private static IIconContainer textureScreenArrowDownAnimated;
 
     private final int blockTextureIndex = getCasingTextureId();
 
@@ -381,9 +382,9 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister blockIconRegister) {
-        textureScreenTurbineOFF = new Textures.BlockIcons.CustomIcon("iconsets/he_turbine");
-        textureScreenTurbineON = new Textures.BlockIcons.CustomIcon("iconsets/he_turbine_active");
-        textureScreenArrowDownAnimated = new Textures.BlockIcons.CustomIcon("iconsets/he_arrow_down_animated");
+        textureScreenTurbineOFF = Textures.BlockIcons.custom("iconsets/he_turbine");
+        textureScreenTurbineON = Textures.BlockIcons.custom("iconsets/he_turbine_active");
+        textureScreenArrowDownAnimated = Textures.BlockIcons.custom("iconsets/he_arrow_down_animated");
         super.registerIcons(blockIconRegister);
     }
 
