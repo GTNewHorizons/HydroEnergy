@@ -13,6 +13,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Textures;
+import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -343,9 +344,9 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
         }
     }
 
-    private static Textures.BlockIcons.CustomIcon textureScreenPumpON;
-    private static Textures.BlockIcons.CustomIcon textureScreenPumpOFF;
-    private static Textures.BlockIcons.CustomIcon textureScreenArrowUpAnimated;
+    private static IIconContainer textureScreenPumpON;
+    private static IIconContainer textureScreenPumpOFF;
+    private static IIconContainer textureScreenArrowUpAnimated;
 
     private final int blockTextureIndex = getCasingTextureId();
 
@@ -385,9 +386,9 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister blockIconRegister) {
-        textureScreenPumpOFF = new Textures.BlockIcons.CustomIcon("iconsets/he_pump");
-        textureScreenPumpON = new Textures.BlockIcons.CustomIcon("iconsets/he_pump_active");
-        textureScreenArrowUpAnimated = new Textures.BlockIcons.CustomIcon("iconsets/he_arrow_up_animated");
+        textureScreenPumpOFF = Textures.BlockIcons.custom("iconsets/he_pump");
+        textureScreenPumpON = Textures.BlockIcons.custom("iconsets/he_pump_active");
+        textureScreenArrowUpAnimated = Textures.BlockIcons.custom("iconsets/he_arrow_up_animated");
         super.registerIcons(blockIconRegister);
     }
 
