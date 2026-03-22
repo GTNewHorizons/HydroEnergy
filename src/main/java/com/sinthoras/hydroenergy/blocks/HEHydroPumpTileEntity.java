@@ -1,7 +1,6 @@
 package com.sinthoras.hydroenergy.blocks;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -17,6 +16,7 @@ import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
@@ -412,19 +412,24 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     }
 
     @Override
-    public String[] getDescription() {
-        return new String[] { "Hydro Pump Controller", "Controller Block for the Hydro Pump",
-                "Consumes EU to pressurize water", "Output is pressurized water for Hydro Dams",
-                "Requires a Energy, Input, Output and Maintenance Hatch anywhere!",
-                "Requires " + getMilliBucketsPerTick() + "mB Water per Tick",
-                "Efficiency: " + getEfficiencyModifierInPercent(), HE.blueprintHintTecTech,
-                "Use Redstone to automate!" };
-    }
-
-    @Override
-    public String[] getStructureDescription(ItemStack itemStack) {
-        return new String[] { "1 Energy Hatch", "1 Fluid Input Hatch", "1 Fluid Output Hatch", "1 Maintenance Hatch",
-                "Fill the rest with " + getCasingName(), };
+    protected MultiblockTooltipBuilder createTooltip() {
+        final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+        tt.addMachineType("Hydro Pump");
+        tt.addInfo("Consumes EU to pressurize water");
+        tt.addInfo("Output is pressurized water for Hydro Dams");
+        tt.addInfo("Requires a Energy, Input, Output and Maintenance Hatch anywhere!");
+        tt.addInfo("Requires " + getMilliBucketsPerTick() + "mB Water per Tick");
+        tt.addInfo("Efficiency: " + getEfficiencyModifierInPercent());
+        tt.addInfo("Use Redstone to automate!");
+        tt.beginStructureBlock(3, 3, 3, true);
+        tt.addController("Front Center");
+        tt.addEnergyHatch("Any Casing", 1);
+        tt.addInputHatch("Any Casing", 1);
+        tt.addOutputHatch("Any Casing", 1);
+        tt.addMaintenanceHatch("Any Casing", 1);
+        tt.addStructureInfo("Fill the rest with " + getCasingName());
+        tt.toolTipFinisher();
+        return tt;
     }
 
     @Override
