@@ -1,7 +1,6 @@
 package com.sinthoras.hydroenergy.blocks;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -17,6 +16,7 @@ import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.util.MultiblockTooltipBuilder;
 import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
 public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
@@ -409,19 +409,24 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     }
 
     @Override
-    public String[] getDescription() {
-        return new String[] { "Hydro Turbine Controller", "Controller Block for the Hydro Turbine",
-                "Consumes pressurized water to produce EU", "Input is pressurized water from Hydro Dams",
-                "Requires a Dynamo, Input, Output and Maintenance Hatch anywhere!",
-                "Produces up to " + getMilliBucketsPerTick() + "mB Water per Tick",
-                "Efficiency: " + getEfficiencyModifierInPercent(), HE.blueprintHintTecTech,
-                "Use Redstone to automate!" };
-    }
-
-    @Override
-    public String[] getStructureDescription(ItemStack itemStack) {
-        return new String[] { "1 Dynamo Hatch", "1 Fluid Input Hatch", "1 Fluid Output Hatch", "1 Maintenance Hatch",
-                "Fill the rest with " + getCasingName(), };
+    protected MultiblockTooltipBuilder createTooltip() {
+        final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+        tt.addMachineType("Hydro Turbine");
+        tt.addInfo("Consumes pressurized water to produce EU");
+        tt.addInfo("Input is pressurized water from Hydro Dams");
+        tt.addInfo("Requires a Dynamo, Input, Output and Maintenance Hatch anywhere!");
+        tt.addInfo("Produces up to " + getMilliBucketsPerTick() + "mB Water per Tick");
+        tt.addInfo("Efficiency: " + getEfficiencyModifierInPercent());
+        tt.addInfo("Use Redstone to automate!");
+        tt.beginStructureBlock(3, 3, 3, false);
+        tt.addController("Front Center");
+        tt.addDynamoHatch("Any Casing", 1);
+        tt.addInputHatch("Any Casing", 1);
+        tt.addOutputHatch("Any Casing", 1);
+        tt.addMaintenanceHatch("Any Casing", 1);
+        tt.addStructureInfo("Fill the rest with " + getCasingName());
+        tt.toolTipFinisher();
+        return tt;
     }
 
     @Override

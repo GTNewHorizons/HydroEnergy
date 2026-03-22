@@ -37,12 +37,6 @@ public class HE {
             + "Please make sure your config \"maxControllers\" is at least as big as the server you are connecting to!";
     public static final String WARN_clientConfigMissmatchDetected = "HydroEnergy: Configuration mismatch to the server "
             + "found! This might crash somewhat randomly. Please talk to your server admin!";
-    public static final String blueprintHintTecTech = "To see the structure, use a " + BLUE
-            + "Tec"
-            + DARK_BLUE
-            + "Tech"
-            + GRAY
-            + " Blueprint on the Controller!";
 
     public static HEPressurizedWater pressurizedWater = new HEPressurizedWater();
     public static final HEWaterStill[] waterBlocks = new HEWaterStill[HEConfig.maxDams];

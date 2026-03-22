@@ -46,6 +46,7 @@ import gregtech.api.metatileentity.implementations.MTEHatchOutput;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GTUtility;
+import gregtech.api.util.MultiblockTooltipBuilder;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
@@ -308,22 +309,21 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
         euCapacity = compound.getLong(HETags.waterCapacity);
     }
 
-    private static final String[] mouseOverDescription = new String[] { "Hydro Dam Controller",
-            "Controller Block for the Hydro Dam", "Input is pressurized water from Hydro Pumps",
-            "Output is pressurized water for Hydro Turbines", "Requires an Input and Output Hatch on the front!",
-            HE.blueprintHintTecTech };
-
     @Override
-    public String[] getDescription() {
-        return mouseOverDescription;
-    }
-
-    private static final String[] chatDescription = new String[] { "1 Fluid Input Hatch", "1 Fluid Output Hatch",
-            "Fill the rest with Light Concrete", "No Maintenance Hatch required!" };
-
-    @Override
-    public String[] getStructureDescription(ItemStack itemStack) {
-        return chatDescription;
+    protected MultiblockTooltipBuilder createTooltip() {
+        final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+        tt.addMachineType("Hydro Dam");
+        tt.addInfo("Input is pressurized water from Hydro Pumps");
+        tt.addInfo("Output is pressurized water for Hydro Turbines");
+        tt.addInfo("Requires an Input and Output Hatch on the front!");
+        tt.beginStructureBlock(5, 5, 5, true);
+        tt.addController("Front Center");
+        tt.addInputHatch("Any Casing", 1);
+        tt.addOutputHatch("Any Casing", 1);
+        tt.addStructureInfo("Fill the rest with Light Concrete");
+        tt.addStructureInfo("No Maintenance Hatch required!");
+        tt.toolTipFinisher();
+        return tt;
     }
 
     public long getEuStored() {
