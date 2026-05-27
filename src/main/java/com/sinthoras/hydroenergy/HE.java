@@ -20,6 +20,7 @@ public class HE {
 
     public static SimpleNetworkWrapper network;
     private static final Logger LOG = LogManager.getLogger(HETags.MODID);
+    public static boolean EID_LOADED;
     public static final int maxRenderDist = 16;
     public static final int numChunksY = 16;
     public static final int waterOpacity = 3;

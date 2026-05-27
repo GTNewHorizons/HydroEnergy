@@ -1,7 +1,11 @@
 package com.sinthoras.hydroenergy.blocks;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
+import static gregtech.api.enums.HatchElement.InputHatch;
+import static gregtech.api.enums.HatchElement.OutputHatch;
 import static gregtech.api.util.GTStructureUtility.ofHatchAdder;
+
+import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -19,12 +23,14 @@ import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
+import gregtech.api.structure.error.ErrorType;
+import gregtech.api.structure.error.StructureError;
+import gregtech.api.structure.error.StructureErrors;
 import gregtech.api.util.GTLanguageManager;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 
 public abstract class HETieredTileEntity extends TTMultiblockBase implements IConstructable {
 
-    private int countOfHatches = 0;
     private IStructureDefinition<HETieredTileEntity> multiblockDefinition = null;
 
     protected HETieredTileEntity(int blockId, String name, String nameRegional) {
@@ -155,14 +161,24 @@ public abstract class HETieredTileEntity extends TTMultiblockBase implements ICo
     }
 
     @Override
-    protected boolean checkMachine_EM(IGregTechTileEntity gregTechTileEntity, ItemStack itemStack) {
-        countOfHatches = 0;
-        return structureCheck_EM(HETags.mainStructure, 1, 1, 0) && countOfHatches == 4;
+    public void checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack, List<StructureError> errors) {
+        checkPiece(HETags.mainStructure, 1, 1, 0, errors);
+
+        checkHasOne(errors, InputHatch);
+        checkHasOne(errors, OutputHatch);
+        checkOneMaintenanceHatch(errors);
+    }
+
+    protected void checkHasOne(List<StructureError> errors, gregtech.api.enums.HatchElement element) {
+        int count = (int) element.count(this);
+        if (count != 1) {
+            errors.add(StructureErrors.hatchCount(ErrorType.NOT_MATCH, element, count, 1));
+        }
     }
 
     @Override
     public void construct(ItemStack itemStack, boolean hintsOnly) {
-        structureBuild_EM(HETags.mainStructure, 1, 1, 0, itemStack, hintsOnly);
+        buildPiece(HETags.mainStructure, itemStack, hintsOnly, 1, 1, 0);
     }
 
     @Override
@@ -179,13 +195,11 @@ public abstract class HETieredTileEntity extends TTMultiblockBase implements ICo
                     .addElement(
                             'C',
                             ofChain(
-                                    onElementPass(
-                                            x -> x.countOfHatches++,
-                                            ofHatchAdder(
-                                                    HETieredTileEntity::addClassicToMachineList,
-                                                    getCasingTextureId(),
-                                                    casingBlock,
-                                                    casingMeta)),
+                                    ofHatchAdder(
+                                            HETieredTileEntity::addClassicToMachineList,
+                                            getCasingTextureId(),
+                                            casingBlock,
+                                            casingMeta),
                                     ofBlock(casingBlock, casingMeta)))
                     .build();
         }

@@ -4,6 +4,8 @@ import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
 import static gregtech.api.util.GTStructureUtility.ofHatchAdder;
 import static gregtech.api.util.GTUtility.filterValidMTEs;
 
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -45,6 +47,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchOutput;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
+import gregtech.api.structure.error.StructureError;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
@@ -107,13 +110,13 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
     }
 
     @Override
-    protected boolean checkMachine_EM(IGregTechTileEntity gregTechTileEntity, ItemStack itemStack) {
-        return structureCheck_EM(HETags.structurePieceMain, 2, 3, 0);
+    public void checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack, List<StructureError> errors) {
+        checkPiece(HETags.structurePieceMain, 2, 3, 0, errors);
     }
 
     @Override
     public void construct(ItemStack itemStack, boolean hintsOnly) {
-        structureBuild_EM(HETags.structurePieceMain, 2, 3, 0, itemStack, hintsOnly);
+        buildPiece(HETags.structurePieceMain, itemStack, hintsOnly, 2, 3, 0);
     }
 
     @Override
@@ -191,8 +194,8 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
             if (!hatch.outputsLiquids()) {
                 continue;
             }
-            if (hatch.isFluidLocked() && hatch.getLockedFluidName() != null
-                    && !hatch.getLockedFluidName().equals(fluidStack.getUnlocalizedName())) {
+            if (hatch.isFluidLocked() && hatch.getLockedFluid() != null
+                    && !hatch.getLockedFluid().equals(fluidStack.getFluid())) {
                 continue;
             }
 

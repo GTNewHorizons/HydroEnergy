@@ -1,10 +1,13 @@
 package com.sinthoras.hydroenergy.network.packet;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
+import com.falsepattern.endlessids.mixin.helpers.SubChunkBlockHook;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.client.light.HELightSMPHooks;
@@ -38,17 +41,30 @@ public class HEPacketChunkUpdate implements IMessage {
                 transmissionBuffer.writeInt(subChunk.blockRefCount);
                 transmissionBuffer.writeInt(subChunk.tickRefCount);
 
-                byte[] lsb = subChunk.getBlockLSBArray();
-                transmissionBuffer.writeBytes(lsb);
+                if (HE.EID_LOADED) {
+                    SubChunkBlockHook hook = (SubChunkBlockHook) subChunk;
+                    transmissionBuffer.writeBytes(hook.eid$getB1());
+                    // Blocks
+                    // Subsequent arrays only exist if the previous one does
+                    if (writeNullable(hook.eid$getB2Low(), transmissionBuffer)) {
+                        if (writeNullable(hook.eid$getB2High(), transmissionBuffer)) {
+                            writeNullable(hook.eid$getB3(), transmissionBuffer);
+                        }
+                    }
+                    // Metadata
+                    transmissionBuffer.writeBytes(hook.eid$getM1Low().data);
+                    if (writeNullable(hook.eid$getM1High(), transmissionBuffer)) {
+                        writeNullable(hook.eid$getM2(), transmissionBuffer);
+                    }
+                } else {
+                    byte[] lsb = subChunk.getBlockLSBArray();
+                    transmissionBuffer.writeBytes(lsb);
 
-                NibbleArray msbArray = subChunk.getBlockMSBArray();
-                transmissionBuffer.writeBoolean(msbArray == null);
-                if (msbArray != null) {
-                    transmissionBuffer.writeBytes(msbArray.data);
+                    writeNullable(subChunk.getBlockMSBArray(), transmissionBuffer);
+
+                    byte[] metadata = subChunk.getMetadataArray().data;
+                    transmissionBuffer.writeBytes(metadata);
                 }
-
-                byte[] metadata = subChunk.getMetadataArray().data;
-                transmissionBuffer.writeBytes(metadata);
 
                 byte[] skylight = subChunk.getSkylightArray().data;
                 transmissionBuffer.writeBytes(skylight);
@@ -59,6 +75,7 @@ public class HEPacketChunkUpdate implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeBytes(transmissionBuffer);
+        transmissionBuffer.release();
     }
 
     @Override
@@ -78,17 +95,38 @@ public class HEPacketChunkUpdate implements IMessage {
 
                     subChunk.blockRefCount = buf.readInt();
                     subChunk.tickRefCount = buf.readInt();
+                    if (HE.EID_LOADED) {
+                        SubChunkBlockHook hook = (SubChunkBlockHook) subChunk;
+                        byte[] b1 = buf.readBytes(HE.blockPerSubChunk).array();
+                        hook.eid$setB1(b1);
 
-                    byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
-                    subChunk.setBlockLSBArray(lsb);
+                        // Blocks
+                        NibbleArray b2Low = readNullableNibbleArray(buf);
+                        if (b2Low != null) {
+                            hook.eid$setB2Low(b2Low);
+                            NibbleArray b2High = readNullableNibbleArray(buf);
+                            if (b2High != null) {
+                                hook.eid$setB2High(b2Low);
+                                hook.eid$setB3(readNullableArray(buf));
+                            }
+                        }
+                        // Metadata
+                        byte[] m1Low = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                        hook.eid$setM1Low(new NibbleArray(m1Low, 4));
+                        NibbleArray m1High = readNullableNibbleArray(buf);
+                        if (m1High != null) {
+                            hook.eid$setM1High(m1High);
+                            hook.eid$setM2(readNullableArray(buf));
+                        }
+                    } else {
+                        byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
+                        subChunk.setBlockLSBArray(lsb);
 
-                    if (!buf.readBoolean()) {
-                        byte[] msb = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                        subChunk.setBlockMSBArray(new NibbleArray(msb, 4));
+                        subChunk.setBlockMSBArray(readNullableNibbleArray(buf));
+
+                        byte[] metadata = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                        subChunk.setBlockMetadataArray(new NibbleArray(metadata, 4));
                     }
-
-                    byte[] metadata = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                    subChunk.setBlockMetadataArray(new NibbleArray(metadata, 4));
 
                     byte[] skylight = buf.readBytes(HE.blockPerSubChunk / 2).array();
                     subChunk.setSkylightArray(new NibbleArray(skylight, 4));
@@ -106,6 +144,39 @@ public class HEPacketChunkUpdate implements IMessage {
         return (flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0;
     }
 
+    private static boolean writeNullable(@Nullable NibbleArray array, ByteBuf buf) {
+        buf.writeBoolean(array == null);
+        if (array != null) {
+            buf.writeBytes(array.data);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean writeNullable(@Nullable byte[] array, ByteBuf buf) {
+        buf.writeBoolean(array == null);
+        if (array != null) {
+            buf.writeBytes(array);
+            return true;
+        }
+        return false;
+    }
+
+    private static @Nullable NibbleArray readNullableNibbleArray(ByteBuf buf) {
+        if (!buf.readBoolean()) {
+            byte[] arr = buf.readBytes(HE.blockPerSubChunk / 2).array();
+            return new NibbleArray(arr, 4);
+        }
+        return null;
+    }
+
+    private static @Nullable byte[] readNullableArray(ByteBuf buf) {
+        if (!buf.readBoolean()) {
+            return buf.readBytes(HE.blockPerSubChunk).array();
+        }
+        return null;
+    }
+
     public static class Handler implements IMessageHandler<HEPacketChunkUpdate, IMessage> {
 
         @Override
@@ -121,13 +192,32 @@ public class HEPacketChunkUpdate implements IMessage {
                     if (chunkStorage[chunkY] == null) {
                         chunkStorage[chunkY] = new ExtendedBlockStorage(chunkY << 4, !chunk.worldObj.provider.hasNoSky);
                     }
-                    chunkStorage[chunkY].blockRefCount = message.receivedChunk[chunkY].blockRefCount;
-                    chunkStorage[chunkY].tickRefCount = message.receivedChunk[chunkY].tickRefCount;
+                    ExtendedBlockStorage writeChunk = chunkStorage[chunkY];
+                    ExtendedBlockStorage readChunk = message.receivedChunk[chunkY];
+                    writeChunk.blockRefCount = readChunk.blockRefCount;
+                    writeChunk.tickRefCount = readChunk.tickRefCount;
 
-                    chunkStorage[chunkY].setBlockLSBArray(message.receivedChunk[chunkY].getBlockLSBArray());
-                    chunkStorage[chunkY].setBlockMSBArray(message.receivedChunk[chunkY].getBlockMSBArray());
-                    chunkStorage[chunkY].setBlockMetadataArray(message.receivedChunk[chunkY].getMetadataArray());
-                    chunkStorage[chunkY].setSkylightArray(message.receivedChunk[chunkY].getSkylightArray());
+                    if (HE.EID_LOADED) {
+                        SubChunkBlockHook hookWrite = (SubChunkBlockHook) writeChunk;
+                        SubChunkBlockHook hookRead = (SubChunkBlockHook) readChunk;
+
+                        // Blocks
+                        hookWrite.eid$setB1(hookRead.eid$getB1());
+                        hookWrite.eid$setB2Low(hookRead.eid$getB2Low());
+                        hookWrite.eid$setB2High(hookRead.eid$getB2High());
+                        hookWrite.eid$setB3(hookRead.eid$getB3());
+
+                        // Metadata
+                        hookWrite.eid$setM1Low(hookRead.eid$getM1Low());
+                        hookWrite.eid$setM1High(hookRead.eid$getM1High());
+                        hookWrite.eid$setM2(hookRead.eid$getM2());
+                    } else {
+                        writeChunk.setBlockLSBArray(readChunk.getBlockLSBArray());
+                        writeChunk.setBlockMSBArray(readChunk.getBlockMSBArray());
+                        writeChunk.setBlockMetadataArray(readChunk.getMetadataArray());
+                    }
+                    writeChunk.setSkylightArray(readChunk.getSkylightArray());
+
                 }
             }
             HELightSMPHooks.onChunkDataLoad(chunk);
