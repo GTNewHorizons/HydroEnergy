@@ -1,10 +1,14 @@
 package com.sinthoras.hydroenergy.network.packet;
 
+import java.nio.ByteBuffer;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
+import com.falsepattern.endlessids.managers.BlockIDManager;
+import com.falsepattern.endlessids.managers.BlockMetaManager;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.client.light.HELightSMPHooks;
@@ -38,17 +42,27 @@ public class HEPacketChunkUpdate implements IMessage {
                 transmissionBuffer.writeInt(subChunk.blockRefCount);
                 transmissionBuffer.writeInt(subChunk.tickRefCount);
 
-                byte[] lsb = subChunk.getBlockLSBArray();
-                transmissionBuffer.writeBytes(lsb);
+                if (HE.EID_LOADED) {
+                    BlockIDManager block = new BlockIDManager();
+                    BlockMetaManager meta = new BlockMetaManager();
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(block.maxPacketSizeCubic() + meta.maxPacketSizeCubic());
+                    block.writeToBuffer(chunk, subChunk, byteBuffer);
+                    meta.writeToBuffer(chunk, subChunk, byteBuffer);
+                    transmissionBuffer.writeInt(byteBuffer.position());
+                    transmissionBuffer.writeBytes(byteBuffer.array(), 0, byteBuffer.position());
+                } else {
+                    byte[] lsb = subChunk.getBlockLSBArray();
+                    transmissionBuffer.writeBytes(lsb);
 
-                NibbleArray msbArray = subChunk.getBlockMSBArray();
-                transmissionBuffer.writeBoolean(msbArray == null);
-                if (msbArray != null) {
-                    transmissionBuffer.writeBytes(msbArray.data);
+                    NibbleArray msbArray = subChunk.getBlockMSBArray();
+                    transmissionBuffer.writeBoolean(msbArray == null);
+                    if (msbArray != null) {
+                        transmissionBuffer.writeBytes(msbArray.data);
+                    }
+
+                    byte[] metadata = subChunk.getMetadataArray().data;
+                    transmissionBuffer.writeBytes(metadata);
                 }
-
-                byte[] metadata = subChunk.getMetadataArray().data;
-                transmissionBuffer.writeBytes(metadata);
 
                 byte[] skylight = subChunk.getSkylightArray().data;
                 transmissionBuffer.writeBytes(skylight);
@@ -59,6 +73,7 @@ public class HEPacketChunkUpdate implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeBytes(transmissionBuffer);
+        transmissionBuffer.release();
     }
 
     @Override
@@ -78,17 +93,24 @@ public class HEPacketChunkUpdate implements IMessage {
 
                     subChunk.blockRefCount = buf.readInt();
                     subChunk.tickRefCount = buf.readInt();
+                    if (HE.EID_LOADED) {
+                        byte[] data = new byte[buf.readInt()];
+                        buf.readBytes(data);
+                        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+                        new BlockIDManager().readFromBuffer(null, subChunk, byteBuffer);
+                        new BlockMetaManager().readFromBuffer(null, subChunk, byteBuffer);
+                    } else {
+                        byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
+                        subChunk.setBlockLSBArray(lsb);
 
-                    byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
-                    subChunk.setBlockLSBArray(lsb);
+                        if (!buf.readBoolean()) {
+                            byte[] msb = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                            subChunk.setBlockMSBArray(new NibbleArray(msb, 4));
+                        }
 
-                    if (!buf.readBoolean()) {
-                        byte[] msb = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                        subChunk.setBlockMSBArray(new NibbleArray(msb, 4));
+                        byte[] metadata = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                        subChunk.setBlockMetadataArray(new NibbleArray(metadata, 4));
                     }
-
-                    byte[] metadata = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                    subChunk.setBlockMetadataArray(new NibbleArray(metadata, 4));
 
                     byte[] skylight = buf.readBytes(HE.blockPerSubChunk / 2).array();
                     subChunk.setSkylightArray(new NibbleArray(skylight, 4));
@@ -121,13 +143,21 @@ public class HEPacketChunkUpdate implements IMessage {
                     if (chunkStorage[chunkY] == null) {
                         chunkStorage[chunkY] = new ExtendedBlockStorage(chunkY << 4, !chunk.worldObj.provider.hasNoSky);
                     }
-                    chunkStorage[chunkY].blockRefCount = message.receivedChunk[chunkY].blockRefCount;
-                    chunkStorage[chunkY].tickRefCount = message.receivedChunk[chunkY].tickRefCount;
+                    ExtendedBlockStorage writeChunk = chunkStorage[chunkY];
+                    ExtendedBlockStorage readChunk = message.receivedChunk[chunkY];
+                    writeChunk.blockRefCount = readChunk.blockRefCount;
+                    writeChunk.tickRefCount = readChunk.tickRefCount;
 
-                    chunkStorage[chunkY].setBlockLSBArray(message.receivedChunk[chunkY].getBlockLSBArray());
-                    chunkStorage[chunkY].setBlockMSBArray(message.receivedChunk[chunkY].getBlockMSBArray());
-                    chunkStorage[chunkY].setBlockMetadataArray(message.receivedChunk[chunkY].getMetadataArray());
-                    chunkStorage[chunkY].setSkylightArray(message.receivedChunk[chunkY].getSkylightArray());
+                    if (HE.EID_LOADED) {
+                        new BlockIDManager().cloneSubChunk(chunk, readChunk, writeChunk);
+                        new BlockMetaManager().cloneSubChunk(chunk, readChunk, writeChunk);
+                    } else {
+                        writeChunk.setBlockLSBArray(readChunk.getBlockLSBArray());
+                        writeChunk.setBlockMSBArray(readChunk.getBlockMSBArray());
+                        writeChunk.setBlockMetadataArray(readChunk.getMetadataArray());
+                    }
+                    writeChunk.setSkylightArray(readChunk.getSkylightArray());
+
                 }
             }
             HELightSMPHooks.onChunkDataLoad(chunk);

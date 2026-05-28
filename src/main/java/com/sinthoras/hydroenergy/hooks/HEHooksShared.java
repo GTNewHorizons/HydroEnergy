@@ -25,6 +25,7 @@ import com.sinthoras.hydroenergy.server.commands.HECommandSetWater;
 
 import codechicken.nei.api.API;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -82,6 +83,8 @@ public class HEHooksShared {
         }
 
         FluidRegistry.registerFluid(HE.pressurizedWater);
+
+        HE.EID_LOADED = Loader.isModLoaded("endlessids");
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
