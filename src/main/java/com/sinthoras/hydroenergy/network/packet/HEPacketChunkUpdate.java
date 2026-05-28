@@ -43,9 +43,13 @@ public class HEPacketChunkUpdate implements IMessage {
                 transmissionBuffer.writeInt(subChunk.tickRefCount);
 
                 if (HE.EID_LOADED) {
-                    ByteBuffer byteBuffer = transmissionBuffer.nioBuffer();
-                    new BlockIDManager().writeToBuffer(chunk, subChunk, byteBuffer);
-                    new BlockMetaManager().writeToBuffer(chunk, subChunk, byteBuffer);
+                    BlockIDManager block = new BlockIDManager();
+                    BlockMetaManager meta = new BlockMetaManager();
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(block.maxPacketSizeCubic() + meta.maxPacketSizeCubic());
+                    block.writeToBuffer(chunk, subChunk, byteBuffer);
+                    meta.writeToBuffer(chunk, subChunk, byteBuffer);
+                    transmissionBuffer.writeInt(byteBuffer.position());
+                    transmissionBuffer.writeBytes(byteBuffer.array(), 0, byteBuffer.position());
                 } else {
                     byte[] lsb = subChunk.getBlockLSBArray();
                     transmissionBuffer.writeBytes(lsb);
@@ -90,7 +94,9 @@ public class HEPacketChunkUpdate implements IMessage {
                     subChunk.blockRefCount = buf.readInt();
                     subChunk.tickRefCount = buf.readInt();
                     if (HE.EID_LOADED) {
-                        ByteBuffer byteBuffer = buf.nioBuffer();
+                        byte[] data = new byte[buf.readInt()];
+                        buf.readBytes(data);
+                        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
                         new BlockIDManager().readFromBuffer(null, subChunk, byteBuffer);
                         new BlockMetaManager().readFromBuffer(null, subChunk, byteBuffer);
                     } else {
