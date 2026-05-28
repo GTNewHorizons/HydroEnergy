@@ -1,5 +1,7 @@
 package com.sinthoras.hydroenergy.network.packet;
 
+import java.nio.ByteBuffer;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
@@ -7,7 +9,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
-import com.falsepattern.endlessids.mixin.helpers.SubChunkBlockHook;
+import com.falsepattern.endlessids.managers.BlockIDManager;
+import com.falsepattern.endlessids.managers.BlockMetaManager;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.client.light.HELightSMPHooks;
@@ -42,20 +45,9 @@ public class HEPacketChunkUpdate implements IMessage {
                 transmissionBuffer.writeInt(subChunk.tickRefCount);
 
                 if (HE.EID_LOADED) {
-                    SubChunkBlockHook hook = (SubChunkBlockHook) subChunk;
-                    transmissionBuffer.writeBytes(hook.eid$getB1());
-                    // Blocks
-                    // Subsequent arrays only exist if the previous one does
-                    if (writeNullable(hook.eid$getB2Low(), transmissionBuffer)) {
-                        if (writeNullable(hook.eid$getB2High(), transmissionBuffer)) {
-                            writeNullable(hook.eid$getB3(), transmissionBuffer);
-                        }
-                    }
-                    // Metadata
-                    transmissionBuffer.writeBytes(hook.eid$getM1Low().data);
-                    if (writeNullable(hook.eid$getM1High(), transmissionBuffer)) {
-                        writeNullable(hook.eid$getM2(), transmissionBuffer);
-                    }
+                    ByteBuffer byteBuffer = transmissionBuffer.nioBuffer();
+                    new BlockIDManager().writeToBuffer(chunk, subChunk, byteBuffer);
+                    new BlockMetaManager().writeToBuffer(chunk, subChunk, byteBuffer);
                 } else {
                     byte[] lsb = subChunk.getBlockLSBArray();
                     transmissionBuffer.writeBytes(lsb);
@@ -96,28 +88,9 @@ public class HEPacketChunkUpdate implements IMessage {
                     subChunk.blockRefCount = buf.readInt();
                     subChunk.tickRefCount = buf.readInt();
                     if (HE.EID_LOADED) {
-                        SubChunkBlockHook hook = (SubChunkBlockHook) subChunk;
-                        byte[] b1 = buf.readBytes(HE.blockPerSubChunk).array();
-                        hook.eid$setB1(b1);
-
-                        // Blocks
-                        NibbleArray b2Low = readNullableNibbleArray(buf);
-                        if (b2Low != null) {
-                            hook.eid$setB2Low(b2Low);
-                            NibbleArray b2High = readNullableNibbleArray(buf);
-                            if (b2High != null) {
-                                hook.eid$setB2High(b2Low);
-                                hook.eid$setB3(readNullableArray(buf));
-                            }
-                        }
-                        // Metadata
-                        byte[] m1Low = buf.readBytes(HE.blockPerSubChunk / 2).array();
-                        hook.eid$setM1Low(new NibbleArray(m1Low, 4));
-                        NibbleArray m1High = readNullableNibbleArray(buf);
-                        if (m1High != null) {
-                            hook.eid$setM1High(m1High);
-                            hook.eid$setM2(readNullableArray(buf));
-                        }
+                        ByteBuffer byteBuffer = buf.nioBuffer();
+                        new BlockIDManager().readFromBuffer(null, subChunk, byteBuffer);
+                        new BlockMetaManager().readFromBuffer(null, subChunk, byteBuffer);
                     } else {
                         byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
                         subChunk.setBlockLSBArray(lsb);
@@ -148,15 +121,6 @@ public class HEPacketChunkUpdate implements IMessage {
         buf.writeBoolean(array == null);
         if (array != null) {
             buf.writeBytes(array.data);
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean writeNullable(@Nullable byte[] array, ByteBuf buf) {
-        buf.writeBoolean(array == null);
-        if (array != null) {
-            buf.writeBytes(array);
             return true;
         }
         return false;
@@ -198,19 +162,8 @@ public class HEPacketChunkUpdate implements IMessage {
                     writeChunk.tickRefCount = readChunk.tickRefCount;
 
                     if (HE.EID_LOADED) {
-                        SubChunkBlockHook hookWrite = (SubChunkBlockHook) writeChunk;
-                        SubChunkBlockHook hookRead = (SubChunkBlockHook) readChunk;
-
-                        // Blocks
-                        hookWrite.eid$setB1(hookRead.eid$getB1());
-                        hookWrite.eid$setB2Low(hookRead.eid$getB2Low());
-                        hookWrite.eid$setB2High(hookRead.eid$getB2High());
-                        hookWrite.eid$setB3(hookRead.eid$getB3());
-
-                        // Metadata
-                        hookWrite.eid$setM1Low(hookRead.eid$getM1Low());
-                        hookWrite.eid$setM1High(hookRead.eid$getM1High());
-                        hookWrite.eid$setM2(hookRead.eid$getM2());
+                        new BlockIDManager().cloneSubChunk(chunk, readChunk, writeChunk);
+                        new BlockMetaManager().cloneSubChunk(chunk, readChunk, writeChunk);
                     } else {
                         writeChunk.setBlockLSBArray(readChunk.getBlockLSBArray());
                         writeChunk.setBlockMSBArray(readChunk.getBlockMSBArray());
