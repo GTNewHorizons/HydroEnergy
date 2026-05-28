@@ -2,8 +2,6 @@ package com.sinthoras.hydroenergy.network.packet;
 
 import java.nio.ByteBuffer;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
@@ -52,7 +50,11 @@ public class HEPacketChunkUpdate implements IMessage {
                     byte[] lsb = subChunk.getBlockLSBArray();
                     transmissionBuffer.writeBytes(lsb);
 
-                    writeNullable(subChunk.getBlockMSBArray(), transmissionBuffer);
+                    NibbleArray msbArray = subChunk.getBlockMSBArray();
+                    transmissionBuffer.writeBoolean(msbArray == null);
+                    if (msbArray != null) {
+                        transmissionBuffer.writeBytes(msbArray.data);
+                    }
 
                     byte[] metadata = subChunk.getMetadataArray().data;
                     transmissionBuffer.writeBytes(metadata);
@@ -95,7 +97,10 @@ public class HEPacketChunkUpdate implements IMessage {
                         byte[] lsb = buf.readBytes(HE.blockPerSubChunk).array();
                         subChunk.setBlockLSBArray(lsb);
 
-                        subChunk.setBlockMSBArray(readNullableNibbleArray(buf));
+                        if (!buf.readBoolean()) {
+                            byte[] msb = buf.readBytes(HE.blockPerSubChunk / 2).array();
+                            subChunk.setBlockMSBArray(new NibbleArray(msb, 4));
+                        }
 
                         byte[] metadata = buf.readBytes(HE.blockPerSubChunk / 2).array();
                         subChunk.setBlockMetadataArray(new NibbleArray(metadata, 4));
@@ -115,30 +120,6 @@ public class HEPacketChunkUpdate implements IMessage {
 
     public boolean hasDataForSubChunk(int chunkY) {
         return (flagsChunkY & HEUtil.chunkYToFlag(chunkY)) > 0;
-    }
-
-    private static boolean writeNullable(@Nullable NibbleArray array, ByteBuf buf) {
-        buf.writeBoolean(array == null);
-        if (array != null) {
-            buf.writeBytes(array.data);
-            return true;
-        }
-        return false;
-    }
-
-    private static @Nullable NibbleArray readNullableNibbleArray(ByteBuf buf) {
-        if (!buf.readBoolean()) {
-            byte[] arr = buf.readBytes(HE.blockPerSubChunk / 2).array();
-            return new NibbleArray(arr, 4);
-        }
-        return null;
-    }
-
-    private static @Nullable byte[] readNullableArray(ByteBuf buf) {
-        if (!buf.readBoolean()) {
-            return buf.readBytes(HE.blockPerSubChunk).array();
-        }
-        return null;
     }
 
     public static class Handler implements IMessageHandler<HEPacketChunkUpdate, IMessage> {
