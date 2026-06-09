@@ -11,7 +11,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.HEUtil;
 import com.sinthoras.hydroenergy.api.IHEHasCustomMaterialCalculation;
 import com.sinthoras.hydroenergy.client.HEClient;
@@ -31,7 +30,7 @@ public class HEWater extends BlockFluidBase implements IHEHasCustomMaterialCalcu
         setHardness(100.0F);
         setLightOpacity(0);
         setBlockName("water");
-        setBlockTextureName(HETags.MODID + ":" + HE.dummyTexture);
+        setBlockTextureName("minecraft:water_still");
     }
 
     @Override
