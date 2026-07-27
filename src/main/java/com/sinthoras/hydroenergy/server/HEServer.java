@@ -73,8 +73,12 @@ public class HEServer extends WorldSavedData {
     }
 
     public void onBreakController(int waterId) {
-        dams[waterId].breakController();
-        markDirty();
+        if (waterId < 0 || waterId >= HEConfig.maxDams) {
+            HE.error(HE.ERROR_serverIdsOutOfBounds); // Make sure the dam has a proper water ID before trying to remove
+        } else {
+            dams[waterId].breakController();
+            markDirty();
+        }
     }
 
     public int onPlacecontroller(String ownerName, int dimensionId, int blockX, int blockY, int blockZ, int waterBlockX,

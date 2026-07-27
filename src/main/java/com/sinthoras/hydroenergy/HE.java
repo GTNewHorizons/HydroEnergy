@@ -34,8 +34,8 @@ public class HE {
     public static final int kiloBucketToMilliBucket = 1_000_000;
 
     public static boolean logicalClientLoaded = false;
-    public static final String ERROR_serverIdsOutOfBounds = "Server uses invalid waterIds! Server message ignored. "
-            + "Please make sure your config \"maxControllers\" is at least as big as the server you are connecting to!";
+    public static final String ERROR_serverIdsOutOfBounds = "Invalid waterID found! This can happen if more dams than "
+            + "the config \"maxDams\" are placed.";
     public static final String WARN_clientConfigMissmatchDetected = "HydroEnergy: Configuration mismatch to the server "
             + "found! This might crash somewhat randomly. Please talk to your server admin!";
 
