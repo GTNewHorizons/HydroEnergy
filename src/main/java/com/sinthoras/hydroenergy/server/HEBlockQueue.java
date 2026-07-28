@@ -159,7 +159,7 @@ class HEQueueChunk {
                         chunkStorage[chunkY].getSkylightArray()
                                 .set(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, 15);
                     } else {
-                        int highestOpaqueBlockY = chunk.heightMap[(entry.blockZ & 15) << 4 | (entry.blockX & 15)];
+                        int highestOpaqueBlockY = chunk.heightMap[(entry.blockZ & 15) << 4 | (entry.blockX & 15)] - 1;
                         int highestOpaqueChunkY = HEUtil.coordBlockToChunk(highestOpaqueBlockY);
                         if (chunkStorage[highestOpaqueChunkY] == null) {
                             chunkStorage[highestOpaqueChunkY] = new ExtendedBlockStorage(
@@ -206,6 +206,7 @@ class HEQueueChunk {
     }
 
     public void add(int blockX, int blockY, int blockZ, HEWater waterBlock) {
+        if (blockY < 0 || blockY > 255) return; // Quick And Dirty Fix, just ignore anything outside world height
         final QueueEntry entry = new QueueEntry(blockX, blockY, blockZ, waterBlock);
         int chunkX = HEUtil.coordBlockToChunk(blockX);
         int chunkZ = HEUtil.coordBlockToChunk(blockZ);
