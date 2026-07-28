@@ -156,8 +156,12 @@ class HEQueueChunk {
                     // If the block is over all opague blocks aka can see the sky simply set light to 15.
                     // Else to the value of the first non HEWater block directly below
                     if (chunk.canBlockSeeTheSky(entry.blockX & 15, entry.blockY, entry.blockZ & 15)) {
-                        chunkStorage[chunkY].getSkylightArray()
-                                .set(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, 15);
+                        NibbleArray skylightArray = chunkStorage[chunkY].getSkylightArray();
+                        if (skylightArray == null) {
+                            skylightArray = new NibbleArray(HE.blockPerSubChunk, 4);
+                            chunkStorage[chunkY].setSkylightArray(skylightArray);
+                        }
+                        skylightArray.set(entry.blockX & 15, entry.blockY & 15, entry.blockZ & 15, 15);
                     } else {
                         int highestOpaqueBlockY = chunk.heightMap[(entry.blockZ & 15) << 4 | (entry.blockX & 15)] - 1;
                         int highestOpaqueChunkY = HEUtil.coordBlockToChunk(highestOpaqueBlockY);
