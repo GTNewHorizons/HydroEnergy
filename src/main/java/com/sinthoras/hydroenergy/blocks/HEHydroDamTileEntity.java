@@ -142,6 +142,7 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
 
     @Override
     public boolean onRunningTick(ItemStack stack) {
+        if (waterId < 0 || waterId >= HEConfig.maxDams) return false; // Do nothing if waterID is invalid
         mProgresstime = 0;
         euPerTickIn = 0;
         euPerTickOut = 0;
@@ -217,6 +218,10 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
     @Override
     public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer player, float blockX, float blockY,
             float blockZ, ItemStack tool) {
+        if (waterId < 0 || waterId >= HEConfig.maxDams) {
+            HE.error(HE.ERROR_serverIdsOutOfBounds);
+            return;
+        }
         if (!player.isSneaking()) {
             if (getBaseMetaTileEntity().isServerSide()) {
                 FMLNetworkHandler.openGui(

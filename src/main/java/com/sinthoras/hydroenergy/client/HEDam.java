@@ -63,13 +63,14 @@ public class HEDam {
         verifyChanges();
     }
 
-    // Clap change requests to config limits
+    // Clamp change requests to config limits
     private void verifyChanges() {
         pendingLimitWest = blockX - HEUtil.clamp(blockX - pendingLimitWest, 0, HEConfig.maxWaterSpreadWest);
-        pendingLimitDown = blockY - HEUtil.clamp(blockY - pendingLimitDown, 0, HEConfig.maxWaterSpreadDown);
+        pendingLimitDown = Math
+                .max(blockY - HEUtil.clamp(blockY - pendingLimitDown, 0, HEConfig.maxWaterSpreadDown), 0);
         pendingLimitNorth = blockZ - HEUtil.clamp(blockZ - pendingLimitNorth, 0, HEConfig.maxWaterSpreadNorth);
         pendingLimitEast = blockX + HEUtil.clamp(pendingLimitEast - blockX, 0, HEConfig.maxWaterSpreadEast);
-        pendingLimitUp = blockY + HEUtil.clamp(pendingLimitUp - blockY, 0, HEConfig.maxWaterSpreadUp);
+        pendingLimitUp = Math.min(blockY + HEUtil.clamp(pendingLimitUp - blockY, 0, HEConfig.maxWaterSpreadUp), 255);
         pendingLimitSouth = blockZ + HEUtil.clamp(pendingLimitSouth - blockZ, 0, HEConfig.maxWaterSpreadSouth);
     }
 

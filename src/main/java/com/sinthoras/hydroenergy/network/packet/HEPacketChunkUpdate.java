@@ -63,8 +63,9 @@ public class HEPacketChunkUpdate implements IMessage {
                     byte[] metadata = subChunk.getMetadataArray().data;
                     transmissionBuffer.writeBytes(metadata);
                 }
-
-                byte[] skylight = subChunk.getSkylightArray().data;
+                NibbleArray skyLightArray = subChunk.getSkylightArray();
+                byte[] skylight = skyLightArray != null ? skyLightArray.data : new byte[2048];
+                // Send dummy skylight data if skylight array does not exist
                 transmissionBuffer.writeBytes(skylight);
             }
         }
