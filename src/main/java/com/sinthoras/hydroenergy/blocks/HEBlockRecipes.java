@@ -4,28 +4,25 @@ import static gregtech.api.recipe.RecipeMaps.assemblerRecipes;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 
+import com.ruling_0.materiallib.api.Material;
+import com.ruling_0.materiallib.api.MaterialLibAPI;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.config.HEConfig;
 
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
-import gregtech.api.enums.Materials;
-import gregtech.api.enums.OrePrefixes;
-import gregtech.api.enums.SubTag;
 import gregtech.api.enums.TierEU;
+import gregtech.api.enums.materials.FluidShapes;
+import gregtech.api.enums.materials.Materials;
+import gregtech.api.enums.materials.PipeShapes;
+import gregtech.api.enums.materials.Shapes;
 import gregtech.api.interfaces.IItemContainer;
-import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
 
 public class HEBlockRecipes {
-
-    // TODO: Fill up recipe components as needed
-    private static boolean isSolderingMaterial(Materials material) {
-        return material.mStandardMoltenFluid != null && material.contains(SubTag.SOLDERING_MATERIAL)
-                && !(GregTechAPI.mUseOnlyGoodSolderingMaterials && !material.contains(SubTag.SOLDERING_MATERIAL_GOOD));
-    }
 
     public static void registerRecipes() {
         // ULV is disabled!
@@ -51,7 +48,8 @@ public class HEBlockRecipes {
                 ItemList.Electric_Pump_UEV, // UXV
                 ItemList.Electric_Pump_UEV, // MAX
         };
-        Materials[] rotorMaterialsPerVoltage = { null, // ULV,
+        Material[] solderMaterials = { Materials.SolderingAlloy, Materials.Tin, Materials.Lead, };
+        Material[] rotorMaterialsPerVoltage = { null, // ULV,
                 Materials.Steel, // LV
                 Materials.Aluminium, // MV
                 Materials.StainlessSteel, // HV
@@ -67,7 +65,7 @@ public class HEBlockRecipes {
                 Materials.Neutronium, // UXV
                 Materials.Neutronium, // MAX
         };
-        Materials[] cableMaterialsPerVoltage = { null, // ULV,
+        Material[] cableMaterialsPerVoltage = { null, // ULV,
                 Materials.Tin, // LV
                 Materials.Copper, // MV
                 Materials.Gold, // HV
@@ -84,13 +82,8 @@ public class HEBlockRecipes {
                 Materials.NaquadahAlloy, // MAX
         };
 
-        for (Materials material : Materials.values()) {
-            if (!isSolderingMaterial(material)) {
-                continue;
-            }
-
-            int multiplier = material.contains(SubTag.SOLDERING_MATERIAL_GOOD) ? 1
-                    : material.contains(SubTag.SOLDERING_MATERIAL_BAD) ? 4 : 2;
+        for (int i = 0; i < solderMaterials.length; ++i) {
+            FluidStack solder = MaterialLibAPI.getFluidStack(solderMaterials[i], FluidShapes.fluidMolten, 72 << i);
 
             GTValues.RA.stdBuilder()
                     .itemInputs(
@@ -99,10 +92,10 @@ public class HEBlockRecipes {
                             ItemList.Cover_Screen.get(1L),
                             ItemList.FluidRegulator_MV.get(2L),
                             GTUtility.getIntegratedCircuit(1))
-                    .itemOutputs(HE.hydroDamControllerBlock).fluidInputs(material.getMolten(144L * multiplier / 2L))
-                    .duration(10 * SECONDS).eut(TierEU.RECIPE_LV).addTo(assemblerRecipes);
+                    .itemOutputs(HE.hydroDamControllerBlock).fluidInputs(solder).duration(10 * SECONDS)
+                    .eut(TierEU.RECIPE_LV).addTo(assemblerRecipes);
 
-            for (int tierId = 0; tierId < HE.hydroPumpBlocks.length; tierId++) {
+            for (int tierId = 1; tierId < HE.hydroPumpBlocks.length; tierId++) {
                 if (!(HEConfig.enabledTiers[tierId])) {
                     continue;
                 }
@@ -110,28 +103,26 @@ public class HEBlockRecipes {
                 GTValues.RA.stdBuilder()
                         .itemInputs(
                                 hulls[tierId].get(1L),
-                                GTOreDictUnificator.get(OrePrefixes.rotor, rotorMaterialsPerVoltage[tierId], 2L),
+                                MaterialLibAPI.getStack(rotorMaterialsPerVoltage[tierId], Shapes.rotor, 2),
                                 motors[tierId].get(1L),
                                 pumps[tierId].get(1L),
-                                GTOreDictUnificator.get(OrePrefixes.cableGt01, cableMaterialsPerVoltage[tierId], 2L),
+                                MaterialLibAPI.getStack(cableMaterialsPerVoltage[tierId], PipeShapes.cableGt01, 2),
                                 GTUtility.getIntegratedCircuit(1))
-                        .itemOutputs(HE.hydroPumpBlocks[tierId]).fluidInputs(material.getMolten(144L * multiplier / 2L))
-                        .duration(10 * SECONDS).eut(GTValues.VP[tierId - 1]).addTo(assemblerRecipes);
+                        .itemOutputs(HE.hydroPumpBlocks[tierId]).fluidInputs(solder).duration(10 * SECONDS)
+                        .eut(GTValues.VP[tierId - 1]).addTo(assemblerRecipes);
 
                 GTValues.RA.stdBuilder()
                         .itemInputs(
                                 hulls[tierId].get(1L),
-                                GTOreDictUnificator.get(OrePrefixes.rotor, rotorMaterialsPerVoltage[tierId], 2L),
+                                MaterialLibAPI.getStack(rotorMaterialsPerVoltage[tierId], Shapes.rotor, 2),
                                 motors[tierId].get(1L),
                                 pumps[tierId].get(1L),
-                                GTOreDictUnificator.get(OrePrefixes.cableGt01, cableMaterialsPerVoltage[tierId], 2L),
+                                MaterialLibAPI.getStack(cableMaterialsPerVoltage[tierId], PipeShapes.cableGt01, 2),
                                 GTUtility.getIntegratedCircuit(2))
-                        .itemOutputs(HE.hydroTurbineBlocks[tierId])
-                        .fluidInputs(material.getMolten(144L * multiplier / 2L)).duration(10 * SECONDS)
+                        .itemOutputs(HE.hydroTurbineBlocks[tierId]).fluidInputs(solder).duration(10 * SECONDS)
                         .eut(GTValues.VP[tierId - 1]).addTo(assemblerRecipes);
 
             }
-
         }
     }
 }
