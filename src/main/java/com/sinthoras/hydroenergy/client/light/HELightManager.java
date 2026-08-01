@@ -1,5 +1,6 @@
 package com.sinthoras.hydroenergy.client.light;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 
@@ -83,7 +84,7 @@ public class HELightManager {
             long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
             HELightChunk lightChunk = chunks.get(key);
             if (lightChunk != null) {
-                lightChunk.removeWaterBlock(blockX, blockY, blockZ);
+                lightChunk.removeWaterBlock(blockX, blockY, blockZ, ((HEWater) oldBlock).getWaterId());
                 if (!lightChunk.hasWater()) {
                     chunks.remove(key);
                     recycle(lightChunk);
@@ -233,6 +234,7 @@ class HELightChunk {
     public short neighborRequiresPatchingEast;
     public short neighborRequiresPatchingSouth;
     private int damFlags;
+    private final int[] damBlockCounts = new int[HEConfig.maxDams];
     // Holds corresponding waterId for X/Z combination. I don't expect people to stack
     // multiple on top of each other. If they do the light calculation will be incorrect.
     // Acceptable to save quite some RAM.
@@ -263,6 +265,7 @@ class HELightChunk {
         subChunkHasWaterFlags = 0;
         requiresPatching = 0;
         damFlags = 0;
+        Arrays.fill(damBlockCounts, 0);
         neighborRequiresPatchingWest = 0;
         neighborRequiresPatchingNorth = 0;
         neighborRequiresPatchingEast = 0;
@@ -297,6 +300,7 @@ class HELightChunk {
                                 flags.set((blockX << 8) | (blockY << 4) | blockZ);
                                 waterIds[blockX][blockZ] = waterId;
                                 this.subChunkHasWaterFlags |= flagChunkY;
+                                damBlockCounts[waterId]++;
                                 damFlags |= 1 << waterId;
                             }
                         }
@@ -312,7 +316,7 @@ class HELightChunk {
         requiresPatching = subChunkHasWaterFlags;
     }
 
-    public void removeWaterBlock(int blockX, int blockY, int blockZ) {
+    public void removeWaterBlock(int blockX, int blockY, int blockZ, int waterId) {
         int chunkY = blockY >> 4;
         BitSet flags = lightFlags[chunkY];
         blockX = blockX & 15;
@@ -322,7 +326,12 @@ class HELightChunk {
         if (flags.isEmpty()) {
             subChunkHasWaterFlags &= ~HEUtil.chunkYToFlag(chunkY);
         }
-        refreshDamFlags();
+        if (damBlockCounts[waterId] > 0) {
+            damBlockCounts[waterId]--;
+        }
+        if (damBlockCounts[waterId] == 0) {
+            damFlags &= ~(1 << waterId);
+        }
     }
 
     public void addWaterBlock(int blockX, int blockY, int blockZ, int waterId) {
@@ -334,7 +343,9 @@ class HELightChunk {
         blockZ = blockZ & 15;
         flags.set((blockX << 8) | (blockY << 4) | blockZ);
         waterIds[blockX][blockZ] = waterId;
-        damFlags |= 1 << waterId;
+        if (damBlockCounts[waterId]++ == 0) {
+            damFlags |= 1 << waterId;
+        }
     }
 
     public boolean hasWater() {
@@ -400,16 +411,6 @@ class HELightChunk {
 
     public boolean hasUpdateForDam(int waterId) {
         return (damFlags & (1 << waterId)) != 0;
-    }
-
-    private void refreshDamFlags() {
-        damFlags = 0;
-        for (BitSet flags : lightFlags) {
-            for (int linearCoord = flags.nextSetBit(0); linearCoord
-                    != -1; linearCoord = flags.nextSetBit(linearCoord + 1)) {
-                damFlags |= 1 << waterIds[linearCoord >> 8][linearCoord & 15];
-            }
-        }
     }
 
     public boolean requiresPatchingWest(int flagChunkY) {
