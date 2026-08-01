@@ -1,8 +1,6 @@
 package com.sinthoras.hydroenergy.client.renderer;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Stack;
 
 import net.minecraft.client.Minecraft;
@@ -36,11 +34,6 @@ public class HETessalator {
     private static final int maxRenderChunksZ = maxRenderChunksX;
     private static final HERenderChunk[] renderChunks = new HERenderChunk[maxRenderChunksX * maxRenderChunksZ];
     private static final Stack<HERenderChunk> availableRenderChunks = new Stack<>();
-    // Bounded pool of released VAO/VBO pairs so that subchunks which flip between empty and
-    // non-empty do not pay a glGenBuffers/glBufferData allocation every time. The bound keeps
-    // the GPU memory released by the "Release unused HydroEnergy GPU buffers" change in check.
-    private static final int maxRecycledBuffers = 64;
-    private static final Deque<HEBufferIds> availableBuffers = new ArrayDeque<>();
 
     private static final FloatBuffer vboBuffer = GLAllocation.createDirectFloatBuffer(7 * HE.blockPerSubChunk);
     private static int numWaterBlocks = 0;
@@ -58,9 +51,30 @@ public class HETessalator {
 
         if (numWaterBlocks != 0) {
             if (renderSubChunk.vaoId == GL31.GL_INVALID_INDEX) {
-                HEBufferIds ids = getBuffer();
-                renderSubChunk.vaoId = ids.vaoId;
-                renderSubChunk.vboId = ids.vboId;
+                renderSubChunk.vaoId = GL30.glGenVertexArrays();
+                renderSubChunk.vboId = GL15.glGenBuffers();
+
+                GL30.glBindVertexArray(renderSubChunk.vaoId);
+
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, renderSubChunk.vboId);
+                GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (long) vboBuffer.capacity() * Float.BYTES, GL15.GL_STATIC_DRAW);
+
+                GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 7 * Float.BYTES, 0);
+                GL20.glEnableVertexAttribArray(0);
+
+                GL20.glVertexAttribPointer(1, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 3 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(1);
+
+                GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 4 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(2);
+
+                GL20.glVertexAttribPointer(3, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 5 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(3);
+
+                GL20.glVertexAttribPointer(4, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 6 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(4);
+
+                GL30.glBindVertexArray(0);
             }
 
             vboBuffer.flip();
@@ -225,38 +239,6 @@ public class HETessalator {
         }
     }
 
-    private static HEBufferIds getBuffer() {
-        HEBufferIds ids = availableBuffers.pollFirst();
-        if (ids == null) {
-            ids = new HEBufferIds();
-            ids.vaoId = GL30.glGenVertexArrays();
-            ids.vboId = GL15.glGenBuffers();
-
-            GL30.glBindVertexArray(ids.vaoId);
-
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, ids.vboId);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (long) vboBuffer.capacity() * Float.BYTES, GL15.GL_STATIC_DRAW);
-
-            GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 7 * Float.BYTES, 0);
-            GL20.glEnableVertexAttribArray(0);
-
-            GL20.glVertexAttribPointer(1, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 3 * Float.BYTES);
-            GL20.glEnableVertexAttribArray(1);
-
-            GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 4 * Float.BYTES);
-            GL20.glEnableVertexAttribArray(2);
-
-            GL20.glVertexAttribPointer(3, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 5 * Float.BYTES);
-            GL20.glEnableVertexAttribArray(3);
-
-            GL20.glVertexAttribPointer(4, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 6 * Float.BYTES);
-            GL20.glEnableVertexAttribArray(4);
-
-            GL30.glBindVertexArray(0);
-        }
-        return ids;
-    }
-
     public static void clear() {
         for (int i = 0; i < renderChunks.length; i++) {
             HERenderChunk renderChunk = renderChunks[i];
@@ -273,26 +255,14 @@ public class HETessalator {
             }
         }
         availableRenderChunks.clear();
-        for (HEBufferIds ids : availableBuffers) {
-            GL15.glDeleteBuffers(ids.vboId);
-            GL30.glDeleteVertexArrays(ids.vaoId);
-        }
-        availableBuffers.clear();
         vboBuffer.clear();
         numWaterBlocks = 0;
     }
 
     private static void deleteBuffers(HERenderSubChunk renderSubChunk) {
         if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX) {
-            HEBufferIds ids = new HEBufferIds();
-            ids.vaoId = renderSubChunk.vaoId;
-            ids.vboId = renderSubChunk.vboId;
-            if (availableBuffers.size() < maxRecycledBuffers) {
-                availableBuffers.addFirst(ids);
-            } else {
-                GL15.glDeleteBuffers(ids.vboId);
-                GL30.glDeleteVertexArrays(ids.vaoId);
-            }
+            GL15.glDeleteBuffers(renderSubChunk.vboId);
+            GL30.glDeleteVertexArrays(renderSubChunk.vaoId);
             renderSubChunk.vaoId = GL31.GL_INVALID_INDEX;
             renderSubChunk.vboId = GL31.GL_INVALID_INDEX;
             renderSubChunk.numWaterBlocks = 0;
@@ -310,7 +280,6 @@ public class HETessalator {
                 }
             }
         }
-        subChunkCounter += availableBuffers.size();
         return (long) subChunkCounter * vboBuffer.capacity() * Float.BYTES;
     }
 }
@@ -336,11 +305,4 @@ class HERenderSubChunk {
     public int vaoId = GL31.GL_INVALID_INDEX;
     public int vboId = GL31.GL_INVALID_INDEX;
     public int numWaterBlocks = 0;
-}
-
-@SideOnly(Side.CLIENT)
-class HEBufferIds {
-
-    public int vaoId;
-    public int vboId;
 }
