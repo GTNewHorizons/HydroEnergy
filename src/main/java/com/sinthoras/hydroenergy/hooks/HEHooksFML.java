@@ -1,8 +1,11 @@
 package com.sinthoras.hydroenergy.hooks;
 
+import net.minecraft.client.Minecraft;
+
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.client.HEClient;
 import com.sinthoras.hydroenergy.client.light.HELightManager;
+import com.sinthoras.hydroenergy.client.renderer.HETessalator;
 import com.sinthoras.hydroenergy.server.HEBlockQueue;
 import com.sinthoras.hydroenergy.server.HEServer;
 
@@ -52,6 +55,7 @@ public class HEHooksFML {
     @SubscribeEvent
     public void onEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         HEClient.onDisconnect();
+        Minecraft.getMinecraft().func_152344_a(HETessalator::clear);
         isLoggedIn = false;
     }
 
