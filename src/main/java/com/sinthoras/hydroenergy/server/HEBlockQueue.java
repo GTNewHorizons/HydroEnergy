@@ -94,6 +94,13 @@ class HEQueueChunk {
     public final Deque<QueueEntry> neighborChunkNorth = new ArrayDeque<QueueEntry>();
     public final Deque<QueueEntry> neighborChunkEast = new ArrayDeque<QueueEntry>();
     public final Deque<QueueEntry> neighborChunkSouth = new ArrayDeque<QueueEntry>();
+    // A block position is enqueued at most once per waterId per HEQueueChunk lifetime.
+    // This deduplicates the spread queue which would otherwise explode in size, because
+    // placing or removing a block re-enqueues all 6 neighbors, including blocks that were
+    // just processed. The bits are intentionally never cleared: it makes the water flow in
+    // one wave per resolve() pass instead of oscillating (drain -> refill -> drain ...) until
+    // the pass is done. Water that is removed because it is out of bounds therefore stays
+    // removed instead of being re-filled by the surrounding flow within the same pass.
     private final BitSet[] queuedBlocks = new BitSet[HEConfig.maxDams];
     public Chunk chunk;
 
