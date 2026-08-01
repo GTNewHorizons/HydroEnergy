@@ -310,6 +310,7 @@ public class HETessalator {
                 }
             }
         }
+        subChunkCounter += availableBuffers.size();
         return (long) subChunkCounter * vboBuffer.capacity() * Float.BYTES;
     }
 }
