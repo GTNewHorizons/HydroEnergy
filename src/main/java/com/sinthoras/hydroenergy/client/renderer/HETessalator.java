@@ -173,12 +173,23 @@ public class HETessalator {
                     final int chunkZ = centerChunkZ + offsetChunkZ;
                     final HERenderChunk renderChunks = HETessalator.renderChunks[getChunkIndex(chunkX, chunkZ)];
                     if (renderChunks != null) {
-                        final Chunk vanillaChunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
+                        Chunk vanillaChunk = null;
                         for (int chunkY = 0; chunkY < HE.chunkHeight; chunkY++) {
+                            final HERenderSubChunk renderSubChunk = renderChunks.renderSubChunks[chunkY];
+                            if (renderSubChunk.vaoId == GL31.GL_INVALID_INDEX) {
+                                continue;
+                            }
+
                             final int blockX = HEUtil.coordChunkToBlock(chunkX);
                             final int blockY = HEUtil.coordChunkToBlock(chunkY);
                             final int blockZ = HEUtil.coordChunkToBlock(chunkZ);
-                            final HERenderSubChunk renderSubChunk = renderChunks.renderSubChunks[chunkY];
+                            if (vanillaChunk == null) {
+                                vanillaChunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
+                            }
+                            if (vanillaChunk.getAreLevelsEmpty(blockY, blockY + 15)) {
+                                continue;
+                            }
+
                             final AxisAlignedBB chunkBB = AxisAlignedBB.getBoundingBox(
                                     blockX,
                                     blockY,
@@ -186,9 +197,7 @@ public class HETessalator {
                                     blockX + HE.chunkWidth,
                                     blockY + HE.chunkHeight,
                                     blockZ + HE.chunkDepth);
-                            if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX
-                                    && !vanillaChunk.getAreLevelsEmpty(blockY, blockY + 15)
-                                    && frustrum.isBoundingBoxInFrustum(chunkBB)) {
+                            if (frustrum.isBoundingBoxInFrustum(chunkBB)) {
                                 HESortedRenderList.add(
                                         renderSubChunk.vaoId,
                                         renderSubChunk.numWaterBlocks,
