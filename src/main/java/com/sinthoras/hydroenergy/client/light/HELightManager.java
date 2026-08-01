@@ -73,29 +73,34 @@ public class HELightManager {
     }
 
     public static void onSetBlock(int blockX, int blockY, int blockZ, Block block, Block oldBlock) {
-        if (block instanceof HEWater) {
-            int waterId = ((HEWater) block).getWaterId();
-            int chunkX = HEUtil.coordBlockToChunk(blockX);
-            int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-            long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-            HELightChunk lightChunk = chunks.get(key);
-            if (lightChunk == null) {
-                lightChunk = getBuffer();
-                chunks.put(key, lightChunk);
-            }
-            lightChunk.addWaterBlock(blockX, blockY, blockZ, waterId);
-        } else if (oldBlock instanceof HEWater) {
-            int chunkX = HEUtil.coordBlockToChunk(blockX);
-            int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-            long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-            HELightChunk lightChunk = chunks.get(key);
+        boolean isWater = block instanceof HEWater;
+        boolean wasWater = oldBlock instanceof HEWater;
+        if (!isWater && !wasWater) {
+            return;
+        }
+
+        int chunkX = HEUtil.coordBlockToChunk(blockX);
+        int chunkZ = HEUtil.coordBlockToChunk(blockZ);
+        long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
+        HELightChunk lightChunk = chunks.get(key);
+
+        if (wasWater) {
             if (lightChunk != null) {
                 lightChunk.removeWaterBlock(blockX, blockY, blockZ, ((HEWater) oldBlock).getWaterId());
                 if (!lightChunk.hasWater()) {
                     chunks.remove(key);
                     recycle(lightChunk);
+                    lightChunk = null;
                 }
             }
+        }
+
+        if (isWater) {
+            if (lightChunk == null) {
+                lightChunk = getBuffer();
+                chunks.put(key, lightChunk);
+            }
+            lightChunk.addWaterBlock(blockX, blockY, blockZ, ((HEWater) block).getWaterId());
         }
     }
 
