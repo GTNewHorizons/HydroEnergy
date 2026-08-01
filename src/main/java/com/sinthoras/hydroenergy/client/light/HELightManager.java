@@ -232,6 +232,7 @@ class HELightChunk {
     public short neighborRequiresPatchingNorth;
     public short neighborRequiresPatchingEast;
     public short neighborRequiresPatchingSouth;
+    private int damFlags;
     // Holds corresponding waterId for X/Z combination. I don't expect people to stack
     // multiple on top of each other. If they do the light calculation will be incorrect.
     // Acceptable to save quite some RAM.
@@ -246,6 +247,7 @@ class HELightChunk {
         waterIds = new int[HE.chunkWidth][HE.chunkDepth];
         subChunkHasWaterFlags = 0;
         requiresPatching = 0;
+        damFlags = 0;
 
         // If a block at the chunk border is from water it means that the neighbors need to be handled as well
         neighborRequiresPatchingWest = 0;
@@ -260,6 +262,7 @@ class HELightChunk {
         }
         subChunkHasWaterFlags = 0;
         requiresPatching = 0;
+        damFlags = 0;
         neighborRequiresPatchingWest = 0;
         neighborRequiresPatchingNorth = 0;
         neighborRequiresPatchingEast = 0;
@@ -288,11 +291,13 @@ class HELightChunk {
                         for (int blockZ = 0; blockZ < HE.chunkDepth; blockZ++) {
                             Block block = subChunkStorage.getBlockByExtId(blockX, blockY, blockZ);
                             if (block instanceof HEWater) {
+                                int waterId = ((HEWater) block).getWaterId();
                                 bucketsBlockX[blockX]++;
                                 bucketsBlockZ[blockZ]++;
                                 flags.set((blockX << 8) | (blockY << 4) | blockZ);
-                                waterIds[blockX][blockZ] = ((HEWater) block).getWaterId();
+                                waterIds[blockX][blockZ] = waterId;
                                 this.subChunkHasWaterFlags |= flagChunkY;
+                                damFlags |= 1 << waterId;
                             }
                         }
                     }
@@ -317,6 +322,7 @@ class HELightChunk {
         if (flags.isEmpty()) {
             subChunkHasWaterFlags &= ~HEUtil.chunkYToFlag(chunkY);
         }
+        refreshDamFlags();
     }
 
     public void addWaterBlock(int blockX, int blockY, int blockZ, int waterId) {
@@ -328,6 +334,7 @@ class HELightChunk {
         blockZ = blockZ & 15;
         flags.set((blockX << 8) | (blockY << 4) | blockZ);
         waterIds[blockX][blockZ] = waterId;
+        damFlags |= 1 << waterId;
     }
 
     public boolean hasWater() {
@@ -392,14 +399,17 @@ class HELightChunk {
     }
 
     public boolean hasUpdateForDam(int waterId) {
-        for (int blockX = 0; blockX < HE.chunkWidth; blockX++) {
-            for (int blockZ = 0; blockZ < HE.chunkDepth; blockZ++) {
-                if (waterIds[blockX][blockZ] == waterId) {
-                    return true;
-                }
+        return (damFlags & (1 << waterId)) != 0;
+    }
+
+    private void refreshDamFlags() {
+        damFlags = 0;
+        for (BitSet flags : lightFlags) {
+            for (int linearCoord = flags.nextSetBit(0); linearCoord
+                    != -1; linearCoord = flags.nextSetBit(linearCoord + 1)) {
+                damFlags |= 1 << waterIds[linearCoord >> 8][linearCoord & 15];
             }
         }
-        return false;
     }
 
     public boolean requiresPatchingWest(int flagChunkY) {
