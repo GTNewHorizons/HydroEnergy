@@ -126,10 +126,11 @@ public class HELightManager {
     }
 
     private static void recycle(HELightChunk lightChunk) {
-        lightChunk.reset();
-        if (availableBuffers.size() < maxAvailableBuffers) {
-            availableBuffers.addFirst(lightChunk);
+        if (availableBuffers.size() >= maxAvailableBuffers) {
+            return;
         }
+        lightChunk.reset();
+        availableBuffers.addFirst(lightChunk);
     }
 
     // If any waterLevel changed enough and the last update was long enough ago chunks will be redrawn.
