@@ -47,22 +47,6 @@ public class HEClient {
                 limitSouth);
     }
 
-    public static float[] getDebugStatesAsFactors() {
-        float[] debugFactors = new float[HEConfig.maxDams];
-        for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
-            debugFactors[waterId] = dams[waterId].renderAsDebug() ? 1.0f : 0.0f;
-        }
-        return debugFactors;
-    }
-
-    public static float[] getAllWaterLevelsForRendering() {
-        float[] waterLevels = new float[HEConfig.maxDams];
-        for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
-            waterLevels[waterId] = dams[waterId].getWaterLevelForRendering();
-        }
-        return waterLevels;
-    }
-
     public static float[] getAllWaterLevelForPhysicsAndLighting() {
         float[] waterLevels = new float[HEConfig.maxDams];
         for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {

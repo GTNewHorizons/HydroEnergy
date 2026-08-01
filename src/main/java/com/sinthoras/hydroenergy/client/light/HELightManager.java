@@ -1,8 +1,10 @@
 package com.sinthoras.hydroenergy.client.light;
 
+import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.Stack;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -28,15 +30,17 @@ public class HELightManager {
     private static final long[] timestampsNextUpdate = new long[HEConfig.maxDams];
 
     private static final HashMap<Long, HELightChunk> chunks = new HashMap<Long, HELightChunk>();
-    private static final Stack<HELightChunk> availableBuffers = new Stack<HELightChunk>();
+    // Small bounded pool of recycled HELightChunks. A single slot was enough to save most of
+    // the allocations, but a tiny queue keeps the reuse rate up when several chunks flip at
+    // the same time. Chunks that do not fit in the pool are simply garbage collected.
+    private static final int maxAvailableBuffers = 16;
+    private static final Deque<HELightChunk> availableBuffers = new ArrayDeque<>();
 
     public static void onChunkUnload(int chunkX, int chunkZ) {
         long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-        if (chunks.containsKey(key)) {
-            HELightChunk lightChunk = chunks.get(key);
-            lightChunk.reset();
-            availableBuffers.push(lightChunk);
-            chunks.remove(key);
+        HELightChunk lightChunk = chunks.remove(key);
+        if (lightChunk != null) {
+            recycle(lightChunk);
         }
     }
 
@@ -45,18 +49,18 @@ public class HELightManager {
         int chunkZ = chunk.zPosition;
         long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
 
-        HELightChunk lightChunk = chunks.get(key);
+        HELightChunk lightChunk = chunks.remove(key);
         if (lightChunk == null) {
-            if (availableBuffers.empty()) {
-
-                lightChunk = new HELightChunk();
-            } else {
-                lightChunk = availableBuffers.pop();
-            }
+            lightChunk = getBuffer();
         }
         lightChunk.reset();
 
         lightChunk.parseChunk(chunk);
+
+        if (!lightChunk.hasWater()) {
+            recycle(lightChunk);
+            return;
+        }
 
         chunks.put(key, lightChunk);
 
@@ -69,17 +73,34 @@ public class HELightManager {
     }
 
     public static void onSetBlock(int blockX, int blockY, int blockZ, Block block, Block oldBlock) {
-        if (block instanceof HEWater) {
-            int waterId = ((HEWater) block).getWaterId();
-            int chunkX = HEUtil.coordBlockToChunk(blockX);
-            int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-            long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-            chunks.get(key).addWaterBlock(blockX, blockY, blockZ, waterId);
-        } else if (oldBlock instanceof HEWater) {
-            int chunkX = HEUtil.coordBlockToChunk(blockX);
-            int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-            long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-            chunks.get(key).removeWaterBlock(blockX, blockY, blockZ);
+        boolean isWater = block instanceof HEWater;
+        boolean wasWater = oldBlock instanceof HEWater;
+        if (!isWater && !wasWater) {
+            return;
+        }
+
+        int chunkX = HEUtil.coordBlockToChunk(blockX);
+        int chunkZ = HEUtil.coordBlockToChunk(blockZ);
+        long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
+        HELightChunk lightChunk = chunks.get(key);
+
+        if (wasWater) {
+            if (lightChunk != null) {
+                lightChunk.removeWaterBlock(blockX, blockY, blockZ, ((HEWater) oldBlock).getWaterId());
+                if (!lightChunk.hasWater()) {
+                    chunks.remove(key);
+                    recycle(lightChunk);
+                    lightChunk = null;
+                }
+            }
+        }
+
+        if (isWater) {
+            if (lightChunk == null) {
+                lightChunk = getBuffer();
+                chunks.put(key, lightChunk);
+            }
+            lightChunk.addWaterBlock(blockX, blockY, blockZ, ((HEWater) block).getWaterId());
         }
     }
 
@@ -99,7 +120,22 @@ public class HELightManager {
         int chunkZ = HEUtil.coordBlockToChunk(blockZ);
         long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
         HELightChunk lightChunk = chunks.get(key);
-        lightChunk.patchSubChunk(world.getChunkFromChunkCoords(chunkX, chunkZ), chunkY);
+        if (lightChunk != null) {
+            lightChunk.patchSubChunk(world.getChunkFromChunkCoords(chunkX, chunkZ), chunkY);
+        }
+    }
+
+    private static HELightChunk getBuffer() {
+        HELightChunk lightChunk = availableBuffers.pollFirst();
+        return lightChunk == null ? new HELightChunk() : lightChunk;
+    }
+
+    private static void recycle(HELightChunk lightChunk) {
+        if (availableBuffers.size() >= maxAvailableBuffers) {
+            return;
+        }
+        lightChunk.reset();
+        availableBuffers.addFirst(lightChunk);
     }
 
     // If any waterLevel changed enough and the last update was long enough ago chunks will be redrawn.
@@ -210,6 +246,8 @@ class HELightChunk {
     public short neighborRequiresPatchingNorth;
     public short neighborRequiresPatchingEast;
     public short neighborRequiresPatchingSouth;
+    private int damFlags;
+    private final int[] damBlockCounts = new int[HEConfig.maxDams];
     // Holds corresponding waterId for X/Z combination. I don't expect people to stack
     // multiple on top of each other. If they do the light calculation will be incorrect.
     // Acceptable to save quite some RAM.
@@ -224,6 +262,7 @@ class HELightChunk {
         waterIds = new int[HE.chunkWidth][HE.chunkDepth];
         subChunkHasWaterFlags = 0;
         requiresPatching = 0;
+        damFlags = 0;
 
         // If a block at the chunk border is from water it means that the neighbors need to be handled as well
         neighborRequiresPatchingWest = 0;
@@ -237,6 +276,9 @@ class HELightChunk {
             lightFlags[chunkY].clear();
         }
         subChunkHasWaterFlags = 0;
+        requiresPatching = 0;
+        damFlags = 0;
+        Arrays.fill(damBlockCounts, 0);
         neighborRequiresPatchingWest = 0;
         neighborRequiresPatchingNorth = 0;
         neighborRequiresPatchingEast = 0;
@@ -265,11 +307,14 @@ class HELightChunk {
                         for (int blockZ = 0; blockZ < HE.chunkDepth; blockZ++) {
                             Block block = subChunkStorage.getBlockByExtId(blockX, blockY, blockZ);
                             if (block instanceof HEWater) {
+                                int waterId = ((HEWater) block).getWaterId();
                                 bucketsBlockX[blockX]++;
                                 bucketsBlockZ[blockZ]++;
                                 flags.set((blockX << 8) | (blockY << 4) | blockZ);
-                                waterIds[blockX][blockZ] = ((HEWater) block).getWaterId();
+                                waterIds[blockX][blockZ] = waterId;
                                 this.subChunkHasWaterFlags |= flagChunkY;
+                                damBlockCounts[waterId]++;
+                                damFlags |= 1 << waterId;
                             }
                         }
                     }
@@ -284,12 +329,22 @@ class HELightChunk {
         requiresPatching = subChunkHasWaterFlags;
     }
 
-    public void removeWaterBlock(int blockX, int blockY, int blockZ) {
-        BitSet flags = lightFlags[blockY >> 4];
+    public void removeWaterBlock(int blockX, int blockY, int blockZ, int waterId) {
+        int chunkY = blockY >> 4;
+        BitSet flags = lightFlags[chunkY];
         blockX = blockX & 15;
         blockY = blockY & 15;
         blockZ = blockZ & 15;
         flags.clear((blockX << 8) | (blockY << 4) | blockZ);
+        if (flags.isEmpty()) {
+            subChunkHasWaterFlags &= ~HEUtil.chunkYToFlag(chunkY);
+        }
+        if (damBlockCounts[waterId] > 0) {
+            damBlockCounts[waterId]--;
+        }
+        if (damBlockCounts[waterId] == 0) {
+            damFlags &= ~(1 << waterId);
+        }
     }
 
     public void addWaterBlock(int blockX, int blockY, int blockZ, int waterId) {
@@ -301,6 +356,13 @@ class HELightChunk {
         blockZ = blockZ & 15;
         flags.set((blockX << 8) | (blockY << 4) | blockZ);
         waterIds[blockX][blockZ] = waterId;
+        if (damBlockCounts[waterId]++ == 0) {
+            damFlags |= 1 << waterId;
+        }
+    }
+
+    public boolean hasWater() {
+        return subChunkHasWaterFlags != 0;
     }
 
     public void patchBlock(Chunk chunk, int blockX, int blockY, int blockZ) {
@@ -361,14 +423,7 @@ class HELightChunk {
     }
 
     public boolean hasUpdateForDam(int waterId) {
-        for (int blockX = 0; blockX < HE.chunkWidth; blockX++) {
-            for (int blockZ = 0; blockZ < HE.chunkDepth; blockZ++) {
-                if (waterIds[blockX][blockZ] == waterId) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return (damFlags & (1 << waterId)) != 0;
     }
 
     public boolean requiresPatchingWest(int flagChunkY) {

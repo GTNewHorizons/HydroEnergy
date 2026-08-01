@@ -35,7 +35,6 @@ public class HETessalator {
     private static final HERenderChunk[] renderChunks = new HERenderChunk[maxRenderChunksX * maxRenderChunksZ];
     private static final Stack<HERenderChunk> availableRenderChunks = new Stack<>();
 
-    private static final Stack<HEBufferIds> availableBuffers = new Stack<>();
     private static final FloatBuffer vboBuffer = GLAllocation.createDirectFloatBuffer(7 * HE.blockPerSubChunk);
     private static int numWaterBlocks = 0;
 
@@ -52,39 +51,30 @@ public class HETessalator {
 
         if (numWaterBlocks != 0) {
             if (renderSubChunk.vaoId == GL31.GL_INVALID_INDEX) {
-                if (availableBuffers.empty()) {
-                    renderSubChunk.vaoId = GL30.glGenVertexArrays();
-                    renderSubChunk.vboId = GL15.glGenBuffers();
+                renderSubChunk.vaoId = GL30.glGenVertexArrays();
+                renderSubChunk.vboId = GL15.glGenBuffers();
 
-                    GL30.glBindVertexArray(renderSubChunk.vaoId);
+                GL30.glBindVertexArray(renderSubChunk.vaoId);
 
-                    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, renderSubChunk.vboId);
-                    GL15.glBufferData(
-                            GL15.GL_ARRAY_BUFFER,
-                            (long) vboBuffer.capacity() * Float.BYTES,
-                            GL15.GL_STATIC_DRAW);
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, renderSubChunk.vboId);
+                GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (long) vboBuffer.capacity() * Float.BYTES, GL15.GL_STATIC_DRAW);
 
-                    GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 7 * Float.BYTES, 0);
-                    GL20.glEnableVertexAttribArray(0);
+                GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 7 * Float.BYTES, 0);
+                GL20.glEnableVertexAttribArray(0);
 
-                    GL20.glVertexAttribPointer(1, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 3 * Float.BYTES);
-                    GL20.glEnableVertexAttribArray(1);
+                GL20.glVertexAttribPointer(1, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 3 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(1);
 
-                    GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 4 * Float.BYTES);
-                    GL20.glEnableVertexAttribArray(2);
+                GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 4 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(2);
 
-                    GL20.glVertexAttribPointer(3, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 5 * Float.BYTES);
-                    GL20.glEnableVertexAttribArray(3);
+                GL20.glVertexAttribPointer(3, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 5 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(3);
 
-                    GL20.glVertexAttribPointer(4, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 6 * Float.BYTES);
-                    GL20.glEnableVertexAttribArray(4);
+                GL20.glVertexAttribPointer(4, 1, GL11.GL_FLOAT, false, 7 * Float.BYTES, 6 * Float.BYTES);
+                GL20.glEnableVertexAttribArray(4);
 
-                    GL30.glBindVertexArray(0);
-                } else {
-                    HEBufferIds ids = availableBuffers.pop();
-                    renderSubChunk.vaoId = ids.vaoId;
-                    renderSubChunk.vboId = ids.vboId;
-                }
+                GL30.glBindVertexArray(0);
             }
 
             vboBuffer.flip();
@@ -98,13 +88,7 @@ public class HETessalator {
             vboBuffer.clear();
             numWaterBlocks = 0;
         } else if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX) {
-            HEBufferIds ids = new HEBufferIds();
-            ids.vaoId = renderSubChunk.vaoId;
-            ids.vboId = renderSubChunk.vboId;
-            availableBuffers.push(ids);
-            renderSubChunk.vaoId = GL31.GL_INVALID_INDEX;
-            renderSubChunk.vboId = GL31.GL_INVALID_INDEX;
-            renderSubChunk.numWaterBlocks = 0;
+            deleteBuffers(renderSubChunk);
         }
     }
 
@@ -173,12 +157,23 @@ public class HETessalator {
                     final int chunkZ = centerChunkZ + offsetChunkZ;
                     final HERenderChunk renderChunks = HETessalator.renderChunks[getChunkIndex(chunkX, chunkZ)];
                     if (renderChunks != null) {
-                        final Chunk vanillaChunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
+                        Chunk vanillaChunk = null;
                         for (int chunkY = 0; chunkY < HE.chunkHeight; chunkY++) {
+                            final HERenderSubChunk renderSubChunk = renderChunks.renderSubChunks[chunkY];
+                            if (renderSubChunk.vaoId == GL31.GL_INVALID_INDEX) {
+                                continue;
+                            }
+
                             final int blockX = HEUtil.coordChunkToBlock(chunkX);
                             final int blockY = HEUtil.coordChunkToBlock(chunkY);
                             final int blockZ = HEUtil.coordChunkToBlock(chunkZ);
-                            final HERenderSubChunk renderSubChunk = renderChunks.renderSubChunks[chunkY];
+                            if (vanillaChunk == null) {
+                                vanillaChunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
+                            }
+                            if (vanillaChunk.getAreLevelsEmpty(blockY, blockY + 15)) {
+                                continue;
+                            }
+
                             final AxisAlignedBB chunkBB = AxisAlignedBB.getBoundingBox(
                                     blockX,
                                     blockY,
@@ -186,9 +181,7 @@ public class HETessalator {
                                     blockX + HE.chunkWidth,
                                     blockY + HE.chunkHeight,
                                     blockZ + HE.chunkDepth);
-                            if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX
-                                    && !vanillaChunk.getAreLevelsEmpty(blockY, blockY + 15)
-                                    && frustrum.isBoundingBoxInFrustum(chunkBB)) {
+                            if (frustrum.isBoundingBoxInFrustum(chunkBB)) {
                                 HESortedRenderList.add(
                                         renderSubChunk.vaoId,
                                         renderSubChunk.numWaterBlocks,
@@ -232,26 +225,51 @@ public class HETessalator {
             renderChunk.chunkZ = chunkZ;
 
             for (HERenderSubChunk renderSubChunk : renderChunk.renderSubChunks) {
-                if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX) {
-                    HEBufferIds ids = new HEBufferIds();
-                    ids.vaoId = renderSubChunk.vaoId;
-                    ids.vboId = renderSubChunk.vboId;
-                    availableBuffers.push(ids);
-                    renderSubChunk.vaoId = GL31.GL_INVALID_INDEX;
-                    renderSubChunk.vboId = GL31.GL_INVALID_INDEX;
-                    renderSubChunk.numWaterBlocks = 0;
-                }
+                deleteBuffers(renderSubChunk);
             }
 
             final int newChunkIndex = getChunkIndex(chunkX, chunkZ);
             if (renderChunks[newChunkIndex] != null) {
+                for (HERenderSubChunk renderSubChunk : renderChunks[newChunkIndex].renderSubChunks) {
+                    deleteBuffers(renderSubChunk);
+                }
                 availableRenderChunks.push(renderChunks[newChunkIndex]);
             }
             renderChunks[newChunkIndex] = renderChunk;
         }
     }
 
-    public static int getGpuMemoryUsage() {
+    public static void clear() {
+        for (int i = 0; i < renderChunks.length; i++) {
+            HERenderChunk renderChunk = renderChunks[i];
+            if (renderChunk != null) {
+                for (HERenderSubChunk renderSubChunk : renderChunk.renderSubChunks) {
+                    deleteBuffers(renderSubChunk);
+                }
+                renderChunks[i] = null;
+            }
+        }
+        for (HERenderChunk renderChunk : availableRenderChunks) {
+            for (HERenderSubChunk renderSubChunk : renderChunk.renderSubChunks) {
+                deleteBuffers(renderSubChunk);
+            }
+        }
+        availableRenderChunks.clear();
+        vboBuffer.clear();
+        numWaterBlocks = 0;
+    }
+
+    private static void deleteBuffers(HERenderSubChunk renderSubChunk) {
+        if (renderSubChunk.vaoId != GL31.GL_INVALID_INDEX) {
+            GL15.glDeleteBuffers(renderSubChunk.vboId);
+            GL30.glDeleteVertexArrays(renderSubChunk.vaoId);
+            renderSubChunk.vaoId = GL31.GL_INVALID_INDEX;
+            renderSubChunk.vboId = GL31.GL_INVALID_INDEX;
+            renderSubChunk.numWaterBlocks = 0;
+        }
+    }
+
+    public static long getGpuMemoryUsage() {
         int subChunkCounter = 0;
         for (HERenderChunk renderChunks : renderChunks) {
             if (renderChunks != null) {
@@ -262,15 +280,8 @@ public class HETessalator {
                 }
             }
         }
-        return subChunkCounter * vboBuffer.capacity();
+        return (long) subChunkCounter * vboBuffer.capacity() * Float.BYTES;
     }
-}
-
-@SideOnly(Side.CLIENT)
-class HEBufferIds {
-
-    public int vaoId;
-    public int vboId;
 }
 
 @SideOnly(Side.CLIENT)

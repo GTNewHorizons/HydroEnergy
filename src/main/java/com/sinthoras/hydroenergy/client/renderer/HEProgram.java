@@ -65,6 +65,10 @@ public class HEProgram {
     private static final FloatBuffer modelviewProjection = GLAllocation.createDirectFloatBuffer(16);
     private static final FloatBuffer waterLevels = GLAllocation.createDirectFloatBuffer(HEConfig.maxDams);
     private static final FloatBuffer debugStates = GLAllocation.createDirectFloatBuffer(HEConfig.maxDams);
+    private static final Matrix4f projectionMatrix = new Matrix4f();
+    private static final Matrix4f modelViewMatrix = new Matrix4f();
+    private static final Matrix4f viewProjectionMatrix = new Matrix4f();
+    private static final Vector3f cameraTranslation = new Vector3f();
 
     private static float fogColorRed = 0;
     private static float fogColorGreen = 0;
@@ -154,12 +158,14 @@ public class HEProgram {
         modelviewProjection.clear();
         GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, projection);
         GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modelview);
-        Matrix4f translation = new Matrix4f().translate(new Vector3f(-cameraX, -cameraY, -cameraZ));
-        Matrix4f projectionMatrix = (Matrix4f) new Matrix4f().load(projection.asReadOnlyBuffer());
-        Matrix4f modelViewMatrix = (Matrix4f) new Matrix4f().load(modelview.asReadOnlyBuffer());
-        Matrix4f result = Matrix4f.mul(modelViewMatrix, translation, null);
-        result = Matrix4f.mul(projectionMatrix, result, null);
-        result.store(modelviewProjection);
+        projectionMatrix.load(projection);
+        modelViewMatrix.load(modelview);
+        cameraTranslation.x = -cameraX;
+        cameraTranslation.y = -cameraY;
+        cameraTranslation.z = -cameraZ;
+        modelViewMatrix.translate(cameraTranslation);
+        Matrix4f.mul(projectionMatrix, modelViewMatrix, viewProjectionMatrix);
+        viewProjectionMatrix.store(modelviewProjection);
         modelviewProjection.flip();
         GL20.glUniformMatrix4(viewProjectionId, false, modelviewProjection);
     }
@@ -170,14 +176,18 @@ public class HEProgram {
 
     public static void setWaterLevels() {
         waterLevels.clear();
-        waterLevels.put(HEClient.getAllWaterLevelsForRendering());
+        for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
+            waterLevels.put(HEClient.getDam(waterId).getWaterLevelForRendering());
+        }
         waterLevels.flip();
         GL20.glUniform1(waterLevelsId, waterLevels);
     }
 
     public static void setDebugStates() {
         debugStates.clear();
-        debugStates.put(HEClient.getDebugStatesAsFactors());
+        for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
+            debugStates.put(HEClient.getDam(waterId).renderAsDebug() ? 1.0f : 0.0f);
+        }
         debugStates.flip();
         GL20.glUniform1(debugStatesId, debugStates);
     }
@@ -231,8 +241,6 @@ public class HEProgram {
         GL13.glActiveTexture(GL13.GL_TEXTURE1);
         Minecraft.getMinecraft().getTextureManager()
                 .bindTexture(Minecraft.getMinecraft().entityRenderer.locationLightMap);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
