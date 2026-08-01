@@ -1,10 +1,12 @@
 package com.sinthoras.hydroenergy.server;
 
+import java.util.ArrayDeque;
+import java.util.BitSet;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -56,14 +58,18 @@ public class HEBlockQueue {
         }
     }
 
-    private static void addToChunk(World world, int chunkX, int chunkZ, Stack<QueueEntry> stack) {
-        if (!stack.isEmpty()) {
+    private static void addToChunk(World world, int chunkX, int chunkZ, Deque<QueueEntry> entries) {
+        if (!entries.isEmpty()) {
             long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-            if (chunks.containsKey(key)) {
-                chunks.get(key).blockStack.addAll(stack);
-            } else {
-                Chunk chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
-                chunks.put(key, new HEQueueChunk(chunk, stack));
+            HEQueueChunk queueChunk = chunks.get(key);
+            if (queueChunk == null) {
+                queueChunk = new HEQueueChunk(world.getChunkFromChunkCoords(chunkX, chunkZ));
+                chunks.put(key, queueChunk);
+            }
+            Iterator<QueueEntry> iterator = entries.descendingIterator();
+            while (iterator.hasNext()) {
+                QueueEntry entry = iterator.next();
+                queueChunk.add(entry.blockX, entry.blockY, entry.blockZ, entry.waterBlock);
             }
         }
     }
@@ -72,39 +78,27 @@ public class HEBlockQueue {
         int chunkX = HEUtil.coordBlockToChunk(blockX);
         int chunkZ = HEUtil.coordBlockToChunk(blockZ);
         long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-        if (chunks.containsKey(key)) {
-            chunks.get(key).add(blockX, blockY, blockZ, HE.waterBlocks[waterId]);
-        } else {
-            chunks.put(
-                    key,
-                    new HEQueueChunk(
-                            world.getChunkFromChunkCoords(chunkX, chunkZ),
-                            HE.waterBlocks[waterId],
-                            blockX,
-                            blockY,
-                            blockZ));
+        HEQueueChunk queueChunk = chunks.get(key);
+        if (queueChunk == null) {
+            queueChunk = new HEQueueChunk(world.getChunkFromChunkCoords(chunkX, chunkZ));
+            chunks.put(key, queueChunk);
         }
+        queueChunk.add(blockX, blockY, blockZ, HE.waterBlocks[waterId]);
     }
 }
 
 class HEQueueChunk {
 
-    public Stack<QueueEntry> blockStack;
-    public Stack<QueueEntry> neighborChunkWest = new Stack<QueueEntry>();
-    public Stack<QueueEntry> neighborChunkNorth = new Stack<QueueEntry>();
-    public Stack<QueueEntry> neighborChunkEast = new Stack<QueueEntry>();
-    public Stack<QueueEntry> neighborChunkSouth = new Stack<QueueEntry>();
+    private final Deque<QueueEntry> blockStack = new ArrayDeque<QueueEntry>();
+    public final Deque<QueueEntry> neighborChunkWest = new ArrayDeque<QueueEntry>();
+    public final Deque<QueueEntry> neighborChunkNorth = new ArrayDeque<QueueEntry>();
+    public final Deque<QueueEntry> neighborChunkEast = new ArrayDeque<QueueEntry>();
+    public final Deque<QueueEntry> neighborChunkSouth = new ArrayDeque<QueueEntry>();
+    private final BitSet[] queuedBlocks = new BitSet[HEConfig.maxDams];
     public Chunk chunk;
 
-    HEQueueChunk(Chunk chunk, Stack<QueueEntry> blockStack) {
+    HEQueueChunk(Chunk chunk) {
         this.chunk = chunk;
-        this.blockStack = blockStack;
-    }
-
-    HEQueueChunk(Chunk chunk, HEWater waterBlock, int blockX, int blockY, int blockZ) {
-        this.chunk = chunk;
-        blockStack = new Stack<QueueEntry>();
-        blockStack.add(new QueueEntry(blockX, blockY, blockZ, waterBlock));
     }
 
     public boolean resolve() {
@@ -211,20 +205,34 @@ class HEQueueChunk {
 
     public void add(int blockX, int blockY, int blockZ, HEWater waterBlock) {
         if (blockY < 0 || blockY > 255) return; // Quick And Dirty Fix, just ignore anything outside world height
-        final QueueEntry entry = new QueueEntry(blockX, blockY, blockZ, waterBlock);
         int chunkX = HEUtil.coordBlockToChunk(blockX);
         int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-        Block block = chunk.getBlock(blockX & 15, blockY, blockZ & 15);
         if (chunkX < chunk.xPosition) {
-            neighborChunkWest.push(entry);
+            neighborChunkWest.push(new QueueEntry(blockX, blockY, blockZ, waterBlock));
         } else if (chunkZ < chunk.zPosition) {
-            neighborChunkNorth.push(entry);
+            neighborChunkNorth.push(new QueueEntry(blockX, blockY, blockZ, waterBlock));
         } else if (chunkX > chunk.xPosition) {
-            neighborChunkEast.push(entry);
+            neighborChunkEast.push(new QueueEntry(blockX, blockY, blockZ, waterBlock));
         } else if (chunkZ > chunk.zPosition) {
-            neighborChunkSouth.push(entry);
-        } else if (block == waterBlock || waterBlock.canFlowInto(chunk.worldObj, blockX, blockY, blockZ)) {
-            this.blockStack.push(entry);
+            neighborChunkSouth.push(new QueueEntry(blockX, blockY, blockZ, waterBlock));
+        } else {
+            Block block = chunk.getBlock(blockX & 15, blockY, blockZ & 15);
+            if (block == waterBlock || waterBlock.canFlowInto(chunk.worldObj, blockX, blockY, blockZ)) {
+                enqueue((blockY << 8) | ((blockX & 15) << 4) | (blockZ & 15), blockX, blockY, blockZ, waterBlock);
+            }
+        }
+    }
+
+    private void enqueue(int position, int blockX, int blockY, int blockZ, HEWater waterBlock) {
+        int waterId = waterBlock.getWaterId();
+        BitSet positions = queuedBlocks[waterId];
+        if (positions == null) {
+            positions = new BitSet();
+            queuedBlocks[waterId] = positions;
+        }
+        if (!positions.get(position)) {
+            positions.set(position);
+            blockStack.push(new QueueEntry(blockX, blockY, blockZ, waterBlock));
         }
     }
 
