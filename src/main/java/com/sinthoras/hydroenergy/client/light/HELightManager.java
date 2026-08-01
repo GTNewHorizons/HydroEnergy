@@ -1,7 +1,9 @@
 package com.sinthoras.hydroenergy.client.light;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Deque;
 import java.util.HashMap;
 
 import net.minecraft.block.Block;
@@ -28,7 +30,11 @@ public class HELightManager {
     private static final long[] timestampsNextUpdate = new long[HEConfig.maxDams];
 
     private static final HashMap<Long, HELightChunk> chunks = new HashMap<Long, HELightChunk>();
-    private static HELightChunk availableBuffer;
+    // Small bounded pool of recycled HELightChunks. A single slot was enough to save most of
+    // the allocations, but a tiny queue keeps the reuse rate up when several chunks flip at
+    // the same time. Chunks that do not fit in the pool are simply garbage collected.
+    private static final int maxAvailableBuffers = 16;
+    private static final Deque<HELightChunk> availableBuffers = new ArrayDeque<>();
 
     public static void onChunkUnload(int chunkX, int chunkZ) {
         long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
@@ -115,14 +121,15 @@ public class HELightManager {
     }
 
     private static HELightChunk getBuffer() {
-        HELightChunk lightChunk = availableBuffer;
-        availableBuffer = null;
+        HELightChunk lightChunk = availableBuffers.pollFirst();
         return lightChunk == null ? new HELightChunk() : lightChunk;
     }
 
     private static void recycle(HELightChunk lightChunk) {
         lightChunk.reset();
-        availableBuffer = lightChunk;
+        if (availableBuffers.size() < maxAvailableBuffers) {
+            availableBuffers.addFirst(lightChunk);
+        }
     }
 
     // If any waterLevel changed enough and the last update was long enough ago chunks will be redrawn.
