@@ -17,8 +17,8 @@ import gregtech.api.enums.ItemList;
 import gregtech.api.enums.TierEU;
 import gregtech.api.enums.materials.FluidShapes;
 import gregtech.api.enums.materials.Materials;
-import gregtech.api.enums.materials.PipeShapes;
 import gregtech.api.enums.materials.Shapes;
+import gregtech.api.enums.materials.TEBlockShapes;
 import gregtech.api.interfaces.IItemContainer;
 import gregtech.api.util.GTUtility;
 
@@ -106,7 +106,7 @@ public class HEBlockRecipes {
                                 MaterialLibAPI.getStack(rotorMaterialsPerVoltage[tierId], Shapes.rotor, 2),
                                 motors[tierId].get(1L),
                                 pumps[tierId].get(1L),
-                                MaterialLibAPI.getStack(cableMaterialsPerVoltage[tierId], PipeShapes.cableGt01, 2),
+                                MaterialLibAPI.getStack(cableMaterialsPerVoltage[tierId], TEBlockShapes.cableGt01, 2),
                                 GTUtility.getIntegratedCircuit(1))
                         .itemOutputs(HE.hydroPumpBlocks[tierId]).fluidInputs(solder).duration(10 * SECONDS)
                         .eut(GTValues.VP[tierId - 1]).addTo(assemblerRecipes);
@@ -117,7 +117,7 @@ public class HEBlockRecipes {
                                 MaterialLibAPI.getStack(rotorMaterialsPerVoltage[tierId], Shapes.rotor, 2),
                                 motors[tierId].get(1L),
                                 pumps[tierId].get(1L),
-                                MaterialLibAPI.getStack(cableMaterialsPerVoltage[tierId], PipeShapes.cableGt01, 2),
+                                MaterialLibAPI.getStack(cableMaterialsPerVoltage[tierId], TEBlockShapes.cableGt01, 2),
                                 GTUtility.getIntegratedCircuit(2))
                         .itemOutputs(HE.hydroTurbineBlocks[tierId]).fluidInputs(solder).duration(10 * SECONDS)
                         .eut(GTValues.VP[tierId - 1]).addTo(assemblerRecipes);
