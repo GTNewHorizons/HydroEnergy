@@ -366,7 +366,7 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
 
     @Override
     public boolean isAllowedToWorkButtonEnabled() {
-        return false;
+        return true;
     }
 
     @Override

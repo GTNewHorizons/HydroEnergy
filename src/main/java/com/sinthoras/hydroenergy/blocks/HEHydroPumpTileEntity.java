@@ -459,6 +459,6 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
 
     @Override
     public boolean isAllowedToWorkButtonEnabled() {
-        return false;
+        return true;
     }
 }
