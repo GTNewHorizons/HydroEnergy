@@ -48,7 +48,9 @@ public class HEBlockRecipes {
                 ItemList.Electric_Pump_UEV, // UXV
                 ItemList.Electric_Pump_UEV, // MAX
         };
-        Material[] solderMaterials = { Materials.SolderingAlloy, Materials.Tin, Materials.Lead, };
+        FluidStack[] solders = { MaterialLibAPI.getFluidStack(Materials.SolderingAlloy, FluidShapes.fluidMolten, 72),
+                MaterialLibAPI.getFluidStack(Materials.Tin, FluidShapes.fluidMolten, 144),
+                MaterialLibAPI.getFluidStack(Materials.Lead, FluidShapes.fluidMolten, 288) };
         Material[] rotorMaterialsPerVoltage = { null, // ULV,
                 Materials.Steel, // LV
                 Materials.Aluminium, // MV
@@ -82,9 +84,7 @@ public class HEBlockRecipes {
                 Materials.NaquadahAlloy, // MAX
         };
 
-        for (int i = 0; i < solderMaterials.length; ++i) {
-            FluidStack solder = MaterialLibAPI.getFluidStack(solderMaterials[i], FluidShapes.fluidMolten, 72 << i);
-
+        for (FluidStack solder : solders) {
             GTValues.RA.stdBuilder()
                     .itemInputs(
                             ItemList.Casing_SolidSteel.get(1L),
