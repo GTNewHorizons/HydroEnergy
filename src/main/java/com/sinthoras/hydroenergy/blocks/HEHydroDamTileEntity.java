@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -378,7 +379,7 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
                         TextWidget.dynamicString(() -> "Hydro Dam (" + GTValues.VN[getVoltageTier()] + ")")
                                 .setSynced(false).setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 8))
                 .widget(
-                        new TextWidget(GTUtility.trans("142", "Running perfectly."))
+                        new TextWidget(StatCollector.translateToLocal("gt.interact.desc.mb.running"))
                                 .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 16))
                 .widget(TextWidget.dynamicString(() -> {
                     if (getFillMultiplier() > 1.0f) {
