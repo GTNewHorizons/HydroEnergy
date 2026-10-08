@@ -55,7 +55,10 @@ public class HEHooksFML {
     @SubscribeEvent
     public void onEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         HEClient.onDisconnect();
-        Minecraft.getMinecraft().func_152344_a(HETessalator::clear);
+        Minecraft.getMinecraft().func_152344_a(() -> {
+            HETessalator.clear();
+            HELightManager.clear();
+        });
         isLoggedIn = false;
     }
 

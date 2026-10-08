@@ -38,6 +38,7 @@ public class HEWaterStill extends HEWater {
     public void onBlockAdded(World world, int blockX, int blockY, int blockZ) {}
 
     private void spread(World world, int blockX, int blockY, int blockZ) {
+        if (world.isRemote || HEServer.instance == null) return;
         final int waterId = getWaterId();
         boolean canSpread = HEServer.instance.canSpread(waterId);
         if (canSpread && blockY < HEServer.instance.getWaterLimitUp(waterId)) {

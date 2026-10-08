@@ -1,21 +1,22 @@
 package com.sinthoras.hydroenergy.client.light;
 
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 import com.sinthoras.hydroenergy.HE;
-import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.HESectionPos;
+import com.sinthoras.hydroenergy.HEWorld;
 import com.sinthoras.hydroenergy.blocks.HEWater;
 import com.sinthoras.hydroenergy.client.HEClient;
 import com.sinthoras.hydroenergy.config.HEConfig;
@@ -28,417 +29,191 @@ public class HELightManager {
 
     private static final float[] waterLevelOfLastUpdate = new float[HEConfig.maxDams];
     private static final long[] timestampsNextUpdate = new long[HEConfig.maxDams];
+    private static final Map<HESectionPos, LightSection> sections = new HashMap<>();
 
-    private static final HashMap<Long, HELightChunk> chunks = new HashMap<Long, HELightChunk>();
-    // Small bounded pool of recycled HELightChunks. A single slot was enough to save most of
-    // the allocations, but a tiny queue keeps the reuse rate up when several chunks flip at
-    // the same time. Chunks that do not fit in the pool are simply garbage collected.
-    private static final int maxAvailableBuffers = 16;
-    private static final Deque<HELightChunk> availableBuffers = new ArrayDeque<>();
+    public static void clear() {
+        sections.clear();
+        Arrays.fill(waterLevelOfLastUpdate, 0);
+        Arrays.fill(timestampsNextUpdate, 0);
+    }
 
-    public static void onChunkUnload(int chunkX, int chunkZ) {
-        long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-        HELightChunk lightChunk = chunks.remove(key);
-        if (lightChunk != null) {
-            recycle(lightChunk);
-        }
+    public static void onChunkUnload(int x, int z) {
+        sections.keySet().removeIf(pos -> pos.x == x && pos.z == z);
+    }
+
+    public static void onSectionUnload(int x, int y, int z) {
+        sections.remove(new HESectionPos(x, y, z));
     }
 
     public static void onChunkDataLoad(Chunk chunk) {
-        int chunkX = chunk.xPosition;
-        int chunkZ = chunk.zPosition;
-        long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-
-        HELightChunk lightChunk = chunks.remove(key);
-        if (lightChunk == null) {
-            lightChunk = getBuffer();
-        }
-        lightChunk.reset();
-
-        lightChunk.parseChunk(chunk);
-
-        if (!lightChunk.hasWater()) {
-            recycle(lightChunk);
-            return;
-        }
-
-        chunks.put(key, lightChunk);
-
-        for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
-            lightChunk.patchSubChunk(chunk, chunkY);
-            if (lightChunk.hasWaterInSubchunk(HEUtil.chunkYToFlag(chunkY))) {
-                markChunkForRerender(Minecraft.getMinecraft().renderGlobal, chunkX, chunkY, chunkZ);
-            }
+        if (HEWorld.isCubic(chunk.worldObj)) return; // Cubes arrive independently of their column.
+        for (int y = 0; y < chunk.getBlockStorageArray().length; y++) {
+            onSectionDataLoad(chunk.worldObj, chunk.xPosition, y, chunk.zPosition);
         }
     }
 
-    public static void onSetBlock(int blockX, int blockY, int blockZ, Block block, Block oldBlock) {
-        boolean isWater = block instanceof HEWater;
-        boolean wasWater = oldBlock instanceof HEWater;
-        if (!isWater && !wasWater) {
-            return;
-        }
-
-        int chunkX = HEUtil.coordBlockToChunk(blockX);
-        int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-        long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-        HELightChunk lightChunk = chunks.get(key);
-
-        if (wasWater) {
-            if (lightChunk != null) {
-                lightChunk.removeWaterBlock(blockX, blockY, blockZ, ((HEWater) oldBlock).getWaterId());
-                if (!lightChunk.hasWater()) {
-                    chunks.remove(key);
-                    recycle(lightChunk);
-                    lightChunk = null;
+    public static void onSectionDataLoad(World world, int x, int y, int z) {
+        if (!world.isRemote || world != Minecraft.getMinecraft().theWorld) return;
+        HESectionPos pos = new HESectionPos(x, y, z);
+        ExtendedBlockStorage storage = HEWorld.getStorage(world, x, y, z);
+        LightSection section = null;
+        if (storage != null && !storage.isEmpty()) {
+            for (int i = 0; i < 4096; i++) {
+                Block block = storage.getBlockByExtId(i & 15, i >> 8, (i >> 4) & 15);
+                if (block instanceof HEWater) {
+                    if (section == null) section = new LightSection();
+                    section.set(i, ((HEWater) block).getWaterId());
                 }
             }
         }
+        if (section == null) sections.remove(pos);
+        else {
+            sections.put(pos, section);
+            patch(world, pos, section);
+        }
+    }
 
-        if (isWater) {
-            if (lightChunk == null) {
-                lightChunk = getBuffer();
-                chunks.put(key, lightChunk);
+    public static void onSetBlock(int x, int y, int z, Block block, Block oldBlock) {
+        if (!(block instanceof HEWater) && !(oldBlock instanceof HEWater)) return;
+        HESectionPos pos = new HESectionPos(x >> 4, y >> 4, z >> 4);
+        LightSection section = sections.get(pos);
+        int address = ((y & 15) << 8) | ((z & 15) << 4) | (x & 15);
+        if (block instanceof HEWater) {
+            if (section == null) {
+                section = new LightSection();
+                sections.put(pos, section);
             }
-            lightChunk.addWaterBlock(blockX, blockY, blockZ, ((HEWater) block).getWaterId());
+            section.set(address, ((HEWater) block).getWaterId());
+        } else if (section != null) {
+            section.water.clear(address);
+            if (section.water.isEmpty()) sections.remove(pos);
+        }
+        if (block instanceof HEWater) onSectionLightUpdate(Minecraft.getMinecraft().theWorld, x, y, z);
+    }
+
+    public static void onLightUpdate(Chunk chunk, int x, int y, int z) {
+        onSectionLightUpdate(chunk.worldObj, (chunk.xPosition << 4) + (x & 15), y, (chunk.zPosition << 4) + (z & 15));
+    }
+
+    public static void onSectionLightUpdate(World world, int x, int y, int z) {
+        if (world == null || !world.isRemote || world.provider.hasNoSky) return;
+        ExtendedBlockStorage storage = HEWorld.getStorage(world, x >> 4, y >> 4, z >> 4);
+        if (storage == null || storage.getSkylightArray() == null) return;
+        Block block = storage.getBlockByExtId(x & 15, y & 15, z & 15);
+        if (block instanceof HEWater) {
+            storage.getSkylightArray().set(x & 15, y & 15, z & 15, light(y, ((HEWater) block).getWaterId()));
         }
     }
 
-    public static void onLightUpdate(Chunk chunk, int blockX, int blockY, int blockZ) {
-        if (chunk.getBlock(blockX, blockY, blockZ) instanceof HEWater) {
-            long key = HEUtil.chunkCoordsToKey(chunk.xPosition, chunk.zPosition);
-            HELightChunk lightChunk = chunks.get(key);
-            if (lightChunk != null) {
-                lightChunk.patchBlock(chunk, blockX, blockY, blockZ);
-            }
-        }
+    public static void onPreRender(World world, int x, int y, int z) {
+        // Packet and tick hooks patch the cache on the client thread; asynchronous renderers only read lighting.
+        if (!Minecraft.getMinecraft().func_152345_ab()) return;
+        HESectionPos pos = new HESectionPos(x >> 4, y >> 4, z >> 4);
+        LightSection section = sections.get(pos);
+        if (section != null) patch(world, pos, section);
     }
 
-    public static void onPreRender(World world, int blockX, int blockY, int blockZ) {
-        int chunkX = HEUtil.coordBlockToChunk(blockX);
-        int chunkY = HEUtil.coordBlockToChunk(blockY);
-        int chunkZ = HEUtil.coordBlockToChunk(blockZ);
-        long key = HEUtil.chunkCoordsToKey(chunkX, chunkZ);
-        HELightChunk lightChunk = chunks.get(key);
-        if (lightChunk != null) {
-            lightChunk.patchSubChunk(world.getChunkFromChunkCoords(chunkX, chunkZ), chunkY);
-        }
-    }
-
-    private static HELightChunk getBuffer() {
-        HELightChunk lightChunk = availableBuffers.pollFirst();
-        return lightChunk == null ? new HELightChunk() : lightChunk;
-    }
-
-    private static void recycle(HELightChunk lightChunk) {
-        if (availableBuffers.size() >= maxAvailableBuffers) {
-            return;
-        }
-        lightChunk.reset();
-        availableBuffers.addFirst(lightChunk);
-    }
-
-    // If any waterLevel changed enough and the last update was long enough ago chunks will be redrawn.
     public static void onTick() {
-        final long currentTime = System.currentTimeMillis();
-        for (int waterId = 0; waterId < HEConfig.maxDams; waterId++) {
-            final float currentWaterLevel = HEClient.getDam(waterId).getWaterLevelForPhysicsAndLighting();
-            if (Math.abs(waterLevelOfLastUpdate[waterId] - currentWaterLevel) > (0.5f / HE.waterOpacity)
-                    && currentTime - timestampsNextUpdate[waterId] >= 0) {
-                timestampsNextUpdate[waterId] = currentTime;
-                triggerLightingUpdate(waterId, currentWaterLevel, waterLevelOfLastUpdate[waterId]);
-                waterLevelOfLastUpdate[waterId] = currentWaterLevel;
+        long now = System.currentTimeMillis();
+        for (int id = 0; id < HEConfig.maxDams; id++) {
+            float level = HEClient.getDam(id).getWaterLevelForPhysicsAndLighting();
+            if (Math.abs(waterLevelOfLastUpdate[id] - level) > (0.5f / HE.waterOpacity)
+                    && now >= timestampsNextUpdate[id]) {
+                timestampsNextUpdate[id] = now;
+                triggerLightingUpdate(id, level, waterLevelOfLastUpdate[id]);
+                waterLevelOfLastUpdate[id] = level;
             }
         }
     }
 
-    // Crawls through all chunks and if the chunk has water from the right dam and is impacted by the waterLevel change
-    // it queues them up for redrawing. It also redraws neighboring non-water chunks if they touch a waterBlock and
-    // therefore are impaced by the light value change.
-    public static void triggerLightingUpdate(int waterId, float waterLevel, float oldWaterLevel) {
-        RenderGlobal renderGlobal = Minecraft.getMinecraft().renderGlobal;
-        for (long key : chunks.keySet()) {
-            HELightChunk chunk = chunks.get(key);
-            if (chunk.hasUpdateForDam(waterId)) {
-                int chunkX = (int) (key >> 32);
-                int chunkZ = (int) key;
-
-                long keyWest = HEUtil.chunkCoordsToKey(chunkX - 1, chunkZ);
-                long keyNorth = HEUtil.chunkCoordsToKey(chunkX, chunkZ - 1);
-                long keyEast = HEUtil.chunkCoordsToKey(chunkX + 1, chunkZ);
-                long keySouth = HEUtil.chunkCoordsToKey(chunkX, chunkZ + 1);
-                HELightChunk neighborChunkWest = chunks.get(keyWest);
-                HELightChunk neighborChunkNorth = chunks.get(keyNorth);
-                HELightChunk neighborChunkEast = chunks.get(keyEast);
-                HELightChunk neighborChunkSouth = chunks.get(keySouth);
-
-                for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
-                    int blockY = HEUtil.coordChunkToBlock(chunkY);
-                    boolean chunkTooLow = blockY + HE.chunkHeight + HE.underWaterSkylightDepth < waterLevel
-                            && blockY + HE.chunkHeight + HE.underWaterSkylightDepth < oldWaterLevel;
-                    boolean chunkTooHigh = blockY > waterLevel && blockY > oldWaterLevel;
-                    if (!chunkTooLow && !chunkTooHigh) {
-                        short flagChunkY = HEUtil.chunkYToFlag(chunkY);
-                        if (chunk.hasWaterInSubchunk(flagChunkY)) {
-                            chunk.subChunkMustBePatched(flagChunkY);
-                            markChunkForRerender(renderGlobal, chunkX, chunkY, chunkZ);
-                            timestampsNextUpdate[waterId] += HEConfig.minLightUpdateTimePerSubChunk;
-
-                            // Handle neighbors that don't have water, but touch it
-                            // Technically, a chunk like this could be surrounded by chunks with water and receive
-                            // multiple
-                            // updates, but this scenario is rather unlikely and therefore, not worth checking for.
-                            if ((neighborChunkWest == null || !neighborChunkWest.hasWaterInSubchunk(flagChunkY))
-                                    && chunk.requiresPatchingWest(flagChunkY)) {
-                                markChunkForRerender(renderGlobal, chunkX - 1, chunkY, chunkZ);
-                                timestampsNextUpdate[waterId] += HEConfig.minLightUpdateTimePerSubChunk;
-                            }
-                            if ((neighborChunkNorth == null || !neighborChunkNorth.hasWaterInSubchunk(flagChunkY))
-                                    && chunk.requiresPatchingNorth(flagChunkY)) {
-                                markChunkForRerender(renderGlobal, chunkX, chunkY, chunkZ - 1);
-                                timestampsNextUpdate[waterId] += HEConfig.minLightUpdateTimePerSubChunk;
-                            }
-                            if ((neighborChunkEast == null || !neighborChunkEast.hasWaterInSubchunk(flagChunkY))
-                                    && chunk.requiresPatchingEast(flagChunkY)) {
-                                markChunkForRerender(renderGlobal, chunkX + 1, chunkY, chunkZ);
-                                timestampsNextUpdate[waterId] += HEConfig.minLightUpdateTimePerSubChunk;
-                            }
-                            if ((neighborChunkSouth == null || !neighborChunkSouth.hasWaterInSubchunk(flagChunkY))
-                                    && chunk.requiresPatchingSouth(flagChunkY)) {
-                                markChunkForRerender(renderGlobal, chunkX, chunkY, chunkZ + 1);
-                                timestampsNextUpdate[waterId] += HEConfig.minLightUpdateTimePerSubChunk;
-                            }
-                        }
-                    }
-                }
+    public static void triggerLightingUpdate(int id, float level, float oldLevel) {
+        World world = Minecraft.getMinecraft().theWorld;
+        if (world == null) return;
+        Set<HESectionPos> rerender = new HashSet<>();
+        for (Map.Entry<HESectionPos, LightSection> entry : sections.entrySet()) {
+            HESectionPos pos = entry.getKey();
+            LightSection section = entry.getValue();
+            int bottom = pos.y << 4;
+            if (bottom > level && bottom > oldLevel) continue;
+            if (bottom + 16 + HE.underWaterSkylightDepth < level && bottom + 16 + HE.underWaterSkylightDepth < oldLevel)
+                continue;
+            if (!section.contains(id) || !HEWorld.isLoaded(world, pos.x, pos.y, pos.z)) continue;
+            patch(world, pos, section);
+            rerender.add(pos);
+            section.addTouchingSections(rerender, pos, id);
+        }
+        if (Minecraft.getMinecraft().renderGlobal == null) return;
+        for (HESectionPos pos : rerender) {
+            if (!HEWorld.isLoaded(world, pos.x, pos.y, pos.z)) continue;
+            try {
+                Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(
+                        pos.x << 4,
+                        pos.y << 4,
+                        pos.z << 4,
+                        (pos.x << 4) + 15,
+                        (pos.y << 4) + 15,
+                        (pos.z << 4) + 15);
+            } catch (NullPointerException ignored) {
+                // Vanilla's renderer array may not yet be initialized during a world transition.
             }
+            timestampsNextUpdate[id] += HEConfig.minLightUpdateTimePerSubChunk;
         }
     }
 
-    private static void markChunkForRerender(RenderGlobal renderGlobal, int chunkX, int chunkY, int chunkZ) {
-        if (renderGlobal == null) {
-            return;
-        }
-        try {
-            int blockX = HEUtil.coordChunkToBlock(chunkX);
-            int blockY = HEUtil.coordChunkToBlock(chunkY);
-            int blockZ = HEUtil.coordChunkToBlock(chunkZ);
-            renderGlobal.markBlocksForUpdate(
-                    blockX,
-                    blockY,
-                    blockZ,
-                    blockX + HE.chunkWidth - 1,
-                    blockY + HE.chunkHeight - 1,
-                    blockZ + HE.chunkDepth - 1);
-        } catch (NullPointerException e) {
-            // RenderGlobal not fully initialized yet (worldRenderers is null), ignore
-        }
-    }
-}
-
-@SideOnly(Side.CLIENT)
-class HELightChunk {
-
-    public BitSet[] lightFlags;
-    public short subChunkHasWaterFlags;
-    public short requiresPatching;
-    public short neighborRequiresPatchingWest;
-    public short neighborRequiresPatchingNorth;
-    public short neighborRequiresPatchingEast;
-    public short neighborRequiresPatchingSouth;
-    private int damFlags;
-    private final int[] damBlockCounts = new int[HEConfig.maxDams];
-    // Holds corresponding waterId for X/Z combination. I don't expect people to stack
-    // multiple on top of each other. If they do the light calculation will be incorrect.
-    // Acceptable to save quite some RAM.
-    public int[][] waterIds;
-
-    public HELightChunk() {
-        lightFlags = new BitSet[HE.numChunksY];
-        for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
-            lightFlags[chunkY] = new BitSet(HE.blockPerSubChunk);
-        }
-
-        waterIds = new int[HE.chunkWidth][HE.chunkDepth];
-        subChunkHasWaterFlags = 0;
-        requiresPatching = 0;
-        damFlags = 0;
-
-        // If a block at the chunk border is from water it means that the neighbors need to be handled as well
-        neighborRequiresPatchingWest = 0;
-        neighborRequiresPatchingNorth = 0;
-        neighborRequiresPatchingEast = 0;
-        neighborRequiresPatchingSouth = 0;
+    private static int light(int y, int id) {
+        float depth = Math.min(y - HEClient.getDam(id).getWaterLevelForPhysicsAndLighting(), 0);
+        return Math.max(0, (int) (15 + depth * HE.waterOpacity));
     }
 
-    public void reset() {
-        for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
-            lightFlags[chunkY].clear();
+    private static void patch(World world, HESectionPos pos, LightSection section) {
+        if (world == null || world.provider.hasNoSky) return;
+        ExtendedBlockStorage storage = HEWorld.getStorage(world, pos.x, pos.y, pos.z);
+        if (storage == null) return;
+        NibbleArray sky = storage.getSkylightArray();
+        if (sky == null) {
+            sky = new NibbleArray(4096, 4);
+            storage.setSkylightArray(sky);
         }
-        subChunkHasWaterFlags = 0;
-        requiresPatching = 0;
-        damFlags = 0;
-        Arrays.fill(damBlockCounts, 0);
-        neighborRequiresPatchingWest = 0;
-        neighborRequiresPatchingNorth = 0;
-        neighborRequiresPatchingEast = 0;
-        neighborRequiresPatchingSouth = 0;
-        // waterIds does not need to be reset since it is only accessed
-        // whenever data is found and for that to happen there must be a
-        // valid value in it again
+        for (int i = section.water.nextSetBit(0); i >= 0; i = section.water.nextSetBit(i + 1)) {
+            sky.set(i & 15, i >> 8, (i >> 4) & 15, light((pos.y << 4) + (i >> 8), section.dams[i]));
+        }
     }
 
-    // This method checks for each block in the chunk what block it is
-    // with the logic from ExtendedBlockStorage.getBlockByExtId(blockX, blockY, blockZ)
-    // and a waterId LUT (getWaterIdFromBlockId)
-    public void parseChunk(Chunk chunk) {
-        ExtendedBlockStorage[] chunkStorage = chunk.getBlockStorageArray();
-        for (int chunkY = 0; chunkY < HE.numChunksY; chunkY++) {
-            ExtendedBlockStorage subChunkStorage = chunkStorage[chunkY];
-            if (subChunkStorage != null) {
-                BitSet flags = lightFlags[chunkY];
+    private static final class LightSection {
 
-                int[] bucketsBlockX = new int[HE.chunkWidth];
-                int[] bucketsBlockZ = new int[HE.chunkDepth];
-                short flagChunkY = HEUtil.chunkYToFlag(chunkY);
+        private final BitSet water = new BitSet(4096);
+        private final byte[] dams = new byte[4096];
 
-                for (int blockX = 0; blockX < HE.chunkWidth; blockX++) {
-                    for (int blockY = 0; blockY < HE.chunkHeight; blockY++) {
-                        for (int blockZ = 0; blockZ < HE.chunkDepth; blockZ++) {
-                            Block block = subChunkStorage.getBlockByExtId(blockX, blockY, blockZ);
-                            if (block instanceof HEWater) {
-                                int waterId = ((HEWater) block).getWaterId();
-                                bucketsBlockX[blockX]++;
-                                bucketsBlockZ[blockZ]++;
-                                flags.set((blockX << 8) | (blockY << 4) | blockZ);
-                                waterIds[blockX][blockZ] = waterId;
-                                this.subChunkHasWaterFlags |= flagChunkY;
-                                damBlockCounts[waterId]++;
-                                damFlags |= 1 << waterId;
-                            }
-                        }
-                    }
-                }
+        private void set(int address, int id) {
+            water.set(address);
+            dams[address] = (byte) id;
+        }
 
-                neighborRequiresPatchingWest |= bucketsBlockX[0] > 0 ? flagChunkY : 0;
-                neighborRequiresPatchingNorth |= bucketsBlockZ[0] > 0 ? flagChunkY : 0;
-                neighborRequiresPatchingEast |= bucketsBlockX[15] > 0 ? flagChunkY : 0;
-                neighborRequiresPatchingSouth |= bucketsBlockZ[15] > 0 ? flagChunkY : 0;
+        private void addTouchingSections(Set<HESectionPos> targets, HESectionPos pos, int id) {
+            int faces = 0;
+            for (int i = water.nextSetBit(0); i >= 0; i = water.nextSetBit(i + 1)) {
+                if (dams[i] != id) continue;
+                int x = i & 15, y = i >> 8, z = (i >> 4) & 15;
+                if (x == 0) faces |= 1;
+                if (x == 15) faces |= 2;
+                if (y == 0) faces |= 4;
+                if (y == 15) faces |= 8;
+                if (z == 0) faces |= 16;
+                if (z == 15) faces |= 32;
             }
+            if ((faces & 1) != 0) targets.add(new HESectionPos(pos.x - 1, pos.y, pos.z));
+            if ((faces & 2) != 0) targets.add(new HESectionPos(pos.x + 1, pos.y, pos.z));
+            if ((faces & 4) != 0) targets.add(new HESectionPos(pos.x, pos.y - 1, pos.z));
+            if ((faces & 8) != 0) targets.add(new HESectionPos(pos.x, pos.y + 1, pos.z));
+            if ((faces & 16) != 0) targets.add(new HESectionPos(pos.x, pos.y, pos.z - 1));
+            if ((faces & 32) != 0) targets.add(new HESectionPos(pos.x, pos.y, pos.z + 1));
         }
-        requiresPatching = subChunkHasWaterFlags;
-    }
 
-    public void removeWaterBlock(int blockX, int blockY, int blockZ, int waterId) {
-        int chunkY = blockY >> 4;
-        BitSet flags = lightFlags[chunkY];
-        blockX = blockX & 15;
-        blockY = blockY & 15;
-        blockZ = blockZ & 15;
-        flags.clear((blockX << 8) | (blockY << 4) | blockZ);
-        if (flags.isEmpty()) {
-            subChunkHasWaterFlags &= ~HEUtil.chunkYToFlag(chunkY);
-        }
-        if (damBlockCounts[waterId] > 0) {
-            damBlockCounts[waterId]--;
-        }
-        if (damBlockCounts[waterId] == 0) {
-            damFlags &= ~(1 << waterId);
-        }
-    }
-
-    public void addWaterBlock(int blockX, int blockY, int blockZ, int waterId) {
-        int chunkY = HEUtil.coordBlockToChunk(blockY);
-        BitSet flags = lightFlags[chunkY];
-        this.subChunkHasWaterFlags |= HEUtil.chunkYToFlag(chunkY);
-        blockX = blockX & 15;
-        blockY = blockY & 15;
-        blockZ = blockZ & 15;
-        flags.set((blockX << 8) | (blockY << 4) | blockZ);
-        waterIds[blockX][blockZ] = waterId;
-        if (damBlockCounts[waterId]++ == 0) {
-            damFlags |= 1 << waterId;
-        }
-    }
-
-    public boolean hasWater() {
-        return subChunkHasWaterFlags != 0;
-    }
-
-    public void patchBlock(Chunk chunk, int blockX, int blockY, int blockZ) {
-        int chunkY = HEUtil.coordBlockToChunk(blockY);
-        int waterId = waterIds[blockX][blockZ];
-        float blockDiff = Math.min(blockY - HEClient.getDam(waterId).getWaterLevelForPhysicsAndLighting(), 0);
-        int lightVal = (int) (15 + blockDiff * HE.waterOpacity);
-        lightVal = Math.max(lightVal, 0);
-        ExtendedBlockStorage[] chunkStorage = chunk.getBlockStorageArray();
-        NibbleArray skyLightArray = chunkStorage[chunkY].getSkylightArray();
-        if (skyLightArray == null) {
-            skyLightArray = new NibbleArray(HE.blockPerSubChunk, 4);
-            chunkStorage[chunkY].setSkylightArray(skyLightArray);
-        }
-        skyLightArray.set(blockX, blockY & 15, blockZ, lightVal);
-    }
-
-    public void patchSubChunk(Chunk chunk, int chunkY) {
-        short flagChunkY = HEUtil.chunkYToFlag(chunkY);
-        if (hasWaterInSubchunk(flagChunkY) && subChunkRequiresPatching(flagChunkY)) {
-            float[] waterLevels = HEClient.getAllWaterLevelForPhysicsAndLighting();
-            BitSet flags = lightFlags[chunkY];
-            ExtendedBlockStorage[] chunkStorage = chunk.getBlockStorageArray();
-            NibbleArray skyLightArray = chunkStorage[chunkY].getSkylightArray();
-            if (skyLightArray == null) {
-                skyLightArray = new NibbleArray(HE.blockPerSubChunk, 4);
-                chunkStorage[chunkY].setSkylightArray(skyLightArray);
+        private boolean contains(int id) {
+            for (int i = water.nextSetBit(0); i >= 0; i = water.nextSetBit(i + 1)) {
+                if (dams[i] == id) return true;
             }
-            for (int linearCoord = flags.nextSetBit(0); linearCoord
-                    != -1; linearCoord = flags.nextSetBit(linearCoord + 1)) {
-                int blockX = linearCoord >> 8;
-                int blockY = (linearCoord >> 4) & 15;
-                int blockZ = linearCoord & 15;
-                int waterId = waterIds[blockX][blockZ];
-                float blockDiff = Math.min(HEUtil.coordChunkToBlock(chunkY) + blockY - waterLevels[waterId], 0);
-                int lightVal = (int) (15 + blockDiff * HE.waterOpacity);
-                lightVal = Math.max(lightVal, 0);
-                skyLightArray.set(blockX, blockY, blockZ, lightVal);
-            }
-            subChunkWasPatched(flagChunkY);
+            return false;
         }
-    }
-
-    private void subChunkWasPatched(int flagChunkY) {
-        requiresPatching &= ~flagChunkY;
-    }
-
-    public void subChunkMustBePatched(int flagChunkY) {
-        requiresPatching |= flagChunkY;
-    }
-
-    private boolean subChunkRequiresPatching(int flagChunkY) {
-        return (requiresPatching & flagChunkY) > 0;
-    }
-
-    public boolean hasWaterInSubchunk(int flagChunkY) {
-        return (subChunkHasWaterFlags & flagChunkY) > 0;
-    }
-
-    public boolean hasUpdateForDam(int waterId) {
-        return (damFlags & (1 << waterId)) != 0;
-    }
-
-    public boolean requiresPatchingWest(int flagChunkY) {
-        return (neighborRequiresPatchingWest & flagChunkY) > 0;
-    }
-
-    public boolean requiresPatchingNorth(int flagChunkY) {
-        return (neighborRequiresPatchingNorth & flagChunkY) > 0;
-    }
-
-    public boolean requiresPatchingEast(int flagChunkY) {
-        return (neighborRequiresPatchingEast & flagChunkY) > 0;
-    }
-
-    public boolean requiresPatchingSouth(int flagChunkY) {
-        return (neighborRequiresPatchingSouth & flagChunkY) > 0;
     }
 }
