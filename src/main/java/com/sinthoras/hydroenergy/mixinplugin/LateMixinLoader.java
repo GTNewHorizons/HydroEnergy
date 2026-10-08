@@ -1,6 +1,6 @@
 package com.sinthoras.hydroenergy.mixinplugin;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,10 +19,12 @@ public class LateMixinLoader implements ILateMixinLoader {
 
     @Override
     public List<String> getMixins(Set<String> loadedMods) {
+        List<String> mixins = new ArrayList<>();
         if (FMLLaunchHandler.side().isClient()) {
-            return Collections.singletonList("GT_PollutionRendererMixin");
+            mixins.add("GT_PollutionRendererMixin");
+            if (loadedMods.contains("cubicchunks")) mixins.add("CubeMixin");
         }
-        return Collections.emptyList();
+        return mixins;
     }
 
 }

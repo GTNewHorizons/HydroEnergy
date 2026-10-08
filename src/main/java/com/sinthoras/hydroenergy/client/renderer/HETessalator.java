@@ -17,11 +17,9 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
-import org.lwjgl.opengl.GLContext;
 
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HEUtil;
-import com.sinthoras.hydroenergy.config.HEConfig;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -44,6 +42,7 @@ public class HETessalator {
     }
 
     public static void onPostRender(int blockX, int blockY, int blockZ) {
+        if (!HEWaterRenderer.usesShaderRendering()) return;
         final int chunkX = HEUtil.coordBlockToChunk(blockX);
         final int chunkY = HEUtil.coordBlockToChunk(blockY);
         final int chunkZ = HEUtil.coordBlockToChunk(blockZ);
@@ -121,7 +120,7 @@ public class HETessalator {
     }
 
     public static void render(Frustrum frustrum) {
-        if (!GLContext.getCapabilities().OpenGL30 || HEConfig.useLimitedRendering) {
+        if (!HEWaterRenderer.usesShaderRendering()) {
             return;
         }
         if (MinecraftForgeClient.getRenderPass() == HE.waterBlocks[0].getRenderBlockPass()) {
@@ -205,6 +204,7 @@ public class HETessalator {
     // One can argue to use ChunkEvent.Load and ChunkEvent.Unload for this stuff,
     // but those are not in the GL thread and cause issues with cleanup etc
     public static void onRenderChunkUpdate(int oldBlockX, int oldBlockZ, int blockX, int blockY, int blockZ) {
+        if (!HEWaterRenderer.usesShaderRendering()) return;
         // Just execute once per vertical SubChunk-stack (aka chunk)
         if (blockY == 0) {
             final int oldChunkX = HEUtil.coordBlockToChunk(oldBlockX);

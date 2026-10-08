@@ -13,11 +13,11 @@ import com.sinthoras.hydroenergy.blocks.HEHydroPumpTileEntity;
 import com.sinthoras.hydroenergy.blocks.HEHydroTurbineTileEntity;
 import com.sinthoras.hydroenergy.blocks.HEWaterStill;
 import com.sinthoras.hydroenergy.config.HEConfig;
-import com.sinthoras.hydroenergy.network.packet.HEPacketChunkUpdate;
 import com.sinthoras.hydroenergy.network.packet.HEPacketConfigRequest;
 import com.sinthoras.hydroenergy.network.packet.HEPacketConfigUpdate;
 import com.sinthoras.hydroenergy.network.packet.HEPacketSynchronize;
 import com.sinthoras.hydroenergy.network.packet.HEPacketWaterUpdate;
+import com.sinthoras.hydroenergy.server.HEBlockQueue;
 import com.sinthoras.hydroenergy.server.HEServer;
 import com.sinthoras.hydroenergy.server.commands.HECommandDebug;
 import com.sinthoras.hydroenergy.server.commands.HECommandListControllers;
@@ -67,11 +67,6 @@ public class HEHooksShared {
                 HEPacketConfigRequest.class,
                 networkId++,
                 Side.SERVER);
-        HE.network.registerMessage(
-                HEPacketChunkUpdate.Handler.class,
-                HEPacketChunkUpdate.class,
-                networkId++,
-                Side.CLIENT);
 
         HE.info("The subsequent " + HEConfig.maxDams + " liquid errors are intendend. Please ignore...");
 
@@ -160,5 +155,8 @@ public class HEHooksShared {
 
     public void fmlLifeCycleEvent(FMLServerStoppingEvent event) {}
 
-    public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {}
+    public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {
+        HEBlockQueue.clear();
+        HEServer.instance = null;
+    }
 }

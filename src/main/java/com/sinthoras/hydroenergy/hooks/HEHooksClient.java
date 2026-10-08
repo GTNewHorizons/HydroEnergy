@@ -30,7 +30,8 @@ public class HEHooksClient extends HEHooksShared {
         super.fmlLifeCycleEvent(event);
         HE.logicalClientLoaded = true;
 
-        HEProgram.init();
+        HEWaterRenderer.initRendering();
+        if (HEWaterRenderer.usesShaderRendering()) HEProgram.init();
     }
 
     @Override
