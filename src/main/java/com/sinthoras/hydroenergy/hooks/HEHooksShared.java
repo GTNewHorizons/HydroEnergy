@@ -140,7 +140,6 @@ public class HEHooksShared {
 
     // postInit "Handle interaction with other mods, complete your setup based on this."
     public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {
-        NetworkRegistry.INSTANCE.registerGuiHandler(HETags.MODID, HE.guiHandler);
         HEBlockRecipes.registerRecipes();
     }
 
