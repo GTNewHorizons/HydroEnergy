@@ -6,13 +6,10 @@ import static gregtech.api.util.GTUtility.filterValidMTEs;
 
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -21,21 +18,13 @@ import org.jetbrains.annotations.NotNull;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.gtnewhorizons.modularui.api.math.Alignment;
-import com.gtnewhorizons.modularui.api.screen.ModularWindow;
-import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
-import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
-import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
-import com.gtnewhorizons.modularui.common.widget.SlotWidget;
-import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.HEUtil;
-import com.sinthoras.hydroenergy.client.gui.HEGuiHandler;
+import com.sinthoras.hydroenergy.client.gui.HEHydroDamTileEntityGui;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.server.HEServer;
 
-import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTechAPI;
@@ -51,6 +40,7 @@ import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.structure.error.StructureError;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
 
@@ -135,7 +125,7 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
         return HEConfig.pressureIncreasePerTier * getVoltageTier();
     }
 
-    private int getVoltageTier() {
+    public int getVoltageTier() {
         boolean configCircuitIsPresent = mInventory != null && mInventory[1] != null
                 && mInventory[1].getItem() == GTUtility.getIntegratedCircuit(0).getItem();
         return configCircuitIsPresent ? HEUtil.clamp(mInventory[1].getItemDamage(), 1, GTValues.V.length - 1) : 1;
@@ -217,24 +207,13 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
     }
 
     @Override
-    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer player, float blockX, float blockY,
-            float blockZ, ItemStack tool) {
+    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
         if (waterId < 0 || waterId >= HEConfig.maxDams) {
             HE.error(HE.ERROR_serverIdsOutOfBounds);
-            return;
+            return false;
         }
-        if (!player.isSneaking()) {
-            if (getBaseMetaTileEntity().isServerSide()) {
-                FMLNetworkHandler.openGui(
-                        player,
-                        HETags.MODID,
-                        HEGuiHandler.HydroDamConfigurationGuiId,
-                        getBaseMetaTileEntity().getWorld(),
-                        getBaseMetaTileEntity().getXCoord(),
-                        getBaseMetaTileEntity().getYCoord(),
-                        getBaseMetaTileEntity().getZCoord());
-            }
-        }
+
+        return super.onRightclick(aBaseMetaTileEntity, aPlayer);
     }
 
     @SideOnly(Side.CLIENT)
@@ -339,8 +318,16 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
         return euStored;
     }
 
+    public void setEuStored(long euStored) {
+        this.euStored = euStored;
+    }
+
     public long getEuCapacity() {
         return euCapacityGui;
+    }
+
+    public void setEuCapacity(long euCapacityGui) {
+        this.euCapacityGui = euCapacityGui;
     }
 
     public int getEuPerTickIn() {
@@ -353,6 +340,10 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
 
     public int getWaterId() {
         return waterId;
+    }
+
+    public void setWaterId(int waterId) {
+        this.waterId = waterId;
     }
 
     @Override
@@ -370,69 +361,43 @@ public class HEHydroDamTileEntity extends TTMultiblockBase implements IConstruct
         return true;
     }
 
-    @Override
-    public void addUIWidgets(ModularWindow.Builder builder, UIBuildContext buildContext) {
-        super.addUIWidgets(builder, buildContext);
-
-        builder.widget(new FakeSyncWidget.IntegerSyncer(() -> waterId, val -> waterId = val))
-                .widget(
-                        TextWidget.dynamicString(() -> "Hydro Dam (" + GTValues.VN[getVoltageTier()] + ")")
-                                .setSynced(false).setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 8))
-                .widget(
-                        new TextWidget(StatCollector.translateToLocal("gt.interact.desc.mb.running"))
-                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 16))
-                .widget(TextWidget.dynamicString(() -> {
-                    if (getFillMultiplier() > 1.0f) {
-                        return "Please upgrade circuit config (>" + getVoltageTier() + ").";
-                    } else {
-                        return "";
-                    }
-                }).setSynced(false).setDefaultColor(COLOR_TEXT_GRAY.get()).setPos(7, 84))
-                .widget(
-                        TextWidget.dynamicString(() -> euStored + " EU / " + euCapacity + " EU").setSynced(false)
-                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(99 - 3 - 26, 35).attachSyncer(
-                                        new FakeSyncWidget.LongSyncer(() -> euStored, val -> euStored = val),
-                                        builder,
-                                        (widget, val) -> {
-                                            if (widget.isClient()) {
-                                                FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-                                                widget.setPos(
-                                                        99 - fontRenderer.getStringWidth("/") / 2
-                                                                - fontRenderer.getStringWidth(euStored + " EU "),
-                                                        35);
-                                            }
-                                        }))
-                .widget(new FakeSyncWidget.LongSyncer(() -> euCapacity, val -> euCapacity = val))
-                .widget(TextWidget.dynamicString(() -> {
-                    float fillMultiplier = getFillMultiplier();
-                    if (fillMultiplier > 1.0f) {
-                        return ">100.00%";
-                    } else {
-                        return String.format("%.2f", fillMultiplier * 100.0f) + "%";
-                    }
-                }).setSynced(false).setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(99 - 50, 45 + 5).setSize(50 * 2, 9))
-                .widget(
-                        TextWidget.dynamicString(() -> "IN: " + euPerTickIn + " EU/t").setSynced(false)
-                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setPos(7, 45 + 20))
-                .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickIn, val -> euPerTickIn = val))
-                .widget(
-                        TextWidget.dynamicString(() -> "OUT: " + euPerTickOut + " EU/t").setSynced(false)
-                                .setDefaultColor(COLOR_TEXT_WHITE.get()).setTextAlignment(Alignment.CenterRight)
-                                .setPos(7 + 184 - 100, 45 + 20).setSize(100, 9))
-                .widget(new FakeSyncWidget.IntegerSyncer(() -> euPerTickOut, val -> euPerTickOut = val))
-                .widget(TextWidget.dynamicString(() -> {
-                    if (getFillMultiplier() > 1.0f) {
-                        return "Please upgrade circuit config (>" + getVoltageTier() + ").";
-                    } else {
-                        return "Click me with a screwdriver.";
-                    }
-                }).setSynced(false).setDefaultColor(COLOR_TEXT_GRAY.get()).setPos(7, 84));
+    public float getFillMultiplier() {
+        return euCapacityGui == 0.0f ? 0.0f : (float) euStored / euCapacityGui;
     }
 
     @Override
-    protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {}
-
-    private float getFillMultiplier() {
-        return euCapacity == 0.0f ? 0.0f : ((float) euStored) / ((float) euCapacity);
+    public boolean supportsPowerPanel() {
+        return false;
     }
+
+    @Override
+    public boolean showRecipeTextInGUI() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldDisplayCheckRecipeResult() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsMaintenanceIssueHoverable() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsSingleRecipeLocking() {
+        return false;
+    }
+
+    @Override
+    protected boolean useMui2() {
+        return true;
+    }
+
+    @Override
+    protected @NotNull MTEMultiBlockBaseGui<?> getGui() {
+        return new HEHydroDamTileEntityGui(this);
+    }
+
 }
