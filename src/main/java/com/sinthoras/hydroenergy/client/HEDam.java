@@ -79,7 +79,7 @@ public class HEDam {
     }
 
     public boolean renderAsDebug() {
-        return mode != HE.DamMode.SPREAD;
+        return mode == HE.DamMode.DEBUG;
     }
 
     public float getWaterLevelForPhysicsAndLighting() {
