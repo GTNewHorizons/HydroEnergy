@@ -445,11 +445,6 @@ public abstract class HEHydroTurbineTileEntity extends HETieredTileEntity {
     }
 
     @Override
-    public boolean isPowerPassButtonEnabled() {
-        return false;
-    }
-
-    @Override
     public boolean isSafeVoidButtonEnabled() {
         return false;
     }

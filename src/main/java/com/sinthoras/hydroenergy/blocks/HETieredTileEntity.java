@@ -205,4 +205,24 @@ public abstract class HETieredTileEntity extends TTMultiblockBase implements ICo
         }
         return multiblockDefinition;
     }
+
+    @Override
+    protected boolean useMui2() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsSingleRecipeLocking() {
+        return false;
+    }
+
+    @Override
+    public boolean isPowerPassButtonEnabled() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsPowerPanel() {
+        return false;
+    }
 }
