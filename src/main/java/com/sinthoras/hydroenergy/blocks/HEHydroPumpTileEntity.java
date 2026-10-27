@@ -360,10 +360,7 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     }
 
     public HEHydroPumpTileEntity(int blockId, int tierId) {
-        super(
-                blockId + tierId,
-                "he_pump_" + GTValues.VN[tierId].toLowerCase(),
-                getLocalizedPumpName(tierId));
+        super(blockId + tierId, "he_pump_" + GTValues.VN[tierId].toLowerCase(), getLocalizedPumpName(tierId));
     }
 
     @Override
@@ -372,9 +369,8 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     }
 
     private static String getLocalizedPumpName(int tier) {
-        return StatCollector.translateToLocalFormatted(
-                "gt.blockmachines.he_pump.name",
-                GTValues.getLocalizedLongVoltageName(tier));
+        return StatCollector
+                .translateToLocalFormatted("gt.blockmachines.he_pump.name", GTValues.getLocalizedLongVoltageName(tier));
     }
 
     @Override
