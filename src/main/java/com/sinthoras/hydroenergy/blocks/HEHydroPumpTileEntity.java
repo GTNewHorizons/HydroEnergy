@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -359,10 +360,17 @@ public abstract class HEHydroPumpTileEntity extends HETieredTileEntity {
     }
 
     public HEHydroPumpTileEntity(int blockId, int tierId) {
-        super(
-                blockId + tierId,
-                "he_pump_" + GTValues.VN[tierId].toLowerCase(),
-                "Hydro Pump (" + GTValues.VN[tierId] + ")");
+        super(blockId + tierId, "he_pump_" + GTValues.VN[tierId].toLowerCase(), getLocalizedPumpName(tierId));
+    }
+
+    @Override
+    public String getLocalName() {
+        return getLocalizedPumpName(getTier());
+    }
+
+    private static String getLocalizedPumpName(int tier) {
+        return StatCollector
+                .translateToLocalFormatted("gt.blockmachines.he_pump.name", GTValues.getLocalizedLongVoltageName(tier));
     }
 
     @Override
