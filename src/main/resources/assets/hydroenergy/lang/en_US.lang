@@ -19,3 +19,26 @@ tile.water12.name=Water
 tile.water13.name=tWater
 tile.water14.name=Water
 tile.water15.name=Water
+
+dam.gui.text.tier=Hydro Dam Tier: %s
+dam.gui.text.stored=%s EU / %s EU
+dam.gui.text.in=IN: %s EU/t
+dam.gui.text.out=OUT: %s EU/t
+dam.gui.text.upgrade=Upgrade circuit config to >%d
+dam.gui.tooltip.configure_dam=Configure Dam
+
+dam.gui.config.text.spread_limit=Water Spread Limits
+dam.gui.config.text.direction.0=Y
+dam.gui.config.text.direction.1=Z
+dam.gui.config.text.direction.2=X
+dam.gui.config.text.interval=< %s <
+dam.gui.config.text.limit=%s Limit (%s%s)
+dam.gui.config.text.limit.0=Lower
+dam.gui.config.text.limit.1=Upper
+dam.gui.config.text.limit.2=Northern
+dam.gui.config.text.limit.3=Southern
+dam.gui.config.text.limit.4=Western
+dam.gui.config.text.limit.5=Eastern
+dam.gui.config.tooltip.drain=Remove water from world
+dam.gui.config.tooltip.debug=Spread water to world and show bounds
+dam.gui.config.tooltip.spread=Spread water to world
