@@ -9,6 +9,7 @@ import com.sinthoras.hydroenergy.client.renderer.HETessalator;
 import com.sinthoras.hydroenergy.server.HEBlockQueue;
 import com.sinthoras.hydroenergy.server.HEServer;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -62,8 +63,9 @@ public class HEHooksFML {
         isLoggedIn = false;
     }
 
+    // Before other mods' tick ends (CubicChunks lights its client cubes there): cubes received this tick are patched
     @SideOnly(Side.CLIENT)
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public void onEvent(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             HELightManager.scanPendingCubes();
