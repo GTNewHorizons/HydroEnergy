@@ -65,8 +65,9 @@ public class HEHooksFML {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onEvent(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && isLoggedIn) {
-            HELightManager.onTick();
+        if (event.phase == TickEvent.Phase.END) {
+            HELightManager.scanPendingCubes();
+            if (isLoggedIn) HELightManager.onTick();
         }
     }
 }

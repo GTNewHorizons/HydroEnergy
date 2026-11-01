@@ -18,7 +18,7 @@ public class CubeMixin {
     private void onCubeData(CallbackInfo ci) {
         Cube cube = (Cube) (Object) this;
         if (cube.getWorld().isRemote) {
-            HELightManager.onSectionDataLoad(cube.getWorld(), cube.getX(), cube.getY(), cube.getZ());
+            HELightManager.onCubeDataLoad(cube.getWorld(), cube.getX(), cube.getY(), cube.getZ());
         }
     }
 

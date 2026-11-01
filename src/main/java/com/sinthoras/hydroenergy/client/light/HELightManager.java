@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,9 +31,12 @@ public class HELightManager {
     private static final float[] waterLevelOfLastUpdate = new float[HEConfig.maxDams];
     private static final long[] timestampsNextUpdate = new long[HEConfig.maxDams];
     private static final Map<HESectionPos, LightSection> sections = new HashMap<>();
+    /** Cubes whose data changed this tick, scanned by {@link #scanPendingCubes} at its end. */
+    private static final Set<HESectionPos> pendingCubes = new LinkedHashSet<>();
 
     public static void clear() {
         sections.clear();
+        pendingCubes.clear();
         Arrays.fill(waterLevelOfLastUpdate, 0);
         Arrays.fill(timestampsNextUpdate, 0);
     }
@@ -42,7 +46,9 @@ public class HELightManager {
     }
 
     public static void onSectionUnload(int x, int y, int z) {
-        sections.remove(new HESectionPos(x, y, z));
+        HESectionPos pos = new HESectionPos(x, y, z);
+        sections.remove(pos);
+        pendingCubes.remove(pos);
     }
 
     public static void onChunkDataLoad(Chunk chunk) {
@@ -71,6 +77,27 @@ public class HELightManager {
             sections.put(pos, section);
             patch(world, pos, section);
         }
+    }
+
+    /**
+     * A cube's data changed. CubicChunks marks a cube for rendering when it receives or relights it, and also right
+     * before it unloads one, so the scan waits for the end of the client tick: once per cube and tick, and not at all
+     * for a cube unloaded in the meantime. It runs before the frame is rendered.
+     */
+    public static void onCubeDataLoad(World world, int x, int y, int z) {
+        if (!world.isRemote || world != Minecraft.getMinecraft().theWorld) return;
+        pendingCubes.add(new HESectionPos(x, y, z));
+    }
+
+    public static void scanPendingCubes() {
+        if (pendingCubes.isEmpty()) return;
+        World world = Minecraft.getMinecraft().theWorld;
+        if (world != null) {
+            for (HESectionPos pos : pendingCubes) {
+                onSectionDataLoad(world, pos.x, pos.y, pos.z);
+            }
+        }
+        pendingCubes.clear();
     }
 
     public static void onSetBlock(int x, int y, int z, Block block, Block oldBlock) {
