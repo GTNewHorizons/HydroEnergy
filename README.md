@@ -30,6 +30,7 @@ The mod-pack GregTech: New Horizons contains explanatory quests for this mod in 
  - Minecraft Forge
  - [GregTech5-Unofficial](https://github.com/GTNewHorizons/GT5-Unofficial)
  - [SpongeMixins](https://github.com/GTNewHorizons/SpongeMixins)
+ - [ModularUI2](https://github.com/GTNewHorizons/ModularUI2)
 
 ### Known issues
  - Apple dropped some OpenGL support. Rendering is not quite possible on new Mac's. There is a backup in place, but you will have to deal with things looking not quite right.

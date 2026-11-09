@@ -1,5 +1,6 @@
 package com.sinthoras.hydroenergy;
 
+import com.sinthoras.hydroenergy.client.gui.HEGuiTextures;
 import com.sinthoras.hydroenergy.hooks.HEHooksClient;
 import com.sinthoras.hydroenergy.hooks.HEHooksShared;
 
@@ -34,6 +35,8 @@ public class HEMod {
         HE.debug("Registered sided proxy for: " + (proxy instanceof HEHooksClient ? "Client" : "Dedicated server"));
         HE.debug("preInit()" + event.getModMetadata().name);
         proxy.fmlLifeCycleEvent(event);
+
+        HEGuiTextures.init();
     }
 
     @Mod.EventHandler

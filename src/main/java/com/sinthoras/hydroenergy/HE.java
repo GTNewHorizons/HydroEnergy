@@ -1,18 +1,14 @@
 package com.sinthoras.hydroenergy;
 
-import static net.minecraft.util.EnumChatFormatting.*;
-
 import net.minecraft.item.ItemStack;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.sinthoras.hydroenergy.blocks.HEWaterStill;
-import com.sinthoras.hydroenergy.client.gui.HEGuiHandler;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.fluids.HEPressurizedWater;
 
-import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import gregtech.api.enums.GTValues;
 
@@ -47,7 +43,6 @@ public class HE {
     public static ItemStack[] hydroTurbineBlocks = new ItemStack[GTValues.VN.length - 1];
 
     public static boolean DEBUGslowFill = false;
-    public static final IGuiHandler guiHandler = new HEGuiHandler();
 
     // Texture locations
     public static String damBackgroundLocation = "textures/gui/he_water_config.png";

@@ -121,6 +121,10 @@ public class HEServer extends WorldSavedData {
         }
     }
 
+    public HE.DamMode getMode(int waterId) {
+        return dams[waterId].getMode();
+    }
+
     public void setMode(int waterId, HE.DamMode mode) {
         dams[waterId].setMode(mode);
     }
