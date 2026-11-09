@@ -1,11 +1,17 @@
 package com.sinthoras.hydroenergy.server;
 
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 
 import com.sinthoras.hydroenergy.HE;
 import com.sinthoras.hydroenergy.HETags;
 import com.sinthoras.hydroenergy.HEUtil;
+import com.sinthoras.hydroenergy.HEWorld;
 import com.sinthoras.hydroenergy.config.HEConfig;
 import com.sinthoras.hydroenergy.network.packet.HEPacketConfigUpdate;
 import com.sinthoras.hydroenergy.network.packet.HEPacketWaterUpdate;
@@ -22,7 +28,7 @@ public class HEDam {
     public int limitWest;
     public int limitSouth;
     public int limitNorth;
-    private int[] blocksPerY = new int[256];
+    private final NavigableMap<Integer, Integer> blocksPerY = new TreeMap<>();
     private int blockX;
     private int blockY;
     private int blockZ;
@@ -33,7 +39,7 @@ public class HEDam {
     private String ownerName = "";
 
     private final int waterId;
-    private final long[] euCapacityUpToY = new long[256];
+    private final NavigableMap<Integer, Long> euCapacityUpToY = new TreeMap<>();
     private long timestampLastUpdate = 0;
 
     public HEDam(int waterId) {
@@ -50,7 +56,14 @@ public class HEDam {
         limitWest = compound.getInteger(HETags.limitWest);
         limitSouth = compound.getInteger(HETags.limitSouth);
         limitNorth = compound.getInteger(HETags.limitNorth);
-        blocksPerY = compound.getIntArray(HETags.blocksPerY);
+        blocksPerY.clear();
+        boolean sparse = compound.hasKey("waterHeights", 11);
+        int[] counts = compound
+                .getIntArray(sparse && compound.hasKey("waterCounts", 11) ? "waterCounts" : HETags.blocksPerY);
+        int[] heights = compound.getIntArray("waterHeights");
+        for (int i = 0; i < counts.length && (!sparse || i < heights.length); i++) {
+            if (counts[i] > 0) blocksPerY.put(sparse ? heights[i] : i, counts[i]);
+        }
         blockX = compound.getInteger(HETags.blockX);
         blockY = compound.getInteger(HETags.blockY);
         blockZ = compound.getInteger(HETags.blockZ);
@@ -77,7 +90,21 @@ public class HEDam {
         compound.setInteger(HETags.limitWest, limitWest);
         compound.setInteger(HETags.limitSouth, limitSouth);
         compound.setInteger(HETags.limitNorth, limitNorth);
-        compound.setIntArray(HETags.blocksPerY, blocksPerY);
+        int[] heights = new int[blocksPerY.size()];
+        int[] counts = new int[blocksPerY.size()];
+        int index = 0;
+        for (Map.Entry<Integer, Integer> entry : blocksPerY.entrySet()) {
+            heights[index] = entry.getKey();
+            counts[index++] = entry.getValue();
+        }
+        compound.setIntArray("waterHeights", heights);
+        compound.setIntArray("waterCounts", counts);
+        // Keep the old tag valid for ordinary-height worlds opened with an older HydroEnergy build.
+        int[] legacyCounts = new int[256];
+        for (Map.Entry<Integer, Integer> entry : blocksPerY.subMap(0, true, 256, false).entrySet()) {
+            legacyCounts[entry.getKey()] = entry.getValue();
+        }
+        compound.setIntArray(HETags.blocksPerY, legacyCounts);
         compound.setInteger(HETags.blockX, blockX);
         compound.setInteger(HETags.blockY, blockY);
         compound.setInteger(HETags.blockZ, blockZ);
@@ -225,7 +252,8 @@ public class HEDam {
         limitSouth = blockZ + 20;
         limitNorth = blockZ - 20;
         waterLevel = blockY;
-        blocksPerY = new int[256];
+        blocksPerY.clear();
+        euCapacityUpToY.clear();
         this.blockX = blockX;
         this.blockY = blockY;
         this.blockZ = blockZ;
@@ -239,11 +267,13 @@ public class HEDam {
     }
 
     public void onWaterRemoved(int blockY) {
-        blocksPerY[blockY]--;
+        int count = getBlocksOnY(blockY);
+        if (count <= 1) blocksPerY.remove(blockY);
+        else blocksPerY.put(blockY, count - 1);
     }
 
     public void onWaterPlaced(int blockY) {
-        blocksPerY[blockY]++;
+        blocksPerY.put(blockY, getBlocksOnY(blockY) + 1);
     }
 
     public float getWaterLevel() {
@@ -255,7 +285,7 @@ public class HEDam {
     }
 
     public int getBlocksOnY(int blockY) {
-        return blocksPerY[blockY];
+        return blocksPerY.getOrDefault(blockY, 0);
     }
 
     public int getBlockX() {
@@ -276,12 +306,18 @@ public class HEDam {
 
     public boolean onConfigRequest(HE.DamMode mode, int limitWest, int limitDown, int limitNorth, int limitEast,
             int limitUp, int limitSouth) {
-        // Clap change requests to server limits before processing
+        World world = MinecraftServer.getServer().worldServerForDimension(dimensionId);
+        if (world == null) return false;
+        // Clamp change requests to server and world limits before processing
         limitWest = blockX - HEUtil.clamp(blockX - limitWest, 0, HEConfig.maxWaterSpreadWest);
-        limitDown = blockY - HEUtil.clamp(blockY - limitDown, 0, HEConfig.maxWaterSpreadDown);
+        limitDown = Math.max(
+                HEWorld.minHeight(world),
+                blockY - HEUtil.clamp(blockY - limitDown, 0, HEConfig.maxWaterSpreadDown));
         limitNorth = blockZ - HEUtil.clamp(blockZ - limitNorth, 0, HEConfig.maxWaterSpreadNorth);
         limitEast = blockX + HEUtil.clamp(limitEast - blockX, 0, HEConfig.maxWaterSpreadEast);
-        limitUp = blockY + HEUtil.clamp(limitUp - blockY, 0, HEConfig.maxWaterSpreadUp);
+        limitUp = Math.min(
+                HEWorld.maxHeight(world) - 1,
+                blockY + HEUtil.clamp(limitUp - blockY, 0, HEConfig.maxWaterSpreadUp));
         limitSouth = blockZ + HEUtil.clamp(limitSouth - blockZ, 0, HEConfig.maxWaterSpreadSouth);
 
         if (this.mode != mode || this.limitWest != limitWest
@@ -298,12 +334,7 @@ public class HEDam {
             this.limitUp = limitUp;
             this.limitSouth = limitSouth;
             sendConfigUpdate();
-            HEBlockQueue.enqueueBlock(
-                    MinecraftServer.getServer().worldServerForDimension(dimensionId).provider.worldObj,
-                    waterBlockX,
-                    waterBlockY,
-                    waterBlockZ,
-                    waterId);
+            HEBlockQueue.enqueueBlock(world, waterBlockX, waterBlockY, waterBlockZ, waterId);
             return true;
         }
         return false;
@@ -319,40 +350,39 @@ public class HEDam {
 
     public long getEuCapacity() {
         long euCapacity = 0;
-        for (int blockY = this.blockY; blockY < HE.numChunksY * HE.chunkHeight; blockY++) {
-            euCapacity += blocksPerY[blockY] * HE.bucketToMilliBucket
-                    * HEConfig.euPerMilliBucket
-                    * (blockY - this.blockY + 1);
-            euCapacityUpToY[blockY] = euCapacity;
+        euCapacityUpToY.clear();
+        for (Map.Entry<Integer, Integer> entry : blocksPerY.tailMap(blockY, true).entrySet()) {
+            euCapacity += energyAt(entry.getKey(), entry.getValue());
+            euCapacityUpToY.put(entry.getKey(), euCapacity);
         }
         return euCapacity;
     }
 
-    // This method must be called after getEuCapacity (cause euCapacityUpToY[])
-    public long getEuCapacityAt(int blockY) {
-        return euCapacityUpToY[blockY];
+    private double energyAt(int y, int count) {
+        return (double) count * HE.bucketToMilliBucket * HEConfig.euPerMilliBucket * (y - blockY + 1L);
     }
 
-    // This method must be called after getEuCapacity (cause euCapacityUpToY[])
+    // Call getEuCapacity first to refresh the cumulative capacities.
+    public long getEuCapacityAt(int blockY) {
+        Map.Entry<Integer, Long> entry = euCapacityUpToY.floorEntry(blockY);
+        return entry == null ? 0 : entry.getValue();
+    }
+
     public void setWaterLevel(long euStored) {
-        for (int blockY = this.blockY; blockY < HE.numChunksY * HE.chunkHeight; blockY++) {
-            if (euStored < euCapacityUpToY[blockY]) {
-                float energyCapacityAtY = blocksPerY[blockY] * HE.bucketToMilliBucket
-                        * HEConfig.euPerMilliBucket
-                        * (blockY - this.blockY + 1);
-                float decimals = 1.0f + ((float) euStored - (float) euCapacityUpToY[blockY]) / energyCapacityAtY;
-                setWaterLevel(blockY + decimals);
+        long previousCapacity = 0;
+        for (Map.Entry<Integer, Long> entry : euCapacityUpToY.entrySet()) {
+            if (euStored < entry.getValue()) {
+                double fraction = (euStored - previousCapacity)
+                        / energyAt(entry.getKey(), getBlocksOnY(entry.getKey()));
+                setWaterLevel((float) (entry.getKey() + Math.max(0, fraction)));
                 return;
             }
+            previousCapacity = entry.getValue();
         }
+        setWaterLevel(euCapacityUpToY.isEmpty() ? (float) blockY : euCapacityUpToY.lastKey() + 1.0f);
     }
 
     public int getRainedOnBlocks() {
-        for (int blockY = 255; blockY >= 0; blockY--) {
-            if (blocksPerY[blockY] > 0) {
-                return blocksPerY[blockY];
-            }
-        }
-        return 0;
+        return blocksPerY.isEmpty() ? 0 : blocksPerY.lastEntry().getValue();
     }
 }

@@ -4,10 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldEvent;
+import net.minecraftforge.event.world.WorldEvent;
 
 import com.sinthoras.hydroenergy.client.light.HELightManager;
 import com.sinthoras.hydroenergy.client.renderer.HEProgram;
 import com.sinthoras.hydroenergy.client.renderer.HETessalator;
+import com.sinthoras.hydroenergy.server.HEBlockQueue;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -15,6 +17,20 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class HEHooksEVENT_BUS {
+
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event) {
+        if (!event.world.isRemote) HEBlockQueue.onWorldUnload(event.world);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onClientWorldUnload(WorldEvent.Unload event) {
+        if (event.world.isRemote) {
+            HELightManager.clear();
+            Minecraft.getMinecraft().func_152344_a(HETessalator::clear);
+        }
+    }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent

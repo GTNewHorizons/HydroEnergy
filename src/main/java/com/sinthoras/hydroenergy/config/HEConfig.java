@@ -98,7 +98,7 @@ public class HEConfig {
                 Defaults.delayBetweenSpreadingChunks,
                 "[SERVER] Delay"
                         + " in milliseconds the game will wait between processing a chunk for water spreading. Keep in "
-                        + "mind, that a single tick takes care of a whole chunk between y=0 and y=255 at once!");
+                        + "mind, that spreading resumes across ticks with bounded work, including all loaded vertical sections of a column.");
         delayBetweenSpreadingChunks = spreadingDelayBetweenPerChunksProperty.getInt();
 
         Property minLightUpdateTimePerSubChunkProperty = configuration.get(

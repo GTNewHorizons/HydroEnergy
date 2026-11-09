@@ -66,11 +66,12 @@ public class HEDam {
     // Clamp change requests to config limits
     private void verifyChanges() {
         pendingLimitWest = blockX - HEUtil.clamp(blockX - pendingLimitWest, 0, HEConfig.maxWaterSpreadWest);
-        pendingLimitDown = Math
-                .max(blockY - HEUtil.clamp(blockY - pendingLimitDown, 0, HEConfig.maxWaterSpreadDown), 0);
+        // Config packets include dams in other dimensions and may arrive before client world bounds.
+        // The server validates physical height against the dam's own world when applying changes.
+        pendingLimitDown = blockY - HEUtil.clamp(blockY - pendingLimitDown, 0, HEConfig.maxWaterSpreadDown);
         pendingLimitNorth = blockZ - HEUtil.clamp(blockZ - pendingLimitNorth, 0, HEConfig.maxWaterSpreadNorth);
         pendingLimitEast = blockX + HEUtil.clamp(pendingLimitEast - blockX, 0, HEConfig.maxWaterSpreadEast);
-        pendingLimitUp = Math.min(blockY + HEUtil.clamp(pendingLimitUp - blockY, 0, HEConfig.maxWaterSpreadUp), 255);
+        pendingLimitUp = blockY + HEUtil.clamp(pendingLimitUp - blockY, 0, HEConfig.maxWaterSpreadUp);
         pendingLimitSouth = blockZ + HEUtil.clamp(pendingLimitSouth - blockZ, 0, HEConfig.maxWaterSpreadSouth);
     }
 
@@ -86,7 +87,7 @@ public class HEDam {
         if (mode == HE.DamMode.SPREAD) {
             return waterLevel;
         } else {
-            return 0.0f;
+            return -Float.MAX_VALUE;
         }
     }
 
@@ -94,7 +95,7 @@ public class HEDam {
         if (mode == HE.DamMode.SPREAD) {
             return waterLevel;
         } else {
-            return 256.0f;
+            return Float.MAX_VALUE;
         }
     }
 

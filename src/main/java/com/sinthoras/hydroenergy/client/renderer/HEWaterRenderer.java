@@ -17,16 +17,31 @@ import com.sinthoras.hydroenergy.client.HEClient;
 import com.sinthoras.hydroenergy.config.HEConfig;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
+import cpw.mods.fml.common.Loader;
 
 public class HEWaterRenderer extends RenderBlockFluid {
 
     public static HEWaterRenderer instance = new HEWaterRenderer();
     private final int renderID = RenderingRegistry.getNextAvailableRenderId();
 
+    private static boolean shaderRendering;
+
+    public static void initRendering() {
+        // The shader cache depends on vanilla WorldRenderer's column lifecycle and GL thread.
+        // Use the existing block renderer with cube-aware or asynchronous chunk renderers.
+        shaderRendering = !HEConfig.useLimitedRendering && !Loader.isModLoaded("cubicchunks")
+                && !Loader.isModLoaded("angelica")
+                && GLContext.getCapabilities().OpenGL32;
+    }
+
+    public static boolean usesShaderRendering() {
+        return shaderRendering;
+    }
+
     @Override
     public float getFluidHeightForRender(IBlockAccess world, int blockX, int blockY, int blockZ, BlockFluidBase block) {
         HEWaterStill water = (HEWaterStill) block;
-        float val = water.getWaterLevel() - blockY;
+        float val = HEClient.getDam(water.getWaterId()).getWaterLevelForRendering() - blockY;
         return HEUtil.clamp(val, 0.0f, 1.0f);
     }
 
@@ -46,7 +61,7 @@ public class HEWaterRenderer extends RenderBlockFluid {
             return false;
         }
 
-        if (GLContext.getCapabilities().OpenGL32 && !HEConfig.useLimitedRendering) {
+        if (usesShaderRendering()) {
             neighbors[0] = world.getBlock(blockX - 1, blockY, blockZ);
             neighbors[1] = world.getBlock(blockX + 1, blockY, blockZ);
             neighbors[2] = world.getBlock(blockX, blockY - 1, blockZ);
@@ -89,7 +104,9 @@ public class HEWaterRenderer extends RenderBlockFluid {
             int densityDir = -1;
             int bMeta = world.getBlockMetadata(blockX, blockY, blockZ);
 
-            boolean renderTop = renderedWaterLevel > blockY && renderedWaterLevel <= blockY + 1;
+            boolean renderTop = (renderedWaterLevel > blockY && renderedWaterLevel <= blockY + 1)
+                    || (HEClient.getDam(water.getWaterId()).renderAsDebug()
+                            && block.shouldSideBeRendered(world, blockX, blockY + 1, blockZ, 1));
 
             boolean renderBottom = block.shouldSideBeRendered(world, blockX, blockY + densityDir, blockZ, 0)
                     && world.getBlock(blockX, blockY + densityDir, blockZ) != theFluid;

@@ -62,11 +62,18 @@ public class HEWater extends BlockFluidBase implements IHEHasCustomMaterialCalcu
 
     @Override
     public int getLightOpacity() {
-        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT
+                && FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
             return HE.waterOpacity;
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public int getLightOpacity(IBlockAccess world, int x, int y, int z) {
+        // An integrated server runs on the physical client, but virtual water must remain transparent there.
+        return world instanceof World && !((World) world).isRemote ? 0 : HE.waterOpacity;
     }
 
     @Override
